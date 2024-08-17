@@ -8,10 +8,79 @@
     <artifactId>Sculk</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <inceptionYear>2024</inceptionYear>
+    <organization>
+        <name>sculkmp</name>
+        <url>https://github.com/sculkmp</url>
+    </organization>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/sculkmp/Sculk/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/sculkmp/Sculk.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/sculkmp/Sculk.git</developerConnection>
+        <url>https://github.com/sculkmp/Sculk</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License, Version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <contributors>
+        <contributor>
+            <name>Sculk contributors</name>
+            <url>https://github.com/sculkmp/Sculk/graphs/contributors</url>
+        </contributor>
+    </contributors>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.4.2</version>
+            <type>maven-plugin</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.sculk.Sculk</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
