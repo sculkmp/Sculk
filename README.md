@@ -51,7 +51,8 @@ dependencies {
 | Milestone                                | Status |
 |------------------------------------------|--------|
 | **⚒️ Construction of the server tree**   | ✅     |
-| **🛜 Join server**                       | 🚧     |
+| **🛜 Join server**                       | ⏳     |
+| **🎍 World loader**                      | 🚧     |
 | **🔌Plugin loader**                      | 🚧     |
 | **⌨️ Command System**                    | 🚧     |
 | **🔐 Permission System**                 | 🚧     |
@@ -67,6 +68,7 @@ dependencies {
 Here's a legend to guide you:
 - ✅: Task is completed. Woohoo! 🎉
 - 🚧: Task is under way. We're on it! 💪
+- ⏳: Task is up next. Exciting things are coming! 🌠
 
 ## ⚒️ Build JAR file
 - `git clone https://github.com/sculkmp/Sculk`
