@@ -1,5 +1,8 @@
 package org.sculk.network.protocol;
 
+import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
+import org.cloudburstmc.protocol.bedrock.codec.v712.Bedrock_v712;
+
 /*
  *   ____             _ _              __  __ ____
  *  / ___|  ___ _   _| | | __         |  \/  |  _ \
@@ -18,6 +21,8 @@ package org.sculk.network.protocol;
 public interface ProtocolInfo {
 
     int CURRENT_PROTOCOL = Integer.parseInt("712");
+
+    BedrockCodec CODEC = Bedrock_v712.CODEC;
 
     String MINECRAFT_VERSION_NETWORK = "1.21.20";
     String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;

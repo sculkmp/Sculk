@@ -1,4 +1,6 @@
-package org.sculk.world;
+package org.sculk.console;
+
+import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 
 /*
  *   ____             _ _              __  __ ____
@@ -15,6 +17,17 @@ package org.sculk.world;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class WorldManager {
+public class ConsoleThread extends Thread {
 
+    private final TerminalConsole console;
+
+    public ConsoleThread(TerminalConsole console) {
+        super("Sculk-MP Minecraft: Bedrock Edition");
+        this.console = console;
+    }
+
+    @Override
+    public void run() {
+        this.console.start();
+    }
 }

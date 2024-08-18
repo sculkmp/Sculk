@@ -25,6 +25,13 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
+        <!-- Capture SLF4J logs -->
+        <Logger name="org.slf4j" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Logger>
+
+        <!-- Root Logger -->
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>

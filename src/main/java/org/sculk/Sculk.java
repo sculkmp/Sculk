@@ -6,8 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.utils.TextFormat;
 
-import java.io.IOException;
-
 /*
  *   ____             _ _              __  __ ____
  *  / ___|  ___ _   _| | | __         |  \/  |  _ \

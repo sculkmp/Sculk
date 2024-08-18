@@ -85,6 +85,14 @@
             </snapshots>
         </repository>
         <repository>
+            <id>opencollab-snapshots</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+        </repository>
+        <repository>
+            <id>opencollab-releases</id>
+            <url>https://repo.opencollab.dev/maven-releases/</url>
+        </repository>
+        <repository>
             <id>central</id>
             <name>Maven Central</name>
             <url>https://repo1.maven.org/maven2/</url>
@@ -102,7 +110,12 @@
     </repositories>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.cloudburstmc.protocol</groupId>
+            <artifactId>bedrock-connection</artifactId>
+            <version>3.0.0.Beta1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>

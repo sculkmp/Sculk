@@ -1,10 +1,21 @@
 package org.sculk;
 
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+
 import org.apache.logging.log4j.Logger;
 import org.sculk.config.Config;
+import org.sculk.console.TerminalConsole;
+import org.sculk.network.EventLoops;
+import org.sculk.network.Network;
+import org.sculk.thread.ThreadFactoryBuilder;
 import org.sculk.utils.TextFormat;
 
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -27,11 +38,17 @@ import java.util.UUID;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
+@Log4j2
 public class Server {
 
     private static Server instance = null;
 
     private final Logger logger;
+    private final TerminalConsole console;
+
+    private Network network;
+    private final EventLoopGroup bossEventLoopGroup;
+    private final EventLoopGroup workerEventLoopGroup;
 
     private final Path dataPath;
     private final Path pluginDataPath;
@@ -43,8 +60,13 @@ public class Server {
     private final Config banByName;
     private final Config banByIp;
 
-
     private final Map<UUID, Player> playerList = new HashMap<>();
+
+    private String motd;
+    private int maxPlayers;
+    private String defaultGamemode;
+
+    public volatile boolean shutdown = false;
 
     @SneakyThrows
     public Server(Logger logger, String dataPath) {
@@ -75,7 +97,7 @@ public class Server {
             this.properties.set("server-ip", "0.0.0.0");
             this.properties.set("white-list", false);
             this.properties.set("max-players", 20);
-            this.properties.set("gamemode", "SURVIVAL");
+            this.properties.set("gamemode", "Survival");
             this.properties.set("pvp", true);
             this.properties.set("difficulty", 1);
             this.properties.set("level-name", "world");
@@ -85,6 +107,7 @@ public class Server {
             this.properties.set("xbox-auth", true);
             this.properties.save();
         }
+        this.motd = this.properties.getString("motd");
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
         this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
@@ -93,6 +116,43 @@ public class Server {
 
         logger.info("Selected {} as the base language", this.properties.getString("language"));
         logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
+
+        EventLoops.ChannelType channelType = EventLoops.getChannelType();
+        this.logger.info("Using " + channelType.name() + " channel implementation as default!");
+        for (EventLoops.ChannelType type : EventLoops.ChannelType.values()) {
+            this.logger.debug("Supported " + type.name() + " channels: " + type.isAvailable());
+        }
+
+        ThreadFactoryBuilder workerFactory = ThreadFactoryBuilder.builder()
+                .format("Bedrock Listener - #%d")
+                .daemon(true)
+                .build();
+        ThreadFactoryBuilder bossFactory = ThreadFactoryBuilder.builder()
+                .format("RakNet Listener - #%d")
+                .daemon(true)
+                .build();
+        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, workerFactory);
+        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, bossFactory);
+
+        this.console = new TerminalConsole(this);
+        this.start();
+    }
+
+    public void start() {
+        this.console.getConsoleThread().start();
+
+        //String serverIP = this.properties.getString("server-ip", "0.0.0.0");
+        //int port = this.properties.getInt("server-port", 19132);
+        
+        //getLogger().info(serverIP);
+        //getLogger().info(port);
+        
+        InetSocketAddress bindAddress = new InetSocketAddress("0.0.0.0", 19132);
+        this.bindChannels(bindAddress);
+        // TODO: Load server raknet
+        getLogger().info("Minecraft network interface running on {}", bindAddress);
+        
+
         if(this.properties.getBoolean("xbox-auth")) {
             logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
         } else {
@@ -100,11 +160,30 @@ public class Server {
         }
         logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
         logger.info("Sculk-MP is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
-        start();
+
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+        getLogger().info("Done ("+ (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000 +"s)! For help, type \"help\" or \"?");
     }
 
-    public void start() {
-        getLogger().info("Done ({}s)! For help, type \"help\" or \"?", String.valueOf((double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000));
+    private void bindChannels(InetSocketAddress address) {
+        boolean allowEpool = Epoll.isAvailable();
+        
+    }
+
+    public void shutdown() {
+        if(this.shutdown) {
+            return;
+        }
+        this.logger.info("Stopping the server");
+        this.shutdown = true;
+
+        this.console.getConsoleThread().interrupt();
+        this.logger.info("Stopping other threads");
+    }
+
+    public boolean isRunning() {
+        return !this.shutdown;
     }
 
     public static Server getInstance() {
@@ -135,4 +214,11 @@ public class Server {
         return config;
     }
 
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public String getDefaultGamemode() {
+        return defaultGamemode;
+    }
 }
