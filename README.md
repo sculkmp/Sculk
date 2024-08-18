@@ -33,7 +33,7 @@ For maven:
     <dependency>
         <groupId>com.github.sculkmp</groupId>
         <artifactId>Sculk</artifactId>
-        <version>Software Version</version>
+        <version>Tag</version>
     </dependency>
 </dependencies>
 ```
@@ -50,6 +50,7 @@ dependencies {
 
 | Milestone                                | Status |
 |------------------------------------------|--------|
+| **⚒️ Construction of the server tree**   | ✅     |
 | **🛜 Join server**                       | 🚧     |
 | **🔌Plugin loader**                      | 🚧     |
 | **⌨️ Command System**                    | 🚧     |
