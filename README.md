@@ -2,7 +2,6 @@
 <div align="center">
 <h3>Open source server software for Minecraft: Bedrock Edition written in Java</h3>
 
-[![Codacy Badge](https://img.shields.io/codacy/grade/fc458765bcb449d2aa3b77be91ec1763?logo=codacy)]()
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
