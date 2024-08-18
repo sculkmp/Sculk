@@ -3,6 +3,7 @@ package org.sculk.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.sculk.Server;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -146,7 +147,7 @@ public class Config {
                 this.file.getParentFile().mkdirs();
                 this.file.createNewFile();
             } catch (IOException e) {
-                MainLogger.getLogger().error("Could not create Config " + this.file.toString(), e);
+                Server.getInstance().getLogger().error("Could not create Config {}", this.file.toString(), e);
             }
             this.config = defaultMap;
             this.save();
@@ -167,7 +168,7 @@ public class Config {
                 try {
                     content = Utils.readFile(this.file);
                 } catch (IOException e) {
-                    Server.getInstance().getLogger().logException(e);
+                    Server.getInstance().getLogger().error(e);
                 }
                 this.parseContent(content);
                 if (!this.correct) return false;
@@ -188,7 +189,7 @@ public class Config {
             try {
                 content = Utils.readFile(inputStream);
             } catch (IOException e) {
-                Server.getInstance().getLogger().logException(e);
+                Server.getInstance().getLogger().error(e);
                 return false;
             }
             this.parseContent(content);
@@ -251,15 +252,10 @@ public class Config {
                     }
                     break;
             }
-            if (async) {
-                Server.getInstance().getScheduler().scheduleAsyncTask(new FileWriteTask(this.file, content.toString()));
-
-            } else {
-                try {
-                    Utils.writeFile(this.file, content.toString());
-                } catch (IOException e) {
-                    Server.getInstance().getLogger().logException(e);
-                }
+            try {
+                Utils.writeFile(this.file, content.toString());
+            } catch (IOException e) {
+                Server.getInstance().getLogger().error(e);
             }
             return true;
         } else {
@@ -495,7 +491,7 @@ public class Config {
                 final String value = line.substring(splitIndex + 1);
                 final String valueLower = value.toLowerCase();
                 if (this.config.containsKey(key)) {
-                    MainLogger.getLogger().debug("[Config] Repeated property " + key + " on file " + this.file.toString());
+                    Server.getInstance().getLogger().debug("[Config] Repeated property {} on file {}", key, this.file.toString());
                 }
                 switch (valueLower) {
                     case "on":

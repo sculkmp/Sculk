@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sculk.network.protocol.ProtocolInfo;
+import org.sculk.utils.TextFormat;
 
 import java.io.IOException;
 
@@ -36,12 +37,11 @@ public class Sculk {
         System.out.println("Starting SculkMP...");
 
         Logger logger = LogManager.getLogger(Sculk.class);
-        logger.info("§bStarting SculkMP software");
-        logger.info("§cMinecraft Version: {}", MINECRAFT_VERSION);
+        logger.info("{}Starting SculkMP software", TextFormat.WHITE);
 
         int javaVersion = getJavaVersion();
         if(javaVersion < 21) {
-            logger.error("Using unsupported Java version! Minimum supported version is Java 21, found java {}", javaVersion);
+            logger.error("{}Using unsupported Java version! Minimum supported version is Java 21, found java {}", TextFormat.RED, javaVersion);
             LogManager.shutdown();
             return;
         }

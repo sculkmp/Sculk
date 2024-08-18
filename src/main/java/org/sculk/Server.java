@@ -1,6 +1,9 @@
 package org.sculk;
 
 import org.apache.logging.log4j.Logger;
+import org.sculk.utils.Config;
+import org.sculk.utils.ConfigSection;
+import org.sculk.utils.TextFormat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +31,8 @@ public class Server {
     private final Path dataPath;
     private final Path pluginDataPath;
 
+    private Config properties;
+
     public Server(Logger logger, String dataPath) {
         instance = this;
         this.logger = logger;
@@ -44,6 +49,28 @@ public class Server {
         if(!resourcePath.toFile().exists()) resourcePath.toFile().mkdirs();
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
+        logger.info("Loading server configuration");
+        this.properties = new Config(this.dataPath + "server.properties", Config.PROPERTIES, new ConfigSection() {
+            {
+                put("language", "eng");
+                put("motd", "A Sculk Server");
+                put("server-port", 19132);
+                put("server-ip", "0.0.0.0");
+                put("white-list", false);
+                put("max-players", 20);
+                put("gamemode", "SURVIVAL");
+                put("pvp", true);
+                put("difficulty", 1);
+                put("level-name", "world");
+                put("level-seed", "");
+                put("level-type", "DEFAULT");
+                put("auto-save", true);
+                put("xbox-auth", true);
+            }
+        });
+        this.properties.save();
+
+        logger.info("Selected English (eng) as the base language");
         logger.info("§aserver start");
     }
 
@@ -63,4 +90,7 @@ public class Server {
         return pluginDataPath;
     }
 
+    public Config getProperties() {
+        return properties;
+    }
 }

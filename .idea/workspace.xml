@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
+    <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e9c9f0d-c165-4802-9372-1a52818db579" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/TextFormat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Utils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/exception/InvalidConfigurationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigurationManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/Configuration.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/ServerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigSection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/YamlConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +26,7 @@
       <list>
         <option value="Interface" />
         <option value="Class" />
+        <option value="Enum" />
       </list>
     </option>
     <option name="SCHEME" value="Project" />
@@ -48,33 +49,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Sculk --enable-title.executor": "Run",
-    "Application.Sculk.executor": "Run",
-    "Maven.Sculk [clean].executor": "Run",
-    "Maven.Sculk [install].executor": "Run",
-    "Maven.Sculk [package].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Sculk --enable-title.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Sculk.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Sculk [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Sculk [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Sculk [package].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.build.tools.auto.reload&quot;: &quot;ALL&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;build.tools&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.sculk.utils" />
@@ -150,7 +152,8 @@
       <option name="presentableId" value="Default" />
       <updated>1723934350175</updated>
       <workItem from="1723934351635" duration="4215000" />
-      <workItem from="1723938633220" duration="14626000" />
+      <workItem from="1723938633220" duration="16345000" />
+      <workItem from="1723955944796" duration="764000" />
     </task>
     <servers />
   </component>
