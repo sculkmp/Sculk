@@ -5,23 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e9c9f0d-c165-4802-9372-1a52818db579" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/easycode.ignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/VersionInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/exception/InvalidConfigurationException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/network/protocol/ProtocolInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigurationManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/Configuration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/ServerConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/YamlConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.component.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/exception/InvalidConfigurationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigurationManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/Configuration.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/ServerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigSection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/YamlConfig.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,7 +150,7 @@
       <option name="presentableId" value="Default" />
       <updated>1723934350175</updated>
       <workItem from="1723934351635" duration="4215000" />
-      <workItem from="1723938633220" duration="12446000" />
+      <workItem from="1723938633220" duration="14626000" />
     </task>
     <servers />
   </component>

@@ -1,8 +1,6 @@
 package org.sculk;
 
-import lombok.Getter;
 import org.apache.logging.log4j.Logger;
-import org.sculk.utils.ConfigurationManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +24,6 @@ public class Server {
 
     private static Server instance = null;
     private final Logger logger;
-    private final ConfigurationManager configurationManager;
 
     private final Path dataPath;
     private final Path pluginDataPath;
@@ -47,9 +44,6 @@ public class Server {
         if(!resourcePath.toFile().exists()) resourcePath.toFile().mkdirs();
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
-        this.configurationManager = new ConfigurationManager(this);
-        this.configurationManager.loadConfig();
-
         logger.info("§aserver start");
     }
 
@@ -67,10 +61,6 @@ public class Server {
 
     public Path getPluginDataPath() {
         return pluginDataPath;
-    }
-
-    public ConfigurationManager getConfigurationManager() {
-        return configurationManager;
     }
 
 }
