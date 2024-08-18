@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e9c9f0d-c165-4802-9372-1a52818db579" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/TextFormat.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Utils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,7 +148,7 @@
       <updated>1723934350175</updated>
       <workItem from="1723934351635" duration="4215000" />
       <workItem from="1723938633220" duration="16345000" />
-      <workItem from="1723955944796" duration="764000" />
+      <workItem from="1723955944796" duration="4957000" />
     </task>
     <servers />
   </component>
