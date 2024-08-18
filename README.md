@@ -20,6 +20,8 @@ Sculk is open source server software for Minecraft: Bedrock Edition, It has a fe
 
 ## ✨ Creating plugins
 Add SculkMP to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
+
+For maven:
 ```xml
 <repositories>
     <repository>
@@ -34,6 +36,19 @@ Add SculkMP to your dependencies *(it is hosted by JitPack, so you need to speci
         <version>Software Version</version>
     </dependency>
 </dependencies>
+```
+For gradle:
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+dependencies {
+    implementation 'com.github.sculkmp:Sculk:Tag'
+}
 ```
 
 | Milestone                                | Status |
