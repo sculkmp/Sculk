@@ -1,12 +1,16 @@
 package org.sculk;
 
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.Logger;
-import org.sculk.utils.Config;
-import org.sculk.utils.ConfigSection;
+import org.sculk.config.Config;
 import org.sculk.utils.TextFormat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /*
  *   ____             _ _              __  __ ____
@@ -26,13 +30,23 @@ import java.nio.file.Paths;
 public class Server {
 
     private static Server instance = null;
+
     private final Logger logger;
 
     private final Path dataPath;
     private final Path pluginDataPath;
 
-    private Config properties;
+    private final Config properties;
+    private final Config config;
+    private final Config operators;
+    private final Config whitelist;
+    private final Config banByName;
+    private final Config banByIp;
 
+
+    private final Map<UUID, Player> playerList = new HashMap<>();
+
+    @SneakyThrows
     public Server(Logger logger, String dataPath) {
         instance = this;
         this.logger = logger;
@@ -49,29 +63,48 @@ public class Server {
         if(!resourcePath.toFile().exists()) resourcePath.toFile().mkdirs();
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
-        logger.info("Loading server configuration");
-        this.properties = new Config(this.dataPath + "server.properties", Config.PROPERTIES, new ConfigSection() {
-            {
-                put("language", "eng");
-                put("motd", "A Sculk Server");
-                put("server-port", 19132);
-                put("server-ip", "0.0.0.0");
-                put("white-list", false);
-                put("max-players", 20);
-                put("gamemode", "SURVIVAL");
-                put("pvp", true);
-                put("difficulty", 1);
-                put("level-name", "world");
-                put("level-seed", "");
-                put("level-type", "DEFAULT");
-                put("auto-save", true);
-                put("xbox-auth", true);
-            }
-        });
-        this.properties.save();
+        logger.info("Loading {}...", TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE);
+        this.config = new Config(this.dataPath + "sculk.yml");
 
-        logger.info("Selected English (eng) as the base language");
-        logger.info("§aserver start");
+        logger.info("Loading {}...", TextFormat.AQUA + "server.json" + TextFormat.WHITE);
+        this.properties = new Config(dataPath + "/server.json");
+        if(this.properties.getString("server-port") == null) {
+            this.properties.set("language", "English");
+            this.properties.set("motd", "A Sculk Server Software");
+            this.properties.set("server-port", 19132);
+            this.properties.set("server-ip", "0.0.0.0");
+            this.properties.set("white-list", false);
+            this.properties.set("max-players", 20);
+            this.properties.set("gamemode", "SURVIVAL");
+            this.properties.set("pvp", true);
+            this.properties.set("difficulty", 1);
+            this.properties.set("level-name", "world");
+            this.properties.set("level-seed", "");
+            this.properties.set("level-type", "DEFAULT");
+            this.properties.set("auto-save", true);
+            this.properties.set("xbox-auth", true);
+        }
+
+        this.operators = new Config(this.dataPath + "/op.json");
+        this.operators.save();
+        this.whitelist = new Config(this.dataPath + "/whitelist.json");
+        this.banByName = new Config(this.dataPath + "/banned-players.json");
+        this.banByIp = new Config(this.dataPath + "/banned-ips.json");
+
+        logger.info("Selected {} as the base language", this.properties.getString("language"));
+        logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
+        if(this.properties.getBoolean("xbox-auth")) {
+            logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
+        } else {
+            logger.info("{}Online mode is not enabled. The server no longer checks if players are authenticated to XboxLive.", TextFormat.RED);
+        }
+        logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
+        logger.info("Sculk-MP is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
+        start();
+    }
+
+    public void start() {
+        getLogger().info("Done ({}s)! For help, type \"help\" or \"?", String.valueOf((double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000));
     }
 
     public static Server getInstance() {
@@ -90,7 +123,16 @@ public class Server {
         return pluginDataPath;
     }
 
+    public Map<UUID, Player> getOnlinePlayers() {
+        return Collections.unmodifiableMap(playerList);
+    }
+
     public Config getProperties() {
         return properties;
     }
+
+    public Config getConfig() {
+        return config;
+    }
+
 }

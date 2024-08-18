@@ -27,8 +27,13 @@ import java.io.IOException;
 @Log4j2
 public class Sculk {
 
+    public static final long START_TIME = System.currentTimeMillis();
+
     public final static String MINECRAFT_VERSION = ProtocolInfo.MINECRAFT_VERSION;
     public final static String MINECRAFT_VERSION_NETWORK = ProtocolInfo.MINECRAFT_VERSION_NETWORK;
+    public final static String CODE_NAME = "Sculk-MP";
+    public final static String CODE_VERSION = "v1.0.0";
+
     public final static String DATA_PATH = System.getProperty("user.dir") + "/";
 
     public static void main(String[] args) {

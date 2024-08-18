@@ -23,3 +23,9 @@ plugin_data/
 plugins/
 resource_packs/
 logs/
+worlds/
+server.json
+whitelist.json
+op.json
+banned-ips.json
+banned-players.json

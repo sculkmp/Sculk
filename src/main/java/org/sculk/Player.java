@@ -15,8 +15,5 @@ package org.sculk;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class VersionInfo {
-
-
-
+public class Player {
 }

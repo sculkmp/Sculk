@@ -28,7 +28,7 @@ public class TextFormat {
     public static String DARK_GRAY =        "§8";
     public static String BLUE =             "§9";
     public static String GREEN =            "§a";
-    public static String AQUA =             "§n";
+    public static String AQUA =             "§b";
     public static String RED =              "§c";
     public static String LIGHT_PURPLE =     "§d";
     public static String YELLOW =           "§e";
