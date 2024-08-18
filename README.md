@@ -83,7 +83,7 @@ We warmly welcome contributions to the Sculk project! If you are excited about i
 Bedrock server software with Java, here are some ways you can contribute:
 
 ### Reporting bugs
-If you encounter any bugs while using Endstone, please open an [issue](https://github.com/sculkmp/Sculk/issues) in
+If you encounter any bugs while using Sculk, please open an [issue](https://github.com/sculkmp/Sculk/issues) in
 our GitHub repository. Ensure to include a detailed description of the bug and steps to reproduce it.
 
 ### Submitting a Pull Request
