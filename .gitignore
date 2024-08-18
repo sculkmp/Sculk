@@ -24,8 +24,9 @@ plugins/
 resource_packs/
 logs/
 worlds/
-server.json
-whitelist.json
-op.json
-banned-ips.json
-banned-players.json
+./server.properties
+./whitelist.txt
+./op.txt
+./banned-ips.txt
+./banned-players.txt
+./sculk.yml
