@@ -66,9 +66,9 @@ public class Server {
         logger.info("Loading {}...", TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE);
         this.config = new Config(this.dataPath + "sculk.yml");
 
-        logger.info("Loading {}...", TextFormat.AQUA + "server.json" + TextFormat.WHITE);
-        this.properties = new Config(dataPath + "/server.json");
-        if(this.properties.getString("server-port") == null) {
+        logger.info("Loading {}...", TextFormat.AQUA + "server.properties" + TextFormat.WHITE);
+        this.properties = new Config(this.dataPath.resolve("server.properties").toString(), Config.PROPERTIES);
+        if(!this.properties.exists("server-port")) {
             this.properties.set("language", "English");
             this.properties.set("motd", "A Sculk Server Software");
             this.properties.set("server-port", 19132);
@@ -83,13 +83,13 @@ public class Server {
             this.properties.set("level-type", "DEFAULT");
             this.properties.set("auto-save", true);
             this.properties.set("xbox-auth", true);
+            this.properties.save();
         }
 
-        this.operators = new Config(this.dataPath + "/op.json");
-        this.operators.save();
-        this.whitelist = new Config(this.dataPath + "/whitelist.json");
-        this.banByName = new Config(this.dataPath + "/banned-players.json");
-        this.banByIp = new Config(this.dataPath + "/banned-ips.json");
+        this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
+        this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
+        this.banByName = new Config(this.dataPath.resolve("banned-players.txt").toString(), Config.ENUM);
+        this.banByIp = new Config(this.dataPath.resolve("banned-ip.txt").toString(), Config.ENUM);
 
         logger.info("Selected {} as the base language", this.properties.getString("language"));
         logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
