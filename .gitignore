@@ -16,3 +16,10 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# Server folder
+players/
+plugin_data/
+plugins/
+resource_packs/
+logs/

@@ -5,6 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4e9c9f0d-c165-4802-9372-1a52818db579" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/easycode.ignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/VersionInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/exception/InvalidConfigurationException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/network/protocol/ProtocolInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/ConfigurationManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/Configuration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/ServerConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/sculk/utils/config/YamlConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.component.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/sculk/Sculk.java" afterDir="false" />
@@ -20,6 +34,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -32,9 +47,9 @@
     <option name="indexEntireGoPath" value="true" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2knzuIlu38WhWDnyc95m7B5LI9M" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -47,6 +62,9 @@
   "keyToString": {
     "Application.Sculk --enable-title.executor": "Run",
     "Application.Sculk.executor": "Run",
+    "Maven.Sculk [clean].executor": "Run",
+    "Maven.Sculk [install].executor": "Run",
+    "Maven.Sculk [package].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
@@ -63,10 +81,18 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "fileTemplates",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.sculk.utils" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Sculk\src\main\java\org\sculk\world" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="AZURE_FUNCTION_SUPPORT" factoryName="Run Functions">
       <option name="appName" />
@@ -133,7 +159,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723934350175</updated>
-      <workItem from="1723934351635" duration="3839000" />
+      <workItem from="1723934351635" duration="4215000" />
+      <workItem from="1723938633220" duration="12446000" />
     </task>
     <servers />
   </component>
