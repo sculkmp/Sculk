@@ -3,6 +3,10 @@ package org.sculk.network.protocol;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.v712.Bedrock_v712;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /*
  *   ____             _ _              __  __ ____
  *  / ___|  ___ _   _| | | __         |  \/  |  _ \
@@ -18,13 +22,28 @@ import org.cloudburstmc.protocol.bedrock.codec.v712.Bedrock_v712;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public interface ProtocolInfo {
+public class ProtocolInfo {
 
-    int CURRENT_PROTOCOL = Integer.parseInt("712");
+    public static int CURRENT_PROTOCOL = Integer.parseInt("712");
 
-    BedrockCodec CODEC = Bedrock_v712.CODEC;
+    public static BedrockCodec CODEC = Bedrock_v712.CODEC;
 
-    String MINECRAFT_VERSION_NETWORK = "1.21.20";
-    String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;
+    private static final Set<BedrockCodec> CODECS = ConcurrentHashMap.newKeySet();
+
+    public static String MINECRAFT_VERSION_NETWORK = "1.21.20";
+    public static String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;
+
+    static {
+        CODECS.add(checkNotNull(CODEC, "packetCodec"));
+    }
+
+    public static BedrockCodec getPacket(int protocol) {
+        for(BedrockCodec codec : CODECS) {
+            if(codec.getProtocolVersion() == protocol) {
+                return codec;
+            }
+        }
+        return null;
+    }
 
 }
