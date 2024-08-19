@@ -1,5 +1,6 @@
 package org.sculk;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,8 @@ public class Sculk {
     public final static String MINECRAFT_VERSION_NETWORK = ProtocolInfo.MINECRAFT_VERSION_NETWORK;
     public final static String CODE_NAME = "Sculk-MP";
     public final static String CODE_VERSION = "v1.0.0";
+
+    public static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     public final static String DATA_PATH = System.getProperty("user.dir") + "/";
 

@@ -208,4 +208,9 @@ public class Server {
     public String getMotd() {
         return motd;
     }
+
+    public UUID getServerId() {
+        return serverId;
+    }
+
 }
