@@ -50,6 +50,7 @@ dependencies {
 | Milestone                                | Status |
 |------------------------------------------|--------|
 | **⚒️ Construction of the server tree**   | ✅     |
+| **👓 Visible server**                    | ✅     |
 | **🛜 Join server**                       | ⏳     |
 | **🎍 World loader**                      | 🚧     |
 | **🔌Plugin loader**                      | 🚧     |

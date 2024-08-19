@@ -3,6 +3,9 @@ package org.sculk.network;
 import lombok.extern.log4j.Log4j2;
 import org.sculk.Server;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  *   ____             _ _              __  __ ____
  *  / ___|  ___ _   _| | | __         |  \/  |  _ \
@@ -22,6 +25,8 @@ import org.sculk.Server;
 public class Network {
 
     private final Server server;
+    private final Set<SourceInterface> interfaces = new HashSet<>();
+    private final Set<AdvancedSourceInterface> advancedInterfaces = new HashSet<AdvancedSourceInterface>();
 
     private String name;
     private int maxPlayers;
@@ -54,6 +59,26 @@ public class Network {
 
     public String getName() {
         return name;
+    }
+
+    public Set<SourceInterface> getInterfaces() {
+        return interfaces;
+    }
+
+    public void registerInterface(SourceInterface interfaz) {
+        this.interfaces.add(interfaz);
+        if (interfaz instanceof AdvancedSourceInterface) {
+            this.advancedInterfaces.add((AdvancedSourceInterface) interfaz);
+            ((AdvancedSourceInterface) interfaz).setNetwork(this);
+        }
+        interfaz.setName(this.name + "!@#" + this.getName());
+    }
+
+    public void unregisterInterface(SourceInterface sourceInterface) {
+        this.interfaces.remove(sourceInterface);
+        if (sourceInterface instanceof AdvancedSourceInterface) {
+            this.advancedInterfaces.remove(sourceInterface);
+        }
     }
 
 }

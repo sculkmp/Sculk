@@ -1,19 +1,15 @@
 package org.sculk;
 
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
 import org.sculk.config.Config;
 import org.sculk.console.TerminalConsole;
-import org.sculk.network.EventLoops;
+import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
-import org.sculk.thread.ThreadFactoryBuilder;
+import org.sculk.network.SourceInterface;
 import org.sculk.utils.TextFormat;
-
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
@@ -47,8 +43,6 @@ public class Server {
     private final TerminalConsole console;
 
     private Network network;
-    private final EventLoopGroup bossEventLoopGroup;
-    private final EventLoopGroup workerEventLoopGroup;
 
     private final Path dataPath;
     private final Path pluginDataPath;
@@ -65,6 +59,7 @@ public class Server {
     private String motd;
     private int maxPlayers;
     private String defaultGamemode;
+    private UUID serverId;
 
     public volatile boolean shutdown = false;
 
@@ -117,23 +112,6 @@ public class Server {
         logger.info("Selected {} as the base language", this.properties.getString("language"));
         logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
 
-        EventLoops.ChannelType channelType = EventLoops.getChannelType();
-        this.logger.info("Using " + channelType.name() + " channel implementation as default!");
-        for (EventLoops.ChannelType type : EventLoops.ChannelType.values()) {
-            this.logger.debug("Supported " + type.name() + " channels: " + type.isAvailable());
-        }
-
-        ThreadFactoryBuilder workerFactory = ThreadFactoryBuilder.builder()
-                .format("Bedrock Listener - #%d")
-                .daemon(true)
-                .build();
-        ThreadFactoryBuilder bossFactory = ThreadFactoryBuilder.builder()
-                .format("RakNet Listener - #%d")
-                .daemon(true)
-                .build();
-        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, workerFactory);
-        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, bossFactory);
-
         this.console = new TerminalConsole(this);
         this.start();
     }
@@ -141,17 +119,18 @@ public class Server {
     public void start() {
         this.console.getConsoleThread().start();
 
-        //String serverIP = this.properties.getString("server-ip", "0.0.0.0");
-        //int port = this.properties.getInt("server-port", 19132);
-        
-        //getLogger().info(serverIP);
-        //getLogger().info(port);
-        
         InetSocketAddress bindAddress = new InetSocketAddress("0.0.0.0", 19132);
-        this.bindChannels(bindAddress);
-        // TODO: Load server raknet
-        getLogger().info("Minecraft network interface running on {}", bindAddress);
-        
+        this.serverId = UUID.randomUUID();
+        this.network = new Network(this);
+        this.network.setName(this.motd);
+        try {
+            this.network.registerInterface(new BedrockInterface(this));
+            getLogger().info("Minecraft network interface running on {}", bindAddress);
+        } catch(Exception e) {
+            logger.fatal("**** FAILED TO BIND TO " + bindAddress);
+            logger.fatal("Peahaps a server s already running on that port?");
+            shutdown();
+        }
 
         if(this.properties.getBoolean("xbox-auth")) {
             logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
@@ -166,11 +145,6 @@ public class Server {
         getLogger().info("Done ("+ (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000 +"s)! For help, type \"help\" or \"?");
     }
 
-    private void bindChannels(InetSocketAddress address) {
-        boolean allowEpool = Epoll.isAvailable();
-        
-    }
-
     public void shutdown() {
         if(this.shutdown) {
             return;
@@ -178,7 +152,15 @@ public class Server {
         this.logger.info("Stopping the server");
         this.shutdown = true;
 
+        this.logger.info("Stopping network interfaces");
+        for(SourceInterface sourceInterface : this.network.getInterfaces()) {
+            sourceInterface.shutdown();
+            this.network.unregisterInterface(sourceInterface);
+        }
+
+        this.logger.info("Closing console");
         this.console.getConsoleThread().interrupt();
+
         this.logger.info("Stopping other threads");
     }
 
@@ -220,5 +202,9 @@ public class Server {
 
     public String getDefaultGamemode() {
         return defaultGamemode;
+    }
+
+    public String getMotd() {
+        return motd;
     }
 }
