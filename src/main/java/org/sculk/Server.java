@@ -140,8 +140,6 @@ public class Server {
         logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
         logger.info("Sculk-MP is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
 
-        
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
         getLogger().info("Done ("+ (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000 +"s)! For help, type \"help\" or \"?");
     }
 
@@ -152,6 +150,8 @@ public class Server {
         this.logger.info("Stopping the server");
         this.shutdown = true;
 
+        Sculk.shutdown();
+
         this.logger.info("Stopping network interfaces");
         for(SourceInterface sourceInterface : this.network.getInterfaces()) {
             sourceInterface.shutdown();
@@ -160,6 +160,7 @@ public class Server {
 
         this.logger.info("Closing console");
         this.console.getConsoleThread().interrupt();
+
 
         this.logger.info("Stopping other threads");
     }
