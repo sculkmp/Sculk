@@ -4,6 +4,7 @@ package org.sculk.player;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
+import org.sculk.player.client.ClientChainData;
 
 /*
  *   ____             _ _              __  __ ____
@@ -22,8 +23,37 @@ import org.sculk.network.BedrockInterface;
  */
 public class PlayerLoginData {
 
-    public PlayerLoginData(BedrockServerSession serverSession, Server server, BedrockInterface bedrockInterface) {
+    private final BedrockServerSession session;
+    private final Server server;
+    private final BedrockInterface bedrockInterface;
 
+    private boolean shouldLogin;
+    private String username;
+
+    private ClientChainData chainData;
+
+    public PlayerLoginData(BedrockServerSession serverSession, Server server, BedrockInterface bedrockInterface) {
+        this.session = serverSession;
+        this.server = server;
+        this.bedrockInterface = bedrockInterface;
+
+        this.shouldLogin = false;
+    }
+
+    public ClientChainData getChainData() {
+        return this.chainData;
+    }
+
+    public void setChainData(ClientChainData data) {
+        this.chainData = data;
+    }
+
+    public void setName(String username) {
+        this.username = username;
+    }
+
+    public String getName() {
+        return this.username;
     }
 
 }

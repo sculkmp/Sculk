@@ -3,13 +3,18 @@ package org.sculk.network.packets;
 
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
-import org.cloudburstmc.protocol.bedrock.packet.NetworkSettingsPacket;
-import org.cloudburstmc.protocol.bedrock.packet.RequestNetworkSettingsPacket;
+import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm;
+import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
+import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.player.PlayerLoginData;
+import org.sculk.player.client.ClientChainData;
+import org.sculk.utils.TextFormat;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  *   ____             _ _              __  __ ____
@@ -32,6 +37,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
     private final Server server;
     private final PlayerLoginData loginData;
 
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[aA-zZ\\s\\d_]{3,16}+$");
 
     public LoginPacketHandler(BedrockServerSession session, Server server, BedrockInterface bedrockInterface) {
         this.session = session;
@@ -40,7 +46,58 @@ public class LoginPacketHandler implements BedrockPacketHandler {
     }
 
     @Override
+    public PacketSignal handle(LoginPacket packet) {
+        this.loginData.setChainData(ClientChainData.read(packet));
+        if(this.loginData.getChainData().isXboxAuthed()) {
+            session.disconnect("disconnectionScreen.notAuthenticated");
+            return PacketSignal.HANDLED;
+        }
+
+        String username = this.loginData.getChainData().getUsername();
+        Matcher matcher = NAME_PATTERN.matcher(username);
+        if(!matcher.matches() || username.equalsIgnoreCase("rcon") || username.equalsIgnoreCase("console")) {
+            session.disconnect("disconnectionScreen.invalidName");
+            return PacketSignal.HANDLED;
+        }
+
+        this.loginData.setName(username);
+        if(!this.loginData.getChainData().getSerializedSkin().isValid()) {
+            session.disconnect("disconnectionScreen.invalidSkin");
+            return PacketSignal.HANDLED;
+        }
+
+        PlayStatusPacket statusPacket = new PlayStatusPacket();
+        statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
+        session.sendPacket(statusPacket);
+
+        // TODO: View Login in log
+        this.server.getLogger().info("login packet call");
+        return PacketSignal.HANDLED;
+    }
+
+    @Override
     public PacketSignal handle(RequestNetworkSettingsPacket packet) {
+        int protocol = packet.getProtocolVersion();
+        BedrockCodec codec = ProtocolInfo.getPacket(protocol);
+        if(codec == null) {
+            PlayStatusPacket statusPacket = new PlayStatusPacket();
+            if(protocol < ProtocolInfo.CODEC.getProtocolVersion()) {
+                statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
+            } else {
+                statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_FAILED_CLIENT_OLD);
+            }
+            session.sendPacketImmediately(statusPacket);
+            return PacketSignal.HANDLED;
+        }
+        session.setCodec(codec);
+        NetworkSettingsPacket networkSettingsPacket = new NetworkSettingsPacket();
+        networkSettingsPacket.setCompressionThreshold(1);
+        networkSettingsPacket.setCompressionAlgorithm(PacketCompressionAlgorithm.ZLIB);
+        session.sendPacketImmediately(networkSettingsPacket);
+        session.setCompression(PacketCompressionAlgorithm.ZLIB);
+
+        // TODO: View RequestNetworkSettings in log
+        this.server.getLogger().info("request network packet call");
         return PacketSignal.HANDLED;
     }
 
