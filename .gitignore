@@ -1,5 +1,6 @@
 target/
-.idea/*
+.idea/
+!.idea/fileTemplates/includes/File Header.java
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -24,9 +25,8 @@ plugins/
 resource_packs/
 logs/
 worlds/
-server.properties
-whitelist.txt
-op.txt
-banned-ip.txt
-banned-players.txt
-sculk.yml
+server.json
+whitelist.json
+op.json
+banned-ips.json
+banned-players.json
