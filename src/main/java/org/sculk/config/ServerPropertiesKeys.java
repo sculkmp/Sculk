@@ -1,0 +1,33 @@
+package org.sculk.config;
+
+public enum ServerPropertiesKeys {
+    LANGUAGE("language"),
+    MOTD("motd"),
+    SUB_MOTD("sub-motd"),
+    SERVER_PORT("server-port"),
+    SERVER_IP("server-ip"),
+    WHITELIST("white-list"),
+    MAX_PLAYERS("max-players"),
+    GAMEMODE("gamemode"),
+    PVP("pvp"),
+    DIFFICULTY("difficulty"),
+    LEVEL_NAME("level-name"),
+    LEVEL_SEED("level-seed"),
+    LEVEL_TYPE("level-type"),
+    AUTO_SAVE("auto-save"),
+    XBOX_AUTH("xbox-auth");
+
+    public static final String ON = "on";
+    public static final String OFF = "false";
+
+    private final String key;
+
+    ServerPropertiesKeys(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return key;
+    }
+}
