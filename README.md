@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/6/67/Sculk_JE1_BE1.gif" width="150" height="150">
+<img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e2/Sculk_%28pre-release%29.png" width="150" height="150" alt="Logo Sculk">
 <h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
