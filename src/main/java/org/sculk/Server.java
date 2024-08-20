@@ -93,7 +93,7 @@ public class Server {
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
         logger.info("Loading {}...", TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE);
-        this.config = new Config(this.dataPath + "sculk.yml");
+        this.config = new Config(this.dataPath + "/sculk.yml");
 
         logger.info("Loading {}...", TextFormat.AQUA + "server.properties" + TextFormat.WHITE);
         this.properties = new Config(this.dataPath.resolve("server.properties").toString(), Config.PROPERTIES);
