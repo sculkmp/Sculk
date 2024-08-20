@@ -23,6 +23,9 @@
  */
 package co.aikar.timings;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
@@ -30,9 +33,7 @@ import org.sculk.event.Event;
 import org.sculk.scheduler.TaskHandler;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import static co.aikar.timings.TimingIdentifier.DEFAULT_GROUP;
 
@@ -80,6 +81,42 @@ public final class Timings {
     public static final Timing permissibleCalculationTimer;
     public static final Timing permissionDefaultTimer;
 
+    @Data
+    @Setter(AccessLevel.PRIVATE)
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonNaming(PropertyNamingStrategies.KebabCaseStrategy.class)
+    public static class timingz {
+        @Builder.Default
+        private boolean enabled = false;
+
+        @Builder.Default
+        private boolean verbose = false;
+
+        @Builder.Default
+        private boolean privacy = false;
+
+        @Builder.Default
+        private int historyInterval = 6000;
+
+        @Builder.Default
+        private int historyLength = 72000;
+
+        @Builder.Default
+        private List<String> ignore = Collections.emptyList();
+
+        @Builder.Default
+        private boolean bypassMax = false;
+    }
+
+    private static Timings.timingz timingz = new Timings.timingz();
+
+    public static Timings.timingz getTimings() {
+        return timingz;
+    }
+
     static {
         setTimingsEnabled(true);
         setVerboseEnabled(true);
@@ -87,7 +124,7 @@ public final class Timings {
         setHistoryLength(20);
 
         privacy = false;
-        ignoredConfigSections.addAll(null);
+        ignoredConfigSections.addAll(timingz.getIgnore());
 
         log.debug("Timings: \n" +
                 "Enabled - " + isTimingsEnabled() + "\n" +
