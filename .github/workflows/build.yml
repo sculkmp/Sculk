@@ -8,23 +8,25 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
       - name: Set up GraalVM with Java 21
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '21.3.0'  # Utilisez la version de GraalVM souhaitée
-          java-version: '21'
-          components: native-image  # Installe également le composant Native Image de GraalVM
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Maven
-        uses: actions/setup-java@v3
+        uses: graalvm/setup-graalvm@v1
         with:
-          distribution: 'graalvm'  # Spécifie que nous utilisons GraalVM
-          java-version: '21'
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -34,8 +36,10 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      # Optionnel : Générer une image native avec GraalVM
-      - name: Build Native Image
-        run: |
-          mvn package -Pnative
-        if: success()  # N'exécute cette étape que si la construction précédente a réussi
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release_artifacts
+          path: |
+            ${{ github.workspace }}/target/Sculk-1.0-SNAPSHOT.jar
+            ${{ github.workspace }}/target/Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar
