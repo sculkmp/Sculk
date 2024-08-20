@@ -39,7 +39,7 @@ public class Sculk {
         System.setProperty("log4j.skipJansi", "false");
 
         Logger log = LogManager.getLogger(Sculk.class);
-        log.info("{}Starting {} software", TextFormat.WHITE, CODE_NAME);
+        log.info("Starting {} software", CODE_NAME);
 
         int javaVersion = getJavaVersion();
         if (javaVersion < 21) {
