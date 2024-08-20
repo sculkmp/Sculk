@@ -8,23 +8,23 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
       - name: Set up GraalVM with Java 21
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'      # See 'Options' section below for all supported versions
-          distribution: 'graalvm' # See 'Options' section below for all available distributions
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: '21.3.0'  # Utilisez la version de GraalVM souhaitée
+          java-version: '21'
+          components: native-image  # Installe également le composant Native Image de GraalVM
 
       - name: Set up Maven
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'      # See 'Options' section below for all supported versions
-          distribution: 'graalvm' # See 'Options' section below for all available distributions
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          distribution: 'graalvm'  # Spécifie que nous utilisons GraalVM
+          java-version: '21'
 
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -39,3 +39,9 @@ jobs:
         run: |
           mvn package -Pnative
         if: success()  # N'exécute cette étape que si la construction précédente a réussi
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release_artifacts
+          path: |
+            ${{ github.workspace }}/Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar
