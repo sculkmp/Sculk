@@ -1,6 +1,6 @@
-![Header](https://capsule-render.vercel.app/api?type=Waving&color=timeGradient&height=200&animation=fadeIn&section=header&text=Sculk-MP&fontSize=70)
 <div align="center">
-<h3>Open source server software for Minecraft: Bedrock Edition written in Java</h3>
+<img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/6/67/Sculk_JE1_BE1.gif" width="150" height="150">
+<h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
@@ -18,7 +18,7 @@ Sculk is open source server software for Minecraft: Bedrock Edition, It has a fe
 * We provided a high-level friendly API akin PocketMine plugin developers. Save yourself the hassle of dealing with the dot-and-cross of the low-level system API and hooks, we've done the difficult part for you!
 
 ## ✨ Creating plugins
-Add SculkMP to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
+Add Sculk to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
 
 For maven:
 ```xml
