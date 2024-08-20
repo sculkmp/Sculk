@@ -13,7 +13,6 @@ jobs:
       - name: Set up GraalVM with Java 21
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '21.3.0'  # Utilisez la version de GraalVM souhaitée
           java-version: '21'
           components: native-image  # Installe également le composant Native Image de GraalVM
 
