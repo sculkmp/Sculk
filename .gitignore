@@ -19,14 +19,15 @@ buildNumber.properties
 .classpath
 
 # Server folder
-players/
-plugin_data/
-plugins/
-resource_packs/
-logs/
-worlds/
-whitelist.txt
-op.txt
-banned-ip.txt
-banned-players.txt
-server.properties
+.run/logs/
+.run/players
+.run/plugin_data
+.run/plugins
+.run/resource_packs
+.run/worlds
+.run/banned-ip.txt
+.run/banned-players.txt
+.run/op.txt
+.run/sculk.yml
+.run/server.properties
+.run/whitelist.txt
