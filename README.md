@@ -56,7 +56,7 @@ dependencies {
 | **🔌Plugin loader**                      | 🚧     |
 | **⌨️ Command System**                    | 🚧     |
 | **🔐 Permission System**                 | 🚧     |
-| **🎈 Event System**                      | 🚧     |
+| **🎈 Event System**                      | ⏳     |
 | **🖼 Form & Scoreboard API**             | 🚧     |
 | **👤 Player & Actor API**                | 🚧     |
 | **🔩 Item API**                          | 🚧     |
