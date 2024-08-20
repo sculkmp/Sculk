@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /*
- *   ____             _ _              __  __ ____
- *  / ___|  ___ _   _| | | __         |  \/  |  _ \
- *  \___ \ / __| | | | | |/ /  _____  | |\/| | |_) |
- *   ___) | (__| |_| | |   <  |_____| | |  | |  __/
- *  |____/ \___|\__,_|_|_|\_\         |_|  |_|_|
+ *   ____             _ _
+ *  / ___|  ___ _   _| | | __
+ *  \___ \ / __| | | | | |/ /
+ *   ___) | (__| |_| | |   <
+ *  |____/ \___|\__,_|_|_|\_\
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -69,6 +69,7 @@ public class Server {
     private final Map<SocketAddress, Player> players = new HashMap<>();
 
     private String motd;
+    private String submotd;
     private int maxPlayers;
     private String defaultGamemode;
     private UUID serverId;
@@ -100,6 +101,7 @@ public class Server {
         if(!this.properties.exists("server-port")) {
             this.properties.set("language", "English");
             this.properties.set("motd", "A Sculk Server Software");
+            this.properties.set("sub-motd", "Powered by Sculk");
             this.properties.set("server-port", 19132);
             this.properties.set("server-ip", "0.0.0.0");
             this.properties.set("white-list", false);
@@ -115,6 +117,7 @@ public class Server {
             this.properties.save();
         }
         this.motd = this.properties.getString("motd");
+        this.submotd = this.properties.getString("sub-motd");
 
         this.injector = Guice.createInjector(Stage.PRODUCTION, new SculkModule(this));
         this.eventManager = injector.getInstance(EventManager.class);
@@ -154,9 +157,9 @@ public class Server {
             logger.info("{}Online mode is not enabled. The server no longer checks if players are authenticated to XboxLive.", TextFormat.RED);
         }
         logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
-        logger.info("Sculk-MP is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
+        logger.info("Sculk is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
 
-        getLogger().info("Done ("+ (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000 +"s)! For help, type \"help\" or \"?");
+        getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
     }
 
     public void shutdown() {

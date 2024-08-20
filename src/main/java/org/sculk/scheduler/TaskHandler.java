@@ -6,11 +6,11 @@ import co.aikar.timings.Timings;
 import lombok.extern.log4j.Log4j2;
 
 /*
- *   ____             _ _              __  __ ____
- *  / ___|  ___ _   _| | | __         |  \/  |  _ \
- *  \___ \ / __| | | | | |/ /  _____  | |\/| | |_) |
- *   ___) | (__| |_| | |   <  |_____| | |  | |  __/
- *  |____/ \___|\__,_|_|_|\_\         |_|  |_|_|
+ *   ____             _ _
+ *  / ___|  ___ _   _| | | __
+ *  \___ \ / __| | | | | |/ /
+ *   ___) | (__| |_| | |   <
+ *  |____/ \___|\__,_|_|_|\_\
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
