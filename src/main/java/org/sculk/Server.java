@@ -14,6 +14,8 @@ import org.sculk.event.EventManager;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
+import org.sculk.network.protocol.ProtocolInfo;
+import org.sculk.scheduler.Scheduler;
 import org.sculk.utils.TextFormat;
 
 import java.net.InetSocketAddress;
@@ -49,6 +51,7 @@ public class Server {
     private final TerminalConsole console;
     private final EventManager eventManager;
     private final Injector injector;
+    private Scheduler scheduler;
 
     private Network network;
 
@@ -115,6 +118,7 @@ public class Server {
 
         this.injector = Guice.createInjector(Stage.PRODUCTION, new SculkModule(this));
         this.eventManager = injector.getInstance(EventManager.class);
+        this.scheduler = injector.getInstance(Scheduler.class);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
         this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
@@ -257,6 +261,18 @@ public class Server {
             return entry;
         }).toList());
         player.sendDataPacket(packet);
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
+
+    public String getVersion() {
+        return ProtocolInfo.MINECRAFT_VERSION;
+    }
+
+    public boolean isXboxAuth() {
+        return true; // TODO default true for test
     }
 
 }
