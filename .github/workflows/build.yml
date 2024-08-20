@@ -19,8 +19,9 @@ jobs:
       - name: Set up Maven
         uses: actions/setup-java@v3
         with:
-          distribution: 'graalvm'  # Spécifie que nous utilisons GraalVM
-          java-version: '21'
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Maven packages
         uses: actions/cache@v3
