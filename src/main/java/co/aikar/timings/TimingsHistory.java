@@ -25,15 +25,11 @@ package co.aikar.timings;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.cloudburstmc.api.blockentity.BlockEntity;
-import org.cloudburstmc.api.entity.Entity;
-import org.cloudburstmc.api.util.Identifier;
-import org.cloudburstmc.server.Bootstrap;
-import org.cloudburstmc.server.CloudServer;
-import org.cloudburstmc.server.level.CloudLevel;
-import org.cloudburstmc.server.level.chunk.CloudChunk;
-import org.cloudburstmc.server.player.CloudPlayer;
-import org.cloudburstmc.server.timings.JsonUtil;
+import org.checkerframework.checker.signature.qual.Identifier;
+import org.sculk.Player;
+import org.sculk.Sculk;
+import org.sculk.Server;
+import org.sculk.timings.JsonUtil;
 
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
@@ -65,7 +61,7 @@ public class TimingsHistory {
     private final MinuteReport[] minuteReports;
 
     private final TimingsHistoryEntry[] entries;
-    private final ObjectNode levels = Bootstrap.JSON_MAPPER.createObjectNode();
+    private final ObjectNode levels = Sculk.JSON_MAPPER.createObjectNode();
 
     TimingsHistory() {
         this.endTime = System.currentTimeMillis() / 1000;
@@ -94,48 +90,6 @@ public class TimingsHistory {
 
         final Map<Identifier, AtomicInteger> entityCounts = new HashMap<>();
         final Map<Identifier, AtomicInteger> blockEntityCounts = new HashMap<>();
-        // Information about all loaded entities/block entities
-        for (CloudLevel level : CloudServer.getInstance().getLevels()) {
-            ArrayNode jsonLevel = Bootstrap.JSON_MAPPER.createArrayNode();
-            for (CloudChunk chunk : level.getChunks()) {
-                entityCounts.clear();
-                blockEntityCounts.clear();
-
-                //count entities
-                for (Entity entity : chunk.getEntities()) {
-                    if (!entityCounts.containsKey(entity.getType().getIdentifier()))
-                        entityCounts.put(entity.getType().getIdentifier(), new AtomicInteger(0));
-                    entityCounts.get(entity.getType().getIdentifier()).incrementAndGet();
-                    entityMap.put(entity.getType().getIdentifier(), entity.getClass().getSimpleName());
-                }
-
-                //count block entities
-                for (BlockEntity blockEntity : chunk.getBlockEntities()) {
-                    var type = blockEntity.getType().getIdentifier();
-
-                    if (!blockEntityCounts.containsKey(type))
-                        blockEntityCounts.put(type, new AtomicInteger(0));
-                    blockEntityCounts.get(type).incrementAndGet();
-                    blockEntityMap.put(type, blockEntity.getClass().getSimpleName());
-                }
-
-                if (blockEntityCounts.isEmpty() && entityCounts.isEmpty()) {
-                    continue;
-                }
-
-                ArrayNode jsonChunk = Bootstrap.JSON_MAPPER.createArrayNode();
-                jsonChunk.add(chunk.getX());
-                jsonChunk.add(chunk.getZ());
-                jsonChunk.add(JsonUtil.mapToObject(entityCounts.entrySet(), (entry) ->
-                        new JsonUtil.JSONPair(entry.getKey().toString(), entry.getValue().get())));
-                jsonChunk.add(JsonUtil.mapToObject(blockEntityCounts.entrySet(), (entry) ->
-                        new JsonUtil.JSONPair(entry.getKey().toString(), entry.getValue().get())));
-                jsonLevel.add(jsonChunk);
-            }
-
-            if (!levelMap.containsKey(level.getName())) levelMap.put(level.getName(), levelIdPool++);
-            levels.set(String.valueOf(levelMap.get(level.getName())), jsonLevel);
-        }
     }
 
     static void resetTicks(boolean fullReset) {
@@ -150,7 +104,7 @@ public class TimingsHistory {
     }
 
     ObjectNode export() {
-        ObjectNode json = Bootstrap.JSON_MAPPER.createObjectNode();
+        ObjectNode json = Sculk.JSON_MAPPER.createObjectNode();
         json.put("s", this.startTime);
         json.put("e", this.endTime);
         json.put("tk", this.totalTicks);
@@ -213,9 +167,9 @@ public class TimingsHistory {
         final double avg;
 
         PingRecord() {
-            final Collection<CloudPlayer> onlinePlayers = CloudServer.getInstance().getOnlinePlayers().values();
+            final Collection<Player> onlinePlayers = Server.getInstance().getOnlinePlayers().values();
             int totalPing = 0;
-            for (CloudPlayer player : onlinePlayers) {
+            for (Player player : onlinePlayers) {
                 totalPing += player.getPing();
             }
 

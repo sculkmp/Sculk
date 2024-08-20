@@ -23,7 +23,7 @@
  */
 package co.aikar.timings;
 
-import org.cloudburstmc.server.CloudServer;
+import org.sculk.Server;
 
 import java.util.*;
 
@@ -64,7 +64,7 @@ public class TimingsManager {
                 }
             }
 
-            TimingsHistory.playerTicks += CloudServer.getInstance().getOnlinePlayers().size();
+            TimingsHistory.playerTicks += Server.getInstance().getOnlinePlayers().size();
             TimingsHistory.timedTicks++;
         }
     }

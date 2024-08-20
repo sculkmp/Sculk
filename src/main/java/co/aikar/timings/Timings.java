@@ -25,15 +25,9 @@ package co.aikar.timings;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.cloudburstmc.api.blockentity.BlockEntity;
-import org.cloudburstmc.api.entity.EntityType;
-import org.cloudburstmc.api.event.Event;
-import org.cloudburstmc.api.plugin.PluginContainer;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
-import org.cloudburstmc.server.CloudServer;
-import org.cloudburstmc.server.command.Command;
-import org.cloudburstmc.server.scheduler.PluginTask;
-import org.cloudburstmc.server.scheduler.TaskHandler;
+import org.sculk.event.Event;
+import org.sculk.scheduler.TaskHandler;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -87,13 +81,13 @@ public final class Timings {
     public static final Timing permissionDefaultTimer;
 
     static {
-        setTimingsEnabled(CloudServer.getInstance().getConfig().getTimings().isEnabled());
-        setVerboseEnabled(CloudServer.getInstance().getConfig().getTimings().isVerbose());
-        setHistoryInterval(CloudServer.getInstance().getConfig().getTimings().getHistoryInterval());
-        setHistoryLength(CloudServer.getInstance().getConfig().getTimings().getHistoryLength());
+        setTimingsEnabled(true);
+        setVerboseEnabled(true);
+        setHistoryInterval(20);
+        setHistoryLength(20);
 
-        privacy = CloudServer.getInstance().getConfig().getTimings().isPrivacy();
-        ignoredConfigSections.addAll(CloudServer.getInstance().getConfig().getTimings().getIgnore());
+        privacy = false;
+        ignoredConfigSections.addAll(null);
 
         log.debug("Timings: \n" +
                 "Enabled - " + isTimingsEnabled() + "\n" +
@@ -179,13 +173,7 @@ public final class Timings {
 
     public static void setHistoryLength(int length) {
         //Cap at 12 History Frames, 1 hour at 5 minute frames.
-        int maxLength = historyInterval * MAX_HISTORY_FRAMES;
-        //For special cases of servers with special permission to bypass the max.
-        //This max helps keep data file sizes reasonable for processing on Aikar's Timing parser side.
-        //Setting this will not help you bypass the max unless Aikar has added an exception on the API side.
-        if (CloudServer.getInstance().getConfig().getTimings().isBypassMax()) {
-            maxLength = Integer.MAX_VALUE;
-        }
+        int maxLength = Integer.MAX_VALUE;
 
         historyLength = Math.max(Math.min(maxLength, length), historyInterval);
 
@@ -206,11 +194,6 @@ public final class Timings {
         TimingsManager.reset();
     }
 
-
-    public static Timing getCommandTiming(Command command) {
-        return TimingsManager.getTiming(DEFAULT_GROUP.name, "Command: " + command.getLabel(), commandTimer);
-    }
-
     public static Timing getTaskTiming(TaskHandler handler, long period) {
         String repeating = " ";
         if (period > 0) {
@@ -219,30 +202,19 @@ public final class Timings {
             repeating += "(Single)";
         }
 
-        if (handler.getTask() instanceof PluginTask) {
-            String owner = ((PluginTask<?>) handler.getTask()).getContainer().getDescription().getName();
-            return TimingsManager.getTiming(owner, "PluginTask: " + handler.getTaskId() + repeating, schedulerSyncTimer);
-        } else if (!handler.isAsynchronous()) {
+        if (!handler.isAsynchronous()) {
             return TimingsManager.getTiming(DEFAULT_GROUP.name, "Task: " + handler.getTaskId() + repeating, schedulerSyncTimer);
         } else {
             return null;
         }
     }
 
-    public static Timing getPluginEventTiming(Class<? extends Event> event, Object listener, Method method, PluginContainer plugin) {
-        Timing group = TimingsManager.getTiming(plugin.getDescription().getName(), "Combined Total", pluginEventTimer);
+    public static Timing getPluginEventTiming(Class<? extends Event> event, Object listener, Method method) {
+        Timing group = TimingsManager.getTiming("", "Combined Total", pluginEventTimer);
 
-        return TimingsManager.getTiming(plugin.getDescription().getName(), "Event: " + listener.getClass().getName() + "."
+        return TimingsManager.getTiming("", "Event: " + listener.getClass().getName() + "."
                 + (method.getName())
                 + " (" + event.getSimpleName() + ")", group);
-    }
-
-    public static Timing getEntityTiming(EntityType<?> type) {
-        return TimingsManager.getTiming(DEFAULT_GROUP.name, "## Entity Tick: " + type.getIdentifier(), tickEntityTimer);
-    }
-
-    public static Timing getBlockEntityTiming(BlockEntity blockEntity) {
-        return TimingsManager.getTiming(DEFAULT_GROUP.name, "## BlockEntity Tick: " + blockEntity.getClass().getSimpleName(), tickBlockEntityTimer);
     }
 
     public static Timing getReceiveDataPacketTiming(BedrockPacket pk) {
