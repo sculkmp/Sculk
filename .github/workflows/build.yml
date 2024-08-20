@@ -12,11 +12,12 @@ jobs:
       - name: Set up GraalVM with Java 21
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
-          components: native-image  # Installe également le composant Native Image de GraalVM
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Maven
-        uses: actions/setup-java@v3
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'      # See 'Options' section below for all supported versions
           distribution: 'graalvm' # See 'Options' section below for all available distributions
