@@ -2,11 +2,12 @@
 <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e2/Sculk_%28pre-release%29.png" width="150" height="150" alt="Logo Sculk">
 <h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
+[![SculkVersion](https://img.shields.io/badge/version-soon-14191E.svg?cacheSeconds=2592000)]()
+[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.21%20(Bedrock)-17272F)]()
+[![ProtocolVersion](https://img.shields.io/badge/protocol-712-38D3DF)]()
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
-[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.1%20(Bedrock)-56383E)]()
-[![SculkVersion](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)]()
 
 </div>
 
@@ -83,6 +84,10 @@ Simply run `java -jar Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar`
 ## 🙌 Contributing
 We warmly welcome contributions to the Sculk project! If you are excited about improving Minecraft 
 Bedrock server software with Java, here are some ways you can contribute:
+
+<a href="https://github.com/sculkmp/Sculk/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sculkmp/Sculk" />
+</a>
 
 ### Reporting bugs
 If you encounter any bugs while using Sculk, please open an [issue](https://github.com/sculkmp/Sculk/issues) in
