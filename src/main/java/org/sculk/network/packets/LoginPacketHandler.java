@@ -6,13 +6,18 @@ import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.PacketSignal;
+import org.sculk.Player;
 import org.sculk.Server;
+import org.sculk.event.player.PlayerAsyncPreLoginEvent;
+import org.sculk.event.player.PlayerPreLoginEvent;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.player.PlayerLoginData;
 import org.sculk.player.client.ClientChainData;
+import org.sculk.scheduler.AsyncTask;
 import org.sculk.utils.TextFormat;
 
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +70,46 @@ public class LoginPacketHandler implements BedrockPacketHandler {
             session.disconnect("disconnectionScreen.invalidSkin");
             return PacketSignal.HANDLED;
         }
+
+        PlayerPreLoginEvent playerPreLoginEvent = new PlayerPreLoginEvent(loginData, "Sculk server");
+        this.server.getEventManager().fire(playerPreLoginEvent);
+        if(playerPreLoginEvent.isCancelled()) {
+            session.disconnect(playerPreLoginEvent.getKickMessage());
+            return PacketSignal.HANDLED;
+        }
+        PlayerLoginData playerLoginData = loginData;
+        playerLoginData.setPreLoginEventTask(new AsyncTask() {
+
+            private PlayerAsyncPreLoginEvent playerAsyncPreLoginEvent;
+
+            @Override
+            public void onRun() {
+                playerAsyncPreLoginEvent = new PlayerAsyncPreLoginEvent(loginData.getChainData());
+                server.getEventManager().fire(playerAsyncPreLoginEvent);
+                server.getLogger().info("call async task");
+            }
+
+            @Override
+            public void onCompletion(Server server) {
+                if(!loginData.getSession().getPeer().isConnected()) {
+                    if(playerAsyncPreLoginEvent.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.KICK) {
+                        loginData.getSession().disconnect(playerAsyncPreLoginEvent.getKickMessage());
+                    } else if(loginData.isShouldLogin()) {
+                        try {
+                            Player player = loginData.initializePlayer();
+                            for(Consumer<Player> action : playerAsyncPreLoginEvent.getScheduledActions()) {
+                                action.accept(player);
+                            }
+                        } catch(Exception e) {
+                            server.getLogger().debug("Error in player initialization: {}", e.getMessage());
+                        }
+                    } else {
+                        loginData.setLoginTasks(playerAsyncPreLoginEvent.getScheduledActions());
+                    }
+                }
+            }
+        });
+        this.server.getScheduler().scheduleAsyncTask(loginData.getPreLoginEventTask());
 
         PlayStatusPacket statusPacket = new PlayStatusPacket();
         statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
