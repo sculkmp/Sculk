@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="net.minecrell.terminalconsole">
     <Appenders>
         <TerminalConsole name="Console">
             <PatternLayout noConsoleNoAnsi="true"
-                           pattern="[%cyan{%d{HH:mm:ss}} %style{%highlight{%level}{STYLE=Logback}}]: %minecraftFormatting{%msg}%n"/>
+                           pattern="%cyan{%d{HH:mm:ss}} [%style{%highlight{%-5level}{STYLE=Logback}}] %minecraftFormatting{%msg}%n"/>
         </TerminalConsole>
         <TerminalConsole name="Console-Plugin">
             <PatternLayout noConsoleNoAnsi="true"
@@ -37,7 +37,4 @@
             <AppenderRef ref="File"/>
         </Root>
     </Loggers>
-    <Plugins>
-        <Plugin name="TerminalConsole" class="net.minecrell.terminalconsole.TerminalConsolePlugin"/>
-    </Plugins>
 </Configuration>
