@@ -8,23 +8,23 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
       - name: Set up GraalVM with Java 21
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '21.3.0'  # Utilisez la version de GraalVM souhaitée
-          java-version: '21'
-          components: native-image  # Installe également le composant Native Image de GraalVM
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Maven
         uses: graalvm/setup-graalvm@v1
         with:
-          distribution: 'graalvm'  # Spécifie que nous utilisons GraalVM
-          java-version: '21'
+          java-version: '21'      # See 'Options' section below for all supported versions
+          distribution: 'graalvm' # See 'Options' section below for all available distributions
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
