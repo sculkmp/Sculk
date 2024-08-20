@@ -1,12 +1,6 @@
-name: Maven Build with GraalVM
+name: Sculk Server
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [ push, pull_request ]
 
 jobs:
   build:
