@@ -1,17 +1,23 @@
 package org.sculk;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Stage;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
+import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.config.Config;
 import org.sculk.console.TerminalConsole;
+import org.sculk.event.EventManager;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
 import org.sculk.utils.TextFormat;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -41,6 +47,8 @@ public class Server {
 
     private final Logger logger;
     private final TerminalConsole console;
+    private final EventManager eventManager;
+    private final Injector injector;
 
     private Network network;
 
@@ -55,6 +63,7 @@ public class Server {
     private final Config banByIp;
 
     private final Map<UUID, Player> playerList = new HashMap<>();
+    private final Map<SocketAddress, Player> players = new HashMap<>();
 
     private String motd;
     private int maxPlayers;
@@ -103,6 +112,9 @@ public class Server {
             this.properties.save();
         }
         this.motd = this.properties.getString("motd");
+
+        this.injector = Guice.createInjector(Stage.PRODUCTION, new SculkModule(this));
+        this.eventManager = injector.getInstance(EventManager.class);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
         this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
@@ -165,6 +177,14 @@ public class Server {
         this.logger.info("Stopping other threads");
     }
 
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+
+    public Injector getInjector() {
+        return injector;
+    }
+
     public boolean isRunning() {
         return !this.shutdown;
     }
@@ -211,6 +231,32 @@ public class Server {
 
     public UUID getServerId() {
         return serverId;
+    }
+
+    public void addPlayer(SocketAddress socketAddress, Player player) {
+        this.players.put(socketAddress, player);
+    }
+
+    public void addOnlinePlayer(Player player) {
+        this.playerList.put(player.getServerId(), player);
+    }
+
+    public void onPlayerCompleteLogin(Player player) {
+        this.sendFullPlayerList(player);
+    }
+
+    public void sendFullPlayerList(Player player) {
+        PlayerListPacket packet = new PlayerListPacket();
+        packet.setAction(PlayerListPacket.Action.ADD);
+        packet.getEntries().addAll(this.playerList.values().stream().map(p -> {
+            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getServerId());
+            entry.setEntityId(p.getUniqueId());
+            entry.setName(p.getName());
+            entry.setSkin(p.getSerializedSkin());
+            entry.setPlatformChatId("");
+            return entry;
+        }).toList());
+        player.sendDataPacket(packet);
     }
 
 }
