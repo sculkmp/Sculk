@@ -14,6 +14,7 @@ jobs:
         with:
           java-version: '21'      # See 'Options' section below for all supported versions
           distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Maven
@@ -21,6 +22,7 @@ jobs:
         with:
           java-version: '21'      # See 'Options' section below for all supported versions
           distribution: 'graalvm' # See 'Options' section below for all available distributions
+          native-image-job-reports: 'true'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Maven packages
