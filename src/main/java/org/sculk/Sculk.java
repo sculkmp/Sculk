@@ -27,34 +27,30 @@ import org.sculk.utils.TextFormat;
 public class Sculk {
 
     public static final long START_TIME = System.currentTimeMillis();
-
-    public final static String MINECRAFT_VERSION = ProtocolInfo.MINECRAFT_VERSION;
-    public final static String MINECRAFT_VERSION_NETWORK = ProtocolInfo.MINECRAFT_VERSION_NETWORK;
-    public final static String CODE_NAME = "Sculk-MP";
-    public final static String CODE_VERSION = "v1.0.0";
-
+    public static final String MINECRAFT_VERSION = ProtocolInfo.MINECRAFT_VERSION;
+    public static final String MINECRAFT_VERSION_NETWORK = ProtocolInfo.MINECRAFT_VERSION_NETWORK;
+    public static final String CODE_NAME = "Sculk";
+    public static final String CODE_VERSION = "v1.0.0";
     public static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
-
-    public final static String DATA_PATH = System.getProperty("user.dir") + "/";
+    public static final String DATA_PATH = System.getProperty("user.dir") + "/";
 
     public static void main(String[] args) {
         Thread.currentThread().setName("sculkmp-main");
         System.setProperty("log4j.skipJansi", "false");
-        System.out.println("Starting SculkMP...");
 
-        Logger logger = LogManager.getLogger(Sculk.class);
-        logger.info("{}Starting SculkMP software", TextFormat.WHITE);
+        Logger log = LogManager.getLogger(Sculk.class);
+        log.info("{}Starting {} software", TextFormat.WHITE, CODE_NAME);
 
         int javaVersion = getJavaVersion();
-        if(javaVersion < 21) {
-            logger.error("{}Using unsupported Java version! Minimum supported version is Java 21, found java {}", TextFormat.RED, javaVersion);
+        if (javaVersion < 21) {
+            log.error("{}Using unsupported Java version! Minimum supported version is Java 21, found java {}", TextFormat.RED, javaVersion);
             LogManager.shutdown();
             return;
         }
 
         try {
-            new Server(logger, DATA_PATH);
-        } catch(Exception e) {
+            new Server(log, DATA_PATH);
+        } catch (Exception e) {
             log.throwing(e);
             shutdown();
         }
@@ -68,5 +64,4 @@ public class Sculk {
     private static int getJavaVersion() {
         return Runtime.version().feature();
     }
-
 }
