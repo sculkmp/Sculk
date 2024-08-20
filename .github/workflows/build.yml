@@ -33,10 +33,15 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean package
-
+      # Optionnel : Générer une image native avec GraalVM
+      - name: Build Native Image
+        run: |
+          mvn package -Pnative
+        if: success()  # N'exécute cette étape que si la construction précédente a réussi
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: release_artifacts
           path: |
-            ${{ github.workspace }}/Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar
+            ${{ github.workspace }}/target/Sculk-1.0-SNAPSHOT.jar
+            ${{ github.workspace }}/target/Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar
