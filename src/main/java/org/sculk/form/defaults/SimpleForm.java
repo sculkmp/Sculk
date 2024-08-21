@@ -2,23 +2,34 @@ package org.sculk.form.defaults;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
+import org.cloudburstmc.protocol.common.util.Preconditions;
+import org.sculk.Player;
 import org.sculk.form.Form;
 import org.sculk.form.element.button.ElementButton;
 import org.sculk.form.element.button.Image;
 import org.sculk.form.response.SimpleResponse;
 
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 @Getter
 @Setter
 @Accessors(chain = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SimpleForm implements Form {
-    protected String title;
-    protected String content;
-    protected ObjectArrayList<ElementButton> elements;
+    private static final ElementButton[] EMPTY_ARRAY = new ElementButton[0];
+
+    @NonNull protected String title;
+    @NonNull protected String content;
+    @NonNull protected Object2ObjectArrayMap<ElementButton, Consumer<Player>> elements; // No OpenHashMap here because it messes with the entry order
+
+    protected Consumer<Player> closed = player -> {};
+    protected BiConsumer<Player, SimpleResponse> submitted = (player, response) -> {};
 
     public SimpleForm() {
         this("");
@@ -29,7 +40,7 @@ public class SimpleForm implements Form {
     }
 
     public SimpleForm(String title, String content) {
-        this(title, content, new ObjectArrayList<>());
+        this(title, content, new Object2ObjectArrayMap<>());
     }
 
     public SimpleForm addButton(String text) {
@@ -41,7 +52,11 @@ public class SimpleForm implements Form {
     }
 
     public SimpleForm addButton(ElementButton button) {
-        this.elements.add(button);
+        return this.addButton(button, null);
+    }
+
+    public SimpleForm addButton(ElementButton button, Consumer<Player> callback) {
+        this.elements.put(button, callback);
         return this;
     }
 
@@ -60,7 +75,8 @@ public class SimpleForm implements Form {
         object.addProperty("content", this.getContent());
 
         JsonArray buttons = new JsonArray();
-        this.getElements().stream()
+        this.getElements().keySet()
+                .stream()
                 .map(ElementButton::toJson)
                 .forEach(buttons::add);
         object.add("buttons", buttons);
@@ -77,7 +93,7 @@ public class SimpleForm implements Form {
      * @return A response object
      */
     @Override
-    public SimpleResponse processResponse(ModalFormResponsePacket packet) {
+    public SimpleResponse processResponse(Player player, ModalFormResponsePacket packet) {
         SimpleResponse response = new SimpleResponse();
 
         String data = packet.getFormData().trim();
@@ -85,11 +101,23 @@ public class SimpleForm implements Form {
         try {
             buttonId = Integer.parseInt(data);
         } catch (Exception e) {
-            return response.setClosed(true);
+            this.closed.accept(player);
+            return response.setClosed(true); // If the player closes the form, the data will be 'null'
         }
 
-        ElementButton button = buttonId < this.elements.size() ? this.elements.get(buttonId) : null;
-        return response.setButtonId(buttonId)
+        Preconditions.checkArgument(buttonId < this.elements.size(), "buttonId out of range");
+
+        ElementButton button = this.elements.keySet().toArray(EMPTY_ARRAY)[buttonId];
+        if (button != null) {
+            Optional.ofNullable(this.elements.get(button)) // Only accept consumer if present
+                    .ifPresent(callback -> callback.accept(player));
+        }
+
+        response.setButtonId(buttonId)
                 .setButton(button);
+
+        this.submitted.accept(player, response);
+
+        return response;
     }
 }

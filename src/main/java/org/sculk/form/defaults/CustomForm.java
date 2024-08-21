@@ -7,24 +7,29 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
+import org.sculk.Player;
 import org.sculk.form.Form;
 import org.sculk.form.element.*;
 import org.sculk.form.response.CustomResponse;
 import org.sculk.form.response.ElementResponse;
-import org.sculk.form.response.Response;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CustomForm implements Form {
     private static Type LIST_STRING_TYPE = new TypeToken<List<String>>(){}.getType();
 
-    protected String title;
-    protected ObjectArrayList<Element> elements;
+    @NonNull protected String title;
+    @NonNull protected ObjectArrayList<Element> elements;
+
+    protected Consumer<Player> closed = player -> {};
+    protected BiConsumer<Player, CustomResponse> submitted = (player, response) -> {};
 
     public CustomForm() {
         this("");
@@ -69,11 +74,12 @@ public class CustomForm implements Form {
      * @return A response object
      */
     @Override
-    public Response processResponse(ModalFormResponsePacket packet) {
+    public CustomResponse processResponse(Player player, ModalFormResponsePacket packet) {
         CustomResponse response = new CustomResponse();
 
         String data = packet.getFormData().trim();
         if (data.equals("null")) {
+            this.closed.accept(player);
             return response.setClosed(true);
         }
 
@@ -112,6 +118,8 @@ public class CustomForm implements Form {
                 default -> {}
             }
         }
+
+        this.submitted.accept(player, response);
         return response;
     }
 }

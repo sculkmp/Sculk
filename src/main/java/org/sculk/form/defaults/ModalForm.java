@@ -4,21 +4,25 @@ import com.google.gson.JsonObject;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
+import org.sculk.Player;
 import org.sculk.form.Form;
 import org.sculk.form.response.ModalResponse;
+
+import java.util.function.Consumer;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ModalForm implements Form {
-    @NonNull
-    protected String title;
-    @NonNull
-    protected String content;
+    @NonNull protected String title;
+    @NonNull protected String content;
 
-    protected String yes;
-    protected String no;
+    @NonNull protected String yes;
+    @NonNull protected String no;
+
+    protected Consumer<Player> onYes = player -> {};
+    protected Consumer<Player> onNo = player -> {};
 
     public ModalForm() {
         this("");
@@ -63,7 +67,7 @@ public class ModalForm implements Form {
      * @return A response object
      */
     @Override
-    public ModalResponse processResponse(ModalFormResponsePacket packet) {
+    public ModalResponse processResponse(Player player, ModalFormResponsePacket packet) {
         ModalResponse response = new ModalResponse();
 
         String data = packet.getFormData().trim();
@@ -72,7 +76,13 @@ public class ModalForm implements Form {
         }
 
         boolean clickedYes = data.equals("true");
-        return clickedYes ? response.setButtonId(0).setText(this.yes)
-                : response.setButtonId(1).setText(this.no);
+        if (clickedYes) {
+            this.onYes.accept(player);
+            response.setButtonId(0).setText(this.yes);
+        } else {
+            this.onNo.accept(player);
+            response.setButtonId(1).setText(this.no);
+        }
+        return response;
     }
 }
