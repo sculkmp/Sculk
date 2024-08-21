@@ -97,5 +97,5 @@ Please ensure your code follows our coding standards and include tests where pos
 This project is licensed under LGPL-3.0. Please see the [LICENSE](/LICENSE) file for details.
 
 `sculkmp/Sculk` are not affiliated with Mojang. 
-All brands and trademarks belong to their respective owners. Sculk-MP is not a Mojang-approved software, 
+All brands and trademarks belong to their respective owners. Sculk is not a Mojang-approved software, 
 nor is it associated with Mojang.
