@@ -19,9 +19,9 @@ import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
 import org.sculk.network.protocol.ProtocolInfo;
+import org.sculk.plugin.PluginManager;
 import org.sculk.scheduler.Scheduler;
 import org.sculk.utils.TextFormat;
-import org.sculk.utils.Utils;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -55,6 +55,7 @@ public class Server {
     private final Logger logger;
     private final TerminalConsole console;
     private final EventManager eventManager;
+    private final PluginManager pluginManager;
     private final Injector injector;
     private Scheduler scheduler;
 
@@ -111,6 +112,7 @@ public class Server {
         this.injector = Guice.createInjector(Stage.PRODUCTION, new SculkModule(this));
         this.eventManager = injector.getInstance(EventManager.class);
         this.scheduler = injector.getInstance(Scheduler.class);
+        this.pluginManager = new PluginManager(this);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
         this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
@@ -126,6 +128,10 @@ public class Server {
 
     public void start() {
         this.console.getConsoleThread().start();
+
+        logger.info("Loading all plugins...");
+        pluginManager.loadAllPlugins();
+        logger.info("All plugins loaded successfully");
 
         InetSocketAddress bindAddress = new InetSocketAddress(this.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.serverId = UUID.randomUUID();
@@ -150,6 +156,10 @@ public class Server {
         logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
         logger.info("Sculk is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
 
+        logger.info("Enable all plugins...");
+        pluginManager.enableAllPlugins();
+        logger.info("All plugins enabled successfully");
+
         getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
         this.tickProcessor();
     }
@@ -160,6 +170,10 @@ public class Server {
         }
         this.logger.info("Stopping the server");
         this.shutdown = true;
+
+        logger.info("Disabling all plugins...");
+        pluginManager.disableAllPlugins();
+        logger.info("Disabled all plugins");
 
         Sculk.shutdown();
 
@@ -178,6 +192,10 @@ public class Server {
 
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public PluginManager getPluginManager() {
+        return pluginManager;
     }
 
     public Injector getInjector() {
