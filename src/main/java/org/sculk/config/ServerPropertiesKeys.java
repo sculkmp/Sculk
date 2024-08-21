@@ -17,9 +17,6 @@ public enum ServerPropertiesKeys {
     AUTO_SAVE("auto-save"),
     XBOX_AUTH("xbox-auth");
 
-    public static final String ON = "on";
-    public static final String OFF = "false";
-
     private final String key;
 
     ServerPropertiesKeys(String key) {
