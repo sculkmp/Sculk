@@ -8,7 +8,6 @@
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
-[![DiscordURL](https://img.shields.io/discord/1275086723147239464?label=discord&color=7289DA&logo=discord)](https://discord.gg/cD7SB6gJpy)
 
 </div>
 
