@@ -1,11 +1,16 @@
 package org.sculk.network.packets;
 
 
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jwt.EncryptedJWT;
+import lombok.SneakyThrows;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.data.PacketCompressionAlgorithm;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.cloudburstmc.protocol.bedrock.util.EncryptionUtils;
 import org.cloudburstmc.protocol.common.PacketSignal;
+import org.jose4j.jws.JsonWebSignature;
 import org.sculk.Player;
 import org.sculk.Server;
 import org.sculk.event.player.PlayerAsyncPreLoginEvent;
@@ -17,8 +22,12 @@ import org.sculk.player.client.ClientChainData;
 import org.sculk.player.handler.ResourcePackHandler;
 import org.sculk.scheduler.AsyncTask;
 import org.sculk.utils.TextFormat;
+import org.sculk.utils.Utils;
 
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,6 +61,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
         this.loginData = new PlayerLoginData(session, server, bedrockInterface);
     }
 
+    @SneakyThrows
     @Override
     public PacketSignal handle(LoginPacket packet) {
         this.loginData.setChainData(ClientChainData.read(packet));
@@ -129,10 +139,30 @@ public class LoginPacketHandler implements BedrockPacketHandler {
 
         ServerToClientHandshakePacket serverToClientHandshakePacket = new ServerToClientHandshakePacket();
         serverToClientHandshakePacket.handle(this);
-        serverToClientHandshakePacket.setJwt();
-        System.out.println(serverToClientHandshakePacket.getJwt());
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
+        keyPairGenerator.initialize(Curve.P_384.toECParameterSpec());
+
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        byte[] token = EncryptionUtils.generateRandomToken();
+
+        serverToClientHandshakePacket.setJwt(EncryptionUtils.createHandshakeJwt(keyPair, token));
+        System.out.println(session.getCodec().getProtocolVersion());
         session.sendPacket(serverToClientHandshakePacket);
 
+
+        List<String> chain = packet.getChain();
+        try {
+            String jwt = chain.get(packet.getChain().size() - 1);
+            JsonWebSignature jsonWebSignature = new JsonWebSignature();
+            jsonWebSignature.setCompactSerialization(jwt);
+        } catch(Exception e) {
+            Server.getInstance().getLogger().error("JSON output error " , e.getMessage());
+        }
+
+        //packet.setProtocolVersion(712);
+        //chain.removeLast();
+        //packet.getChain().add();
 
         // TODO: View Login in log
         this.server.getLogger().info("login packet call");
