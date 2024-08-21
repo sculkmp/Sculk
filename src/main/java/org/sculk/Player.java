@@ -7,11 +7,13 @@ import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
+import org.sculk.form.IForm;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /*
  *   ____             _ _
@@ -32,11 +34,13 @@ public class Player implements PlayerInterface {
 
     private final BedrockServerSession serverSession;
     private LoginChainData loginChainData;
+    private AtomicInteger formId;
 
     public Player(BedrockServerSession session, ClientChainData data) {
         this.serverSession = session;
         this.loginChainData = data;
 
+        this.formId = new AtomicInteger();
     }
 
     public void processLogin() {
@@ -134,4 +138,14 @@ public class Player implements PlayerInterface {
         return 1;
     }
 
+    /**
+     *
+     * Used to send forms to the player
+     *
+     * @param form The form sent to the player
+     */
+    public void openForm(IForm form) {
+        int id = this.formId.getAndIncrement();
+        form.send(this, id);
+    }
 }
