@@ -65,6 +65,18 @@ public class Network {
         return interfaces;
     }
 
+    public void processInterfaces() {
+        for(SourceInterface sourceInterface : this.interfaces) {
+            try {
+                sourceInterface.process();
+            } catch(Exception exception) {
+                sourceInterface.emergencyShutdown();
+                this.unregisterInterface(sourceInterface);
+                log.fatal("Unregister source interface: " + sourceInterface.getClass().getName());
+            }
+        }
+    }
+
     public void registerInterface(SourceInterface interfaz) {
         this.interfaces.add(interfaz);
         if (interfaz instanceof AdvancedSourceInterface) {

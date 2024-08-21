@@ -14,6 +14,7 @@ import org.sculk.network.BedrockInterface;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.player.PlayerLoginData;
 import org.sculk.player.client.ClientChainData;
+import org.sculk.player.handler.ResourcePackHandler;
 import org.sculk.scheduler.AsyncTask;
 import org.sculk.utils.TextFormat;
 
@@ -77,6 +78,9 @@ public class LoginPacketHandler implements BedrockPacketHandler {
             session.disconnect(playerPreLoginEvent.getKickMessage());
             return PacketSignal.HANDLED;
         }
+
+        session.setPacketHandler(new ResourcePackHandler(session, server, loginData));
+
         PlayerLoginData playerLoginData = loginData;
         playerLoginData.setPreLoginEventTask(new AsyncTask() {
 
@@ -91,10 +95,12 @@ public class LoginPacketHandler implements BedrockPacketHandler {
 
             @Override
             public void onCompletion(Server server) {
+                server.getLogger().debug("on complete");
                 if(!loginData.getSession().getPeer().isConnected()) {
                     if(playerAsyncPreLoginEvent.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.KICK) {
                         loginData.getSession().disconnect(playerAsyncPreLoginEvent.getKickMessage());
                     } else if(loginData.isShouldLogin()) {
+                        server.getLogger().debug("should login");
                         try {
                             Player player = loginData.initializePlayer();
                             for(Consumer<Player> action : playerAsyncPreLoginEvent.getScheduledActions()) {
@@ -104,6 +110,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
                             server.getLogger().debug("Error in player initialization: {}", e.getMessage());
                         }
                     } else {
+                        server.getLogger().debug("unshould login");
                         loginData.setLoginTasks(playerAsyncPreLoginEvent.getScheduledActions());
                     }
                 }
@@ -139,6 +146,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
         NetworkSettingsPacket networkSettingsPacket = new NetworkSettingsPacket();
         networkSettingsPacket.setCompressionThreshold(1);
         networkSettingsPacket.setCompressionAlgorithm(PacketCompressionAlgorithm.ZLIB);
+
         session.sendPacketImmediately(networkSettingsPacket);
         session.setCompression(PacketCompressionAlgorithm.ZLIB);
 

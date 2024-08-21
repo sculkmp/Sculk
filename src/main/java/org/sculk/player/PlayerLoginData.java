@@ -58,6 +58,10 @@ public class PlayerLoginData {
         return shouldLogin;
     }
 
+    public void setShouldLogin(boolean shouldLogin) {
+        this.shouldLogin = shouldLogin;
+    }
+
     public BedrockServerSession getSession() {
         return session;
     }

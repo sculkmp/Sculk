@@ -7,10 +7,12 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.sculk.exception.TaskException;
 
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -35,6 +37,8 @@ public class Scheduler {
     private final AtomicInteger currentTaskId;
     private final Queue<TaskHandler> taskHandlerQueue;
     private final Map<Integer, TaskHandler> taskHandlerMap;
+    private final Map<Integer, ArrayDeque<TaskHandler>> integerArrayDequeMap;
+    private final ForkJoinPool asyncPool;
 
     private volatile int currentTick = -1;
 
@@ -43,6 +47,8 @@ public class Scheduler {
         this.currentTaskId = new AtomicInteger();
         this.taskHandlerQueue = new ConcurrentLinkedQueue<>();
         this.taskHandlerMap = new ConcurrentHashMap<>();
+        this.integerArrayDequeMap = new ConcurrentHashMap<>();
+        this.asyncPool = ForkJoinPool.commonPool();
     }
 
     private int nextTaskId() {
@@ -55,6 +61,22 @@ public class Scheduler {
 
     public TaskHandler scheduleAsyncTask(AsyncTask task) {
         return addTask(task, 0, 0, true);
+    }
+
+    public int getQueueSize() {
+        int size = taskHandlerQueue.size();
+        for(ArrayDeque<TaskHandler> queue : integerArrayDequeMap.values()) {
+            size += queue.size();
+        }
+        return size;
+    }
+
+    public ForkJoinPool getAsyncPool() {
+        return asyncPool;
+    }
+
+    public int getAsyncPoolSize() {
+        return getAsyncPool().getPoolSize();
     }
 
     @SneakyThrows
@@ -75,5 +97,52 @@ public class Scheduler {
         taskHandlerMap.put(taskHandler.getTaskId(), taskHandler);
         return taskHandler;
     }
+
+    public void mainThread(int currentTick) {
+        TaskHandler taskHandler;
+        while((taskHandler = taskHandlerQueue.poll()) != null) {
+            int tick = Math.max(currentTick, taskHandler.getNextRunTick());
+            this.integerArrayDequeMap.computeIfAbsent(tick, integer -> new ArrayDeque<>()).add(taskHandler);
+        }
+        if(currentTick - this.currentTick > integerArrayDequeMap.size()) {
+            for(Map.Entry<Integer, ArrayDeque<TaskHandler>> entry : integerArrayDequeMap.entrySet()) {
+                int tick = entry.getKey();
+                if(tick <= currentTick) {
+                    runTask(currentTick);
+                }
+            }
+        }
+        this.currentTick = currentTick;
+        AsyncTask.collectTask();
+    }
+
+    private void runTask(int currentTick) {
+        ArrayDeque<TaskHandler> queue = integerArrayDequeMap.remove(currentTick);
+        if(queue != null) {
+            for(TaskHandler taskHandler : queue) {
+                if(taskHandler.isCancelled()) {
+                    taskHandlerMap.remove(taskHandler.getTaskId());
+                } else if(taskHandler.isAsynchronous()) {
+                    asyncPool.execute(taskHandler.getTask());
+                } else {
+                    taskHandler.timing.stopTiming();
+                }
+                if(taskHandler.isRepeating()) {
+                    taskHandler.setNextRunTick(currentTick + taskHandler.getPeriod());
+                    taskHandlerQueue.offer(taskHandler);
+                } else {
+                    try {
+                        TaskHandler remove = taskHandlerMap.remove(taskHandler.getTaskId());
+                        if(remove != null) {
+                            remove.cancel();
+                        }
+                    } catch(RuntimeException exception) {
+                        log.error("Exception while invoking onCancel", exception);
+                    }
+                }
+            }
+        }
+    }
+
 
 }

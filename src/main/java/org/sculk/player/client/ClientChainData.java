@@ -46,9 +46,7 @@ public class ClientChainData implements LoginChainData {
     private static final String MOJANG_PUBLIC_KEY_BASE64 = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
     private static final ECPublicKey MOJANG_PUBLIC_KEY;
 
-    private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE =
-            new TypeReference<Map<String, List<String>>>() {
-            };
+    private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, List<String>>>() {};
 
     static {
         try {

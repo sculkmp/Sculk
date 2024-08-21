@@ -26,7 +26,7 @@ public class TaskHandler {
     private final int taskId;
     private final boolean async;
     private final Runnable task;
-    private final Timing timing;
+    public final Timing timing;
 
     private int period;
     private int delay;

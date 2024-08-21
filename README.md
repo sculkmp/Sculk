@@ -58,7 +58,8 @@ dependencies {
 | **⌨️ Command System**                    | 🚧     |
 | **🔐 Permission System**                 | 🚧     |
 | **🎈 Event System**                      | ⏳     |
-| **🖼 Form & Scoreboard API**             | 🚧     |
+| **🖼 Scoreboard API**             | 🚧     |
+| **🖼 Form API**             | ⏳     |
 | **👤 Player & Actor API**                | 🚧     |
 | **🔩 Item API**                          | 🚧     |
 | **🧱 Block API**                         | 🚧     |

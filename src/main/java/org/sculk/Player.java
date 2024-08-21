@@ -1,5 +1,7 @@
 package org.sculk;
 
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.cloudburstmc.math.vector.Vector2f;
 import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.math.vector.Vector3i;
@@ -8,14 +10,18 @@ import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
+import org.cloudburstmc.protocol.bedrock.packet.ModalFormRequestPacket;
+import org.cloudburstmc.protocol.bedrock.packet.ResourcePackClientResponsePacket;
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
+import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /*
  *   ____             _ _
@@ -37,10 +43,15 @@ public class Player implements PlayerInterface {
     private final BedrockServerSession serverSession;
     private LoginChainData loginChainData;
 
+    private AtomicInteger formId;
+    private Int2ObjectOpenHashMap<Form> forms;
+
     public Player(BedrockServerSession session, ClientChainData data) {
         this.serverSession = session;
         this.loginChainData = data;
 
+        this.formId = new AtomicInteger(0);
+        this.forms = new Int2ObjectOpenHashMap<>();
     }
 
     public void processLogin() {
@@ -93,7 +104,12 @@ public class Player implements PlayerInterface {
         startGamePacket.setEducationProductionId("");
         startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
 
+        ResourcePackClientResponsePacket responsePacket = new ResourcePackClientResponsePacket();
+        responsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
+
+        sendDataPacket(responsePacket);
         sendDataPacket(startGamePacket);
+
         this.getServer().addOnlinePlayer(this);
         getServer().onPlayerCompleteLogin(this);
     }
@@ -138,4 +154,33 @@ public class Player implements PlayerInterface {
         return 1;
     }
 
+    /**
+     *
+     * Used to send forms to the player
+     *
+     * @param form The form sent to the player
+     */
+    public int openForm(Form form) {
+        int id = this.formId.getAndIncrement();
+        this.forms.put(id, form);
+
+        ModalFormRequestPacket packet = new ModalFormRequestPacket();
+        packet.setFormId(id);
+        packet.setFormData(form.toJson().toString());
+
+        this.sendDataPacket(packet);
+        return id;
+    }
+
+    /**
+     *
+     * Retrieve an already opened form from the map.
+     * The form will be deleted from the map upon retrieval.
+     *
+     * @param id The id given when opening the form
+     * @return {@link Form}
+     */
+    public Form getForm(int id) {
+        return this.forms.remove(id);
+    }
 }
