@@ -51,13 +51,13 @@ public class PluginLoader {
 
     protected PluginData loadPluginData(File file, Yaml yaml) {
         try (JarFile pluginJar = new JarFile(file)) {
-            JarEntry configEntry = pluginJar.getJarEntry("redstonecloud.yml");
+            JarEntry configEntry = pluginJar.getJarEntry("plugin.yml");
             if (configEntry == null) {
                 configEntry = pluginJar.getJarEntry("plugin.yml");
             }
 
             if (configEntry == null) {
-                log.warn("Jar file " + file.getName() + " doesnt contain a waterdog.yml or plugin.yml!");
+                log.warn("Jar file " + file.getName() + " doesnt contain a sculk.yml or plugin.yml!");
                 return null;
             }
 
