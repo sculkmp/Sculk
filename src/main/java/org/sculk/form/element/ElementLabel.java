@@ -7,10 +7,13 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementLabel implements Element {
-    protected String text = "";
+    protected String text;
+
+    public ElementLabel() {
+        this("");
+    }
 
     @Override
     public Type getType() {

@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -15,12 +14,15 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementDropdown implements Element {
-    protected String text = "";
-    protected List<String> options = new ArrayList<>();
-    protected int defaultOption = 0;
+    protected String text;
+    protected List<String> options;
+    protected int defaultOption;
+
+    public ElementDropdown() {
+        this("");
+    }
 
     public ElementDropdown(String text) {
         this(text, new ArrayList<>());

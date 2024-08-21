@@ -20,19 +20,32 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class CustomForm implements Form {
     private static Type LIST_STRING_TYPE = new TypeToken<List<String>>(){}.getType();
 
-    @NonNull
     protected String title;
-    protected ObjectArrayList<Element> elements = new ObjectArrayList<>();
+    protected ObjectArrayList<Element> elements;
+
+    public CustomForm() {
+        this("");
+    }
+
+    public CustomForm(String title) {
+        this(title, new ObjectArrayList<>());
+    }
 
     public CustomForm addElement(Element element) {
         this.elements.add(element);
         return this;
     }
 
+    /**
+     *
+     * Forms need an identifier so that the Minecraft client knows what type of form to open. ('type' => 'custom_form')
+     * The json data of a custom form contains a title and content (array of elements).
+     *
+     * @return A json object containing data used by the Minecraft client to construct a custom form
+     */
     @Override
     public JsonObject toJson() {
         JsonObject object = new JsonObject();
@@ -46,6 +59,15 @@ public class CustomForm implements Form {
         return object;
     }
 
+    /**
+     *
+     * The client sends us an array of responses, which are in the same order as the elements within the form
+     * The value will be 'null' if the player closes the form
+     * We retrieve the corresponding element from our array and set the responses into a new {@link org.sculk.form.response.CustomResponse}.
+     *
+     * @param packet The packet sent to the server by the client
+     * @return A response object
+     */
     @Override
     public Response processResponse(ModalFormResponsePacket packet) {
         CustomResponse response = new CustomResponse();

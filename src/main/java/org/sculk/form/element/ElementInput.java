@@ -1,18 +1,23 @@
 package org.sculk.form.element;
 
 import com.google.gson.JsonObject;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementInput implements Element {
-    protected String text = "";
-    protected String placeholder = "";
-    protected String defaultText = "";
+    protected String text;
+    protected String placeholder;
+    protected String defaultText;
+
+    public ElementInput() {
+        this("");
+    }
 
     public ElementInput(String text) {
         this(text, "");

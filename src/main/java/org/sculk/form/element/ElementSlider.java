@@ -4,21 +4,23 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementSlider implements Element {
-    protected String text = "";
-    protected float min = 1;
-    protected float max = 100;
-    protected int step = 1;
-    protected float defaultValue = 1;
+    protected String text;
+    protected float min;
+    protected float max;
+    protected int step;
+    protected float defaultValue;
+
+    public ElementSlider() {
+        this("");
+    }
 
     public ElementSlider(String text) {
         this(text, 1);

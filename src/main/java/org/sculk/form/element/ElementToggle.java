@@ -3,18 +3,20 @@ package org.sculk.form.element;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementToggle implements Element {
-    protected String text = "";
-    protected boolean defaultValue = false;
+    protected String text;
+    protected boolean defaultValue;
+
+    public ElementToggle() {
+        this("");
+    }
 
     public ElementToggle(String text) {
         this(text, false);

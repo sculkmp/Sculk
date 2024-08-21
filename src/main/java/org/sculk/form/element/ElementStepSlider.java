@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -15,12 +14,15 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-@NoArgsConstructor
 @AllArgsConstructor
 public class ElementStepSlider implements Element {
-    protected String text = "";
-    protected List<String> steps = new ArrayList<>();
-    protected int defaultStep = 0;
+    protected String text;
+    protected List<String> steps;
+    protected int defaultStep;
+
+    public ElementStepSlider() {
+        this("");
+    }
 
     public ElementStepSlider(String text) {
         this(text, new ArrayList<>());
@@ -37,7 +39,7 @@ public class ElementStepSlider implements Element {
 
     @Override
     public JsonObject toJson() {
-        Preconditions.checkArgument(this.defaultStep > -1 && this.defaultStep < this.steps.size(), "Default option not an index");
+        Preconditions.checkArgument(this.defaultStep > -1 && this.defaultStep < this.steps.size(), "Default option not within range");
 
         JsonObject object = new JsonObject();
         object.addProperty("type", "step_slider");

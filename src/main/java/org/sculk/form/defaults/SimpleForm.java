@@ -15,11 +15,8 @@ import org.sculk.form.response.SimpleResponse;
 @Setter
 @Accessors(chain = true)
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class SimpleForm implements Form {
-    @NonNull
     protected String title;
-    @NonNull
     protected String content;
     protected ObjectArrayList<ElementButton> elements;
 
@@ -29,6 +26,10 @@ public class SimpleForm implements Form {
 
     public SimpleForm(String title) {
         this(title, "");
+    }
+
+    public SimpleForm(String title, String content) {
+        this(title, content, new ObjectArrayList<>());
     }
 
     public SimpleForm addButton(String text) {
@@ -44,6 +45,13 @@ public class SimpleForm implements Form {
         return this;
     }
 
+    /**
+     *
+     * Forms need an identifier so that the Minecraft client knows what type of form to open. ('type' => 'form')
+     * The json data of a simple form contains a title, content and an array of buttons (text + optional image).
+     *
+     * @return A json object containing data used by the Minecraft client to construct a simple form
+     */
     @Override
     public JsonObject toJson() {
         JsonObject object = new JsonObject();
@@ -60,15 +68,19 @@ public class SimpleForm implements Form {
         return object;
     }
 
+    /**
+     *
+     * The client sends us a buttonId corresponding to the button's position within the form, which we use to determine the button clicked in our elements array
+     * If the response does not contain an integer ('null'), the form has been closed.
+     *
+     * @param packet The packet sent to the server by the client
+     * @return A response object
+     */
     @Override
     public SimpleResponse processResponse(ModalFormResponsePacket packet) {
         SimpleResponse response = new SimpleResponse();
 
         String data = packet.getFormData().trim();
-        if (data.equals("null")) {
-            return response.setClosed(true);
-        }
-
         int buttonId;
         try {
             buttonId = Integer.parseInt(data);
