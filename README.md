@@ -85,10 +85,6 @@ Simply run `java -jar Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar`
 We warmly welcome contributions to the Sculk project! If you are excited about improving Minecraft 
 Bedrock server software with Java, here are some ways you can contribute:
 
-<a href="https://github.com/sculkmp/Sculk/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sculkmp/Sculk" />
-</a>
-
 ### Reporting bugs
 If you encounter any bugs while using Sculk, please open an [issue](https://github.com/sculkmp/Sculk/issues) in
 our GitHub repository. Ensure to include a detailed description of the bug and steps to reproduce it.
