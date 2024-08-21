@@ -1,5 +1,7 @@
 package org.sculk;
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
@@ -19,6 +21,7 @@ import org.sculk.network.SourceInterface;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.scheduler.Scheduler;
 import org.sculk.utils.TextFormat;
+import org.sculk.utils.Utils;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -75,6 +78,8 @@ public class Server {
     private int maxPlayers;
     private String defaultGamemode;
     private UUID serverId;
+    private long nextTick;
+    private int tickCounter;
 
     public volatile boolean shutdown = false;
 
@@ -135,6 +140,8 @@ public class Server {
             shutdown();
         }
 
+        this.tickCounter = 0;
+
         if(this.properties.get(ServerPropertiesKeys.XBOX_AUTH, true)) {
             logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
         } else {
@@ -144,6 +151,7 @@ public class Server {
         logger.info("Sculk is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
 
         getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
+        this.tickProcessor();
     }
 
     public void shutdown() {
@@ -260,6 +268,52 @@ public class Server {
 
     public boolean isXboxAuth() {
         return true; // TODO default true for test
+    }
+
+    public void tickProcessor() {
+        this.nextTick = System.currentTimeMillis();
+        try {
+            while(this.isRunning()) {
+                try {
+                    this.tick();
+                    long next = this.nextTick;
+                    long current = System.currentTimeMillis();
+                    if(next - 0.1 > current) {
+                        long allocated = next - current - 1;
+                        if(allocated > 0) {
+                            Thread.sleep(allocated, 900000);
+                        }
+                    }
+                } catch(RuntimeException exception) {
+                    log.error("Error whilst ticking server", exception);
+                }
+            }
+        } catch(Throwable throwable) {
+            log.fatal("Exception happened while ticking server", throwable);
+        }
+    }
+
+    private boolean tick() {
+        long tickTime = System.currentTimeMillis();
+        long time = tickTime - this.nextTick;
+        if(time < -25) {
+            try {
+                Thread.sleep(Math.max(5, -time - 25));
+            } catch(InterruptedException exception) {
+                log.error("Server interrupted whilst sleeping", exception);
+            }
+        }
+        long tickTimeNano = System.nanoTime();
+        if((tickTimeNano - this.nextTick) < -25) {
+            return false;
+        }
+        try(Timing ignored = Timings.fullServerTickTimer.startTiming()) {
+            ++this.tickCounter;
+            try(Timing timing1 = Timings.schedulerTimer.startTiming()) {
+                this.scheduler.mainThread(this.tickCounter);
+            }
+        }
+        return true;
     }
 
 }

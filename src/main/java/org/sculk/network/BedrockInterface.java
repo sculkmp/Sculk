@@ -14,6 +14,7 @@ import org.cloudburstmc.protocol.bedrock.netty.initializer.BedrockServerInitiali
 import org.sculk.Server;
 import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.network.packets.LoginPacketHandler;
+import org.sculk.network.protocol.ProtocolInfo;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -88,12 +89,15 @@ public class BedrockInterface implements AdvancedSourceInterface {
         this.bedrockPong.edition("MCPE")
                 .motd(this.server.getMotd())
                 .subMotd(this.server.getMotd())
-                .playerCount(0)
+                .playerCount(this.server.getOnlinePlayers().size())
+                .serverId(1)
                 .maximumPlayerCount(20)
                 .version("1")
-                .protocolVersion(0)
+                .protocolVersion(ProtocolInfo.CURRENT_PROTOCOL)
                 .gameType("Survival")
-                .nintendoLimited(false);
+                .nintendoLimited(false)
+                .ipv4Port(19132)
+                .ipv6Port(19132);
 
         for (Channel channel : this.channels) {
             channel.config().setOption(RakChannelOption.RAK_ADVERTISEMENT, this.bedrockPong.toByteBuf());

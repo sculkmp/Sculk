@@ -11,6 +11,7 @@ import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormRequestPacket;
+import org.cloudburstmc.protocol.bedrock.packet.ResourcePackClientResponsePacket;
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
 import org.sculk.form.Form;
@@ -103,7 +104,12 @@ public class Player implements PlayerInterface {
         startGamePacket.setEducationProductionId("");
         startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
 
+        ResourcePackClientResponsePacket responsePacket = new ResourcePackClientResponsePacket();
+        responsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
+
+        sendDataPacket(responsePacket);
         sendDataPacket(startGamePacket);
+
         this.getServer().addOnlinePlayer(this);
         getServer().onPlayerCompleteLogin(this);
     }
