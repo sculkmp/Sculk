@@ -1,5 +1,8 @@
 package org.sculk;
 
+import org.cloudburstmc.math.vector.Vector2f;
+import org.cloudburstmc.math.vector.Vector3f;
+import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.*;
@@ -11,6 +14,7 @@ import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 
+import java.util.List;
 import java.util.UUID;
 
 /*
@@ -40,22 +44,22 @@ public class Player implements PlayerInterface {
     }
 
     public void processLogin() {
-
+        getServer().getLogger().info("process login call");
     }
 
     public void completeLogin() {
         StartGamePacket startGamePacket = new StartGamePacket();
         startGamePacket.setUniqueEntityId(this.getUniqueId());
         startGamePacket.setRuntimeEntityId(this.getRuntimeId());
-        //startGamePacket.setPlayerGameType(GameType.CREATIVE);
-        //startGamePacket.setPlayerPosition(pos);
-        //startGamePacket.setRotation(Vector2f.from(this.getYaw(), this.getPitch()));
+        startGamePacket.setPlayerGameType(GameType.CREATIVE);
+        startGamePacket.setPlayerPosition(Vector3f.from(0, 0, 0));
+        startGamePacket.setRotation(Vector2f.from(0, 0));
         startGamePacket.setSeed(-1L);
         startGamePacket.setDimensionId(0);
         startGamePacket.setTrustingPlayers(false);
         startGamePacket.setLevelGameType(GameType.CREATIVE);
         startGamePacket.setDifficulty(0);
-        //startGamePacket.setDefaultSpawn(this.getSpawn().getPosition().toInt());
+        startGamePacket.setDefaultSpawn(Vector3i.from(0, 0, 0));
         startGamePacket.setAchievementsDisabled(true);
         startGamePacket.setDayCycleStopTime(0);
         startGamePacket.setRainLevel(0);
@@ -63,16 +67,16 @@ public class Player implements PlayerInterface {
         startGamePacket.setCommandsEnabled(true);
         startGamePacket.setMultiplayerGame(true);
         startGamePacket.setBroadcastingToLan(true);
-       // NetworkUtils.gameRulesToNetwork(this.getLevel().getGameRules(), startGamePacket.getGamerules());
+        //NetworkUtils.gameRulesToNetwork(this.getLevel().getGameRules(), startGamePacket.getGamerules());
         startGamePacket.setLevelId(""); // This is irrelevant since we have multiple levels
         startGamePacket.setLevelName("World"); // We might as well use the MOTD instead of the default level name
         startGamePacket.setGeneratorId(1); // 0 old, 1 infinite, 2 flat - Has no effect to my knowledge
-        //startGamePacket.setItemDefinitions(CloudItemRegistry.get().getItemEntries());
-        //startGamePacket.setXblBroadcastMode(GamePublishSetting.PUBLIC);
+        startGamePacket.setItemDefinitions(List.of());
+        startGamePacket.setXblBroadcastMode(GamePublishSetting.PUBLIC);
         startGamePacket.setPlatformBroadcastMode(GamePublishSetting.PUBLIC);
         startGamePacket.setDefaultPlayerPermission(PlayerPermission.MEMBER);
         startGamePacket.setServerChunkTickRange(4);
-        startGamePacket.setVanillaVersion("1.17.40"); // Temporary hack that allows player to join by disabling the new chunk columns introduced in update 1.18
+        startGamePacket.setVanillaVersion("1.21.2"); // Temporary hack that allows player to join by disabling the new chunk columns introduced in update 1.18
         startGamePacket.setPremiumWorldTemplateId("");
         startGamePacket.setMultiplayerCorrelationId("");
         startGamePacket.setInventoriesServerAuthoritative(true);
