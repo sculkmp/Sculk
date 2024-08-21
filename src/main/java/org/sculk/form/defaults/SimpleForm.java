@@ -5,16 +5,18 @@ import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.sculk.form.IForm;
+import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
+import org.sculk.form.Form;
 import org.sculk.form.element.button.ElementButton;
 import org.sculk.form.element.button.Image;
+import org.sculk.form.response.SimpleResponse;
 
 @Getter
 @Setter
 @Accessors(chain = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class SimpleForm implements IForm {
+public class SimpleForm implements Form {
     @NonNull
     protected String title;
     @NonNull
@@ -56,5 +58,26 @@ public class SimpleForm implements IForm {
         object.add("buttons", buttons);
 
         return object;
+    }
+
+    @Override
+    public SimpleResponse processResponse(ModalFormResponsePacket packet) {
+        SimpleResponse response = new SimpleResponse();
+
+        String data = packet.getFormData().trim();
+        if (data.equals("null")) {
+            return response.setClosed(true);
+        }
+
+        int buttonId;
+        try {
+            buttonId = Integer.parseInt(data);
+        } catch (Exception e) {
+            return response.setClosed(true);
+        }
+
+        ElementButton button = buttonId < this.elements.size() ? this.elements.get(buttonId) : null;
+        return response.setButtonId(buttonId)
+                .setButton(button);
     }
 }

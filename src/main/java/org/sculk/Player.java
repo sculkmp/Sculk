@@ -1,13 +1,15 @@
 package org.sculk;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
+import org.cloudburstmc.protocol.bedrock.packet.ModalFormRequestPacket;
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
-import org.sculk.form.IForm;
+import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
@@ -34,13 +36,16 @@ public class Player implements PlayerInterface {
 
     private final BedrockServerSession serverSession;
     private LoginChainData loginChainData;
+
     private AtomicInteger formId;
+    private Int2ObjectOpenHashMap<Form> forms;
 
     public Player(BedrockServerSession session, ClientChainData data) {
         this.serverSession = session;
         this.loginChainData = data;
 
         this.formId = new AtomicInteger();
+        this.forms = new Int2ObjectOpenHashMap<>();
     }
 
     public void processLogin() {
@@ -144,8 +149,15 @@ public class Player implements PlayerInterface {
      *
      * @param form The form sent to the player
      */
-    public void openForm(IForm form) {
+    public int openForm(Form form) {
         int id = this.formId.getAndIncrement();
-        form.send(this, id);
+        this.forms.put(id, form);
+
+        ModalFormRequestPacket packet = new ModalFormRequestPacket();
+        packet.setFormId(id);
+        packet.setFormData(form.toJson().toString());
+
+        this.sendDataPacket(packet);
+        return id;
     }
 }

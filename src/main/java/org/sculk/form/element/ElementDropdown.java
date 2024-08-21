@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -20,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ElementDropdown implements Element {
     protected String text = "";
-    protected Collection<String> options = new ArrayList<>();
+    protected List<String> options = new ArrayList<>();
     protected int defaultOption = 0;
 
     public ElementDropdown(String text) {

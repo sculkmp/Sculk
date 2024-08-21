@@ -10,7 +10,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -20,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ElementStepSlider implements Element {
     protected String text = "";
-    protected Collection<String> steps = new ArrayList<>();
+    protected List<String> steps = new ArrayList<>();
     protected int defaultStep = 0;
 
     public ElementStepSlider(String text) {
