@@ -35,7 +35,7 @@ public abstract class Form implements Serializable {
      * @param packet The packet
      * @return {@link PacketSignal} to HANDLED to ensure a one-line implementation
      */
-    public static PacketSignal handle(Player player, ModalFormResponsePacket packet) {
+    public static PacketSignal handleIncomingPacket(Player player, ModalFormResponsePacket packet) {
         int formId = packet.getFormId();
         Form form = player.getForm(formId);
 
