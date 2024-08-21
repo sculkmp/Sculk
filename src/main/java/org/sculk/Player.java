@@ -44,7 +44,7 @@ public class Player implements PlayerInterface {
         this.serverSession = session;
         this.loginChainData = data;
 
-        this.formId = new AtomicInteger();
+        this.formId = new AtomicInteger(0);
         this.forms = new Int2ObjectOpenHashMap<>();
     }
 
