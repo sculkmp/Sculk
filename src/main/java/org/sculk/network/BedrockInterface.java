@@ -51,6 +51,7 @@ public class BedrockInterface implements AdvancedSourceInterface {
                 .childHandler(new BedrockServerInitializer() {
                     @Override
                     protected void initSession(BedrockServerSession bedrockServerSession) {
+                        bedrockServerSession.setCodec(ProtocolInfo.CODEC);
                         bedrockServerSession.setLogging(false);
                         bedrockServerSession.setPacketHandler(new LoginPacketHandler(bedrockServerSession, server, BedrockInterface.this));
                     }

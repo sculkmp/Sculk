@@ -36,7 +36,6 @@ public class ResourcePackHandler implements BedrockPacketHandler {
 
     @Override
     public PacketSignal handle(ResourcePackClientResponsePacket packet) {
-        loginData.setShouldLogin(true);
         Server.getInstance().getLogger().info("ResourcePackClientResponsePacket");
         return PacketSignal.HANDLED;
     }
@@ -44,7 +43,6 @@ public class ResourcePackHandler implements BedrockPacketHandler {
     @Override
     public PacketSignal handle(ResourcePackChunkRequestPacket packet) {
         ResourcePackChunkDataPacket dataPacket = new ResourcePackChunkDataPacket();
-        dataPacket.setProgress(100L);
         session.sendPacket(dataPacket);
 
         Server.getInstance().getLogger().info("ResourcePackChunkRequestPacket");

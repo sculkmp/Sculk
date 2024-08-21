@@ -23,7 +23,6 @@ public abstract class Plugin {
 
     protected final void init(PluginData description, Server server, File pluginFile) {
         Preconditions.checkArgument(!this.initialized, "Plugin has been already initialized!");
-
         this.initialized = true;
         this.description = description;
         this.server = server;
@@ -34,6 +33,7 @@ public abstract class Plugin {
 
         if (this.dataFolder.mkdirs()) {
             this.logger.info("Created plugin data folder");
+
         }
     }
 

@@ -10,7 +10,6 @@ import java.util.List;
 @Getter
 @ToString
 public class PluginData {
-
     public String name;
     public String version;
     public String author;

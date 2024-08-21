@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import lombok.Getter;
+
 import org.sculk.Server;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -83,6 +84,7 @@ public class PluginManager {
         if (!pluginFile.exists()) {
             return null;
         }
+      
         return this.pluginLoader.loadPluginData(pluginFile);
     }
 
@@ -189,6 +191,7 @@ public class PluginManager {
                 Plugin dependPlugin = this.getPluginByName(depend);
                 if (dependPlugin == null) {
                     server.getLogger().warn("§cCannot enable plugin " + pluginName + ", missing dependency " + depend + "!");
+
                     return false;
                 }
 
@@ -197,6 +200,7 @@ public class PluginManager {
                 }
             }
         }
+      
         return true;
     }
 
@@ -219,6 +223,7 @@ public class PluginManager {
 
         for (PluginClassLoader loader : this.pluginClassLoaders.values()) {
             try {
+
                 clazz = loader.findClass(className, false);
                 if (clazz != null) {
                     this.cachedClasses.put(className, clazz); // Cache the found class
@@ -250,5 +255,4 @@ public class PluginManager {
     public Plugin getPluginByName(String pluginName) {
         return this.pluginMap.getOrDefault(pluginName, null);
     }
-
 }

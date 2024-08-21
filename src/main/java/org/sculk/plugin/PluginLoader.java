@@ -52,6 +52,7 @@ public class PluginLoader {
     protected PluginData loadPluginData(File file) {
         try (JarFile pluginJar = new JarFile(file)) {
             JarEntry configEntry = pluginJar.getJarEntry("sculk.yml");
+
             if (configEntry == null) {
                 configEntry = pluginJar.getJarEntry("plugin.yml");
             }
@@ -70,6 +71,7 @@ public class PluginLoader {
             }
 
             log.warn("Invalid plugin.yml for " + file.getName() + ": main and/or name property missing, incompactible api version");
+
         } catch (Exception e) {
             log.error("Can not load plugin files in " + file.getPath(), e);
         }

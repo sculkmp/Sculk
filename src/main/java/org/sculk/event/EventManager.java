@@ -2,6 +2,7 @@ package org.sculk.event;
 
 
 import jline.internal.Preconditions;
+import org.sculk.Server;
 
 import java.util.Collections;
 import java.util.Map;
