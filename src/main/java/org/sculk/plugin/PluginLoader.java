@@ -2,8 +2,6 @@ package org.sculk.plugin;
 
 import lombok.extern.log4j.Log4j2;
 import org.sculk.Sculk;
-import org.sculk.Server;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.InputStream;
@@ -51,7 +49,7 @@ public class PluginLoader {
         return null;
     }
 
-    protected PluginData loadPluginData(File file, Yaml yaml) {
+    protected PluginData loadPluginData(File file) {
         try (JarFile pluginJar = new JarFile(file)) {
             JarEntry configEntry = pluginJar.getJarEntry("sculk.yml");
             if (configEntry == null) {
@@ -64,7 +62,7 @@ public class PluginLoader {
             }
 
             try (InputStream fileStream = pluginJar.getInputStream(configEntry)) {
-                PluginData pluginConfig = yaml.loadAs(fileStream, PluginData.class);
+                PluginData pluginConfig = PluginManager.yamlLoader.loadAs(fileStream, PluginData.class);
                 if (pluginConfig.getMain() != null && pluginConfig.getName() != null && pluginConfig.getApi().contains(Sculk.CODE_VERSION.replace("v", ""))) {
                     // Valid plugin.yml, main and name set
                     return pluginConfig;
