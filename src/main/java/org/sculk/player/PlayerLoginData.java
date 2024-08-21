@@ -90,6 +90,7 @@ public class PlayerLoginData {
             return null;
         }
 
+        player.processLogin();
         player.completeLogin();
         return player;
     }
