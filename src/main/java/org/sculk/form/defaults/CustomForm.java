@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 @Setter
 @Accessors(chain = true)
 @RequiredArgsConstructor
-public class CustomForm implements Form {
+public class CustomForm extends Form {
     private static Type LIST_STRING_TYPE = new TypeToken<List<String>>(){}.getType();
 
     @NonNull protected String title;
@@ -84,7 +84,7 @@ public class CustomForm implements Form {
      *
      * The client sends us an array of responses, which are in the same order as the elements within the form
      * The value will be 'null' if the player closes the form
-     * We retrieve the corresponding element from our array and set the responses into a new {@link org.sculk.form.response.CustomResponse}.
+     * We retrieve the corresponding element from our array and set the responses into a new {@link CustomResponse}.
      *
      * @param packet The packet sent to the server by the client
      * @return A response object

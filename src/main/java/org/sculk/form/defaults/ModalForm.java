@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 @Setter
 @Accessors(chain = true)
 @RequiredArgsConstructor
-public class ModalForm implements Form {
+public class ModalForm extends Form {
     @NonNull protected String title;
     @NonNull protected String content;
 

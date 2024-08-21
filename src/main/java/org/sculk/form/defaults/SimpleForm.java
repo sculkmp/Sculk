@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 @Setter
 @Accessors(chain = true)
 @RequiredArgsConstructor
-public class SimpleForm implements Form {
+public class SimpleForm extends Form {
     private static final ElementButton[] EMPTY_ARRAY = new ElementButton[0];
 
     @NonNull protected String title;

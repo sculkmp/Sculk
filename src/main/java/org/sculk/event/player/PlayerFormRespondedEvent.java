@@ -3,6 +3,7 @@ package org.sculk.event.player;
 import lombok.Getter;
 import org.sculk.Player;
 import org.sculk.form.Form;
+import org.sculk.form.response.Response;
 
 /*
  *   ____             _ _
@@ -24,11 +25,13 @@ import org.sculk.form.Form;
 public class PlayerFormRespondedEvent extends PlayerEvent {
     protected final int formId;
     protected final Form form;
+    protected final Response response;
 
-    public PlayerFormRespondedEvent(Player player, int formId, Form form) {
+    public PlayerFormRespondedEvent(Player player, int formId, Form form, Response response) {
         super(player);
 
         this.formId = formId;
         this.form = form;
+        this.response = response;
     }
 }

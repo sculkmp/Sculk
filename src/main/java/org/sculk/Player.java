@@ -165,4 +165,16 @@ public class Player implements PlayerInterface {
         this.sendDataPacket(packet);
         return id;
     }
+
+    /**
+     *
+     * Retrieve an already opened form from the map.
+     * The form will be deleted from the map upon retrieval.
+     *
+     * @param id The id given when opening the form
+     * @return {@link Form}
+     */
+    public Form getForm(int id) {
+        return this.forms.remove(id);
+    }
 }
