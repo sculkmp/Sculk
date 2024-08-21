@@ -8,6 +8,7 @@
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
+[![DiscordURL](https://img.shields.io/discord/1275086723147239464?label=discord&color=7289DA&logo=discord)](https://discord.gg/cD7SB6gJpy)
 
 </div>
 
@@ -48,24 +49,24 @@ dependencies {
 }
 ```
 
-| Milestone                                | Status |
-|------------------------------------------|--------|
-| **⚒️ Construction of the server tree**   | ✅     |
-| **👓 Visible server**                    | ✅     |
-| **🛜 Join server**                       | ⏳     |
-| **🎍 World loader**                      | 🚧     |
-| **🔌Plugin loader**                      | 🚧     |
-| **⌨️ Command System**                    | 🚧     |
-| **🔐 Permission System**                 | 🚧     |
-| **🎈 Event System**                      | ⏳     |
-| **🖼 Scoreboard API**             | 🚧     |
-| **🖼 Form API**             | ⏳     |
-| **👤 Player & Actor API**                | 🚧     |
-| **🔩 Item API**                          | 🚧     |
-| **🧱 Block API**                         | 🚧     |
-| **📦 Inventory API**                     | 🚧     |
-| **🔬 Beta Testing & Community Feedback** | 🚧     |
-| **🚀 Official Release & Support**        | 🚧     |
+| Milestone                                  | Status |
+|--------------------------------------------|--------|
+| **⚒️ Construction of the server tree**     | ✅     |
+| **👓 Visible server**                      | ✅     |
+| **🛜 Join server**                         | ⏳     |
+| **🎍 World loader**                        | 🚧     |
+| **🔌Plugin loader**                        | ⏳     |
+| **⌨️ Command System**                      | 🚧     |
+| **🔐 Permission System**                   | 🚧     |
+| **🎈 Event System**                        | ⏳     |
+| **🖼 Scoreboard API**                      | 🚧     |
+| **🖼 Form API**                            | ✅     |
+| **👤 Player & Actor API**                  | ⏳     |
+| **🔩 Item API**                            | 🚧     |
+| **🧱 Block API**                           | 🚧     |
+| **📦 Inventory API**                       | 🚧     |
+| **🔬 Beta Testing & Community Feedback**   | 🚧     |
+| **🚀 Official Release & Support**          | 🚧     |
 
 Here's a legend to guide you:
 - ✅: Task is completed. Woohoo! 🎉
