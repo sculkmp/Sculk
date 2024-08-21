@@ -30,6 +30,8 @@ public class ServerProperties {
         defaults.put(ServerPropertiesKeys.LEVEL_NAME.toString(), "world");
         defaults.put(ServerPropertiesKeys.LEVEL_SEED.toString(), "");
         defaults.put(ServerPropertiesKeys.LEVEL_TYPE.toString(), "DEFAULT");
+        defaults.put(ServerPropertiesKeys.SPAWN_ANIMALS.toString(), "on");
+        defaults.put(ServerPropertiesKeys.SPAWN_MONSTERS.toString(), "on");
         defaults.put(ServerPropertiesKeys.AUTO_SAVE.toString(), "on");
         defaults.put(ServerPropertiesKeys.XBOX_AUTH.toString(), "on");
         return defaults;

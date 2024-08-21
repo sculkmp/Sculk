@@ -14,6 +14,8 @@ public enum ServerPropertiesKeys {
     LEVEL_NAME("level-name"),
     LEVEL_SEED("level-seed"),
     LEVEL_TYPE("level-type"),
+    SPAWN_ANIMALS("spawn-animals"),
+    SPAWN_MONSTERS("spawn-monsters"),
     AUTO_SAVE("auto-save"),
     XBOX_AUTH("xbox-auth");
 
