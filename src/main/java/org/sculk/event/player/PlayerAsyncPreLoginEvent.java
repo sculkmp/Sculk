@@ -62,7 +62,7 @@ public final class PlayerAsyncPreLoginEvent extends PlayerEvent {
     }
 
     public List<Consumer<Player>> getScheduledActions() {
-        return scheduledActions;
+        return new ArrayList<>(scheduledActions);
     }
 
     @Override

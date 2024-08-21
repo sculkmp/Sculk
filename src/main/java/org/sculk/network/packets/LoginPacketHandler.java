@@ -18,6 +18,7 @@ import org.sculk.player.handler.ResourcePackHandler;
 import org.sculk.scheduler.AsyncTask;
 import org.sculk.utils.TextFormat;
 
+import java.security.KeyPairGenerator;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,7 +80,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
             return PacketSignal.HANDLED;
         }
 
-        session.setPacketHandler(new ResourcePackHandler(session, server, loginData));
+        //session.setPacketHandler(new ResourcePackHandler(session, server, loginData));
 
         PlayerLoginData playerLoginData = loginData;
         playerLoginData.setPreLoginEventTask(new AsyncTask() {
@@ -95,24 +96,27 @@ public class LoginPacketHandler implements BedrockPacketHandler {
 
             @Override
             public void onCompletion(Server server) {
-                server.getLogger().debug("on complete");
-                if(!loginData.getSession().getPeer().isConnected()) {
+                server.getLogger().info("on complete");
+                if(loginData.getSession().getPeer().isConnected()) {
+                    loginData.setShouldLogin(true);
                     if(playerAsyncPreLoginEvent.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.KICK) {
                         loginData.getSession().disconnect(playerAsyncPreLoginEvent.getKickMessage());
                     } else if(loginData.isShouldLogin()) {
-                        server.getLogger().debug("should login");
+                        server.getLogger().info("should login");
                         try {
                             Player player = loginData.initializePlayer();
                             for(Consumer<Player> action : playerAsyncPreLoginEvent.getScheduledActions()) {
                                 action.accept(player);
                             }
                         } catch(Exception e) {
-                            server.getLogger().debug("Error in player initialization: {}", e.getMessage());
+                            server.getLogger().info("Error in player initialization: {}", e.getMessage());
                         }
                     } else {
-                        server.getLogger().debug("unshould login");
+                        server.getLogger().info("unshould login");
                         loginData.setLoginTasks(playerAsyncPreLoginEvent.getScheduledActions());
                     }
+                } else {
+                    server.getLogger().info("Already connecter");
                 }
             }
         });
@@ -122,6 +126,13 @@ public class LoginPacketHandler implements BedrockPacketHandler {
         PlayStatusPacket statusPacket = new PlayStatusPacket();
         statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
         session.sendPacket(statusPacket);
+
+        ServerToClientHandshakePacket serverToClientHandshakePacket = new ServerToClientHandshakePacket();
+        serverToClientHandshakePacket.handle(this);
+        serverToClientHandshakePacket.setJwt();
+        System.out.println(serverToClientHandshakePacket.getJwt());
+        session.sendPacket(serverToClientHandshakePacket);
+
 
         // TODO: View Login in log
         this.server.getLogger().info("login packet call");

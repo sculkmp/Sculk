@@ -9,10 +9,7 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
-import org.cloudburstmc.protocol.bedrock.packet.ModalFormRequestPacket;
-import org.cloudburstmc.protocol.bedrock.packet.ResourcePackClientResponsePacket;
-import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
+import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
 import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
@@ -54,11 +51,28 @@ public class Player implements PlayerInterface {
         this.forms = new Int2ObjectOpenHashMap<>();
     }
 
+    public void kick(String message) {
+        DisconnectPacket packet = new DisconnectPacket();
+        packet.setKickMessage(message);
+        sendDataPacket(packet);
+    }
+
     public void processLogin() {
         getServer().getLogger().info("process login call");
+
     }
 
     public void completeLogin() {
+        ResourcePackStackPacket resourcePackStackPacket = new ResourcePackStackPacket();
+        resourcePackStackPacket.setForcedToAccept(false);
+        resourcePackStackPacket.setGameVersion("*");
+        sendDataPacket(resourcePackStackPacket);
+
+        ResourcePackClientResponsePacket resourcePackClientResponsePacket = new ResourcePackClientResponsePacket();
+        resourcePackClientResponsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
+        sendDataPacket(resourcePackClientResponsePacket);
+        Server.getInstance().getLogger().info("call pack stack");
+
         StartGamePacket startGamePacket = new StartGamePacket();
         startGamePacket.setUniqueEntityId(this.getUniqueId());
         startGamePacket.setRuntimeEntityId(this.getRuntimeId());
@@ -103,12 +117,12 @@ public class Player implements PlayerInterface {
         startGamePacket.setCustomBiomeName("");
         startGamePacket.setEducationProductionId("");
         startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
-
-        ResourcePackClientResponsePacket responsePacket = new ResourcePackClientResponsePacket();
-        responsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
-
-        sendDataPacket(responsePacket);
         sendDataPacket(startGamePacket);
+        Server.getInstance().getLogger().info("call startgame");
+
+        ResourcePackClientResponsePacket resourcePackClientResponsePacket2 = new ResourcePackClientResponsePacket();
+        resourcePackClientResponsePacket2.setStatus(ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS);
+        sendDataPacket(resourcePackClientResponsePacket2);
 
         this.getServer().addOnlinePlayer(this);
         getServer().onPlayerCompleteLogin(this);
@@ -151,7 +165,7 @@ public class Player implements PlayerInterface {
     }
 
     public long getPing() {
-        return 1;
+        return -1;
     }
 
     /**

@@ -111,6 +111,10 @@ public class Scheduler {
                     runTask(currentTick);
                 }
             }
+        } else {
+            for(int  i = this.currentTick +1; i <= currentTick; i++) {
+                runTask(currentTick);
+            }
         }
         this.currentTick = currentTick;
         AsyncTask.collectTask();
