@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /*
- *   ____             _ _              __  __ ____
- *  / ___|  ___ _   _| | | __         |  \/  |  _ \
- *  \___ \ / __| | | | | |/ /  _____  | |\/| | |_) |
- *   ___) | (__| |_| | |   <  |_____| | |  | |  __/
- *  |____/ \___|\__,_|_|_|\_\         |_|  |_|_|
+ *   ____             _ _
+ *  / ___|  ___ _   _| | | __
+ *  \___ \ / __| | | | | |/ /
+ *   ___) | (__| |_| | |   <
+ *  |____/ \___|\__,_|_|_|\_\
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,7 @@ public class ProtocolInfo {
 
     private static final Set<BedrockCodec> CODECS = ConcurrentHashMap.newKeySet();
 
-    public static String MINECRAFT_VERSION_NETWORK = "1.21.20";
+    public static String MINECRAFT_VERSION_NETWORK = "1.21.21";
     public static String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;
 
     static {

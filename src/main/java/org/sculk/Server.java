@@ -9,6 +9,8 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Logger;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.config.Config;
+import org.sculk.config.ServerProperties;
+import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.console.TerminalConsole;
 import org.sculk.event.EventManager;
 import org.sculk.network.BedrockInterface;
@@ -28,11 +30,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /*
- *   ____             _ _              __  __ ____
- *  / ___|  ___ _   _| | | __         |  \/  |  _ \
- *  \___ \ / __| | | | | |/ /  _____  | |\/| | |_) |
- *   ___) | (__| |_| | |   <  |_____| | |  | |  __/
- *  |____/ \___|\__,_|_|_|\_\         |_|  |_|_|
+ *   ____             _ _
+ *  / ___|  ___ _   _| | | __
+ *  \___ \ / __| | | | | |/ /
+ *   ___) | (__| |_| | |   <
+ *  |____/ \___|\__,_|_|_|\_\
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,7 +60,7 @@ public class Server {
     private final Path dataPath;
     private final Path pluginDataPath;
 
-    private final Config properties;
+    private final ServerProperties properties;
     private final Config config;
     private final Config operators;
     private final Config whitelist;
@@ -69,6 +71,7 @@ public class Server {
     private final Map<SocketAddress, Player> players = new HashMap<>();
 
     private String motd;
+    private String submotd;
     private int maxPlayers;
     private String defaultGamemode;
     private UUID serverId;
@@ -96,25 +99,9 @@ public class Server {
         this.config = new Config(this.dataPath + "/sculk.yml");
 
         logger.info("Loading {}...", TextFormat.AQUA + "server.properties" + TextFormat.WHITE);
-        this.properties = new Config(this.dataPath.resolve("server.properties").toString(), Config.PROPERTIES);
-        if(!this.properties.exists("server-port")) {
-            this.properties.set("language", "English");
-            this.properties.set("motd", "A Sculk Server Software");
-            this.properties.set("server-port", 19132);
-            this.properties.set("server-ip", "0.0.0.0");
-            this.properties.set("white-list", false);
-            this.properties.set("max-players", 20);
-            this.properties.set("gamemode", "Survival");
-            this.properties.set("pvp", true);
-            this.properties.set("difficulty", 1);
-            this.properties.set("level-name", "world");
-            this.properties.set("level-seed", "");
-            this.properties.set("level-type", "DEFAULT");
-            this.properties.set("auto-save", true);
-            this.properties.set("xbox-auth", true);
-            this.properties.save();
-        }
-        this.motd = this.properties.getString("motd");
+        this.properties = new ServerProperties(this.dataPath);
+        this.motd = this.properties.get(ServerPropertiesKeys.MOTD, "A Sculk Server Software");
+        this.submotd = this.properties.get(ServerPropertiesKeys.SUB_MOTD, "Powered by Sculk");
 
         this.injector = Guice.createInjector(Stage.PRODUCTION, new SculkModule(this));
         this.eventManager = injector.getInstance(EventManager.class);
@@ -125,7 +112,7 @@ public class Server {
         this.banByName = new Config(this.dataPath.resolve("banned-players.txt").toString(), Config.ENUM);
         this.banByIp = new Config(this.dataPath.resolve("banned-ip.txt").toString(), Config.ENUM);
 
-        logger.info("Selected {} as the base language", this.properties.getString("language"));
+        logger.info("Selected {} as the base language", this.properties.get(ServerPropertiesKeys.LANGUAGE, "English"));
         logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
 
         this.console = new TerminalConsole(this);
@@ -148,15 +135,15 @@ public class Server {
             shutdown();
         }
 
-        if(this.properties.getBoolean("xbox-auth")) {
+        if(this.properties.get(ServerPropertiesKeys.XBOX_AUTH, true)) {
             logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
         } else {
             logger.info("{}Online mode is not enabled. The server no longer checks if players are authenticated to XboxLive.", TextFormat.RED);
         }
         logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
-        logger.info("Sculk-MP is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
+        logger.info("Sculk is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
 
-        getLogger().info("Done ("+ (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000 +"s)! For help, type \"help\" or \"?");
+        getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
     }
 
     public void shutdown() {
@@ -213,7 +200,7 @@ public class Server {
         return Collections.unmodifiableMap(playerList);
     }
 
-    public Config getProperties() {
+    public ServerProperties getProperties() {
         return properties;
     }
 

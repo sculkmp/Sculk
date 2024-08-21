@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/.run/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/players" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/plugin_data" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/plugins" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/resource_packs" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/worlds" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/banned-ip.txt" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/banned-players.txt" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/op.txt" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/sculk.yml" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/server.properties" />
+      <excludeFolder url="file://$MODULE_DIR$/.run/whitelist.txt" />
+    </content>
+  </component>
+</module>
