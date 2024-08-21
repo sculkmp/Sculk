@@ -1,6 +1,8 @@
 package org.sculk.scheduler;
 
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.sculk.Server;
@@ -82,11 +84,15 @@ public abstract class AsyncTask implements Runnable {
     }
 
     public static void collectTask() {
-        AsyncTask task = LIST.poll();
-        try {
-            task.onCompletion(Server.getInstance());
-        } catch(Exception e) {
-            Server.getInstance().getLogger().error("Exception while async task {} invoking onCompletion", e);
+        try(Timing timing = Timings.schedulerSyncTimer.startTiming()) {
+            while(!LIST.isEmpty()) {
+                AsyncTask task = LIST.poll();
+                try {
+                    task.onCompletion(Server.getInstance());
+                } catch(Exception e) {
+                    Server.getInstance().getLogger().error("Exception while async task {} invoking onCompletion", e);
+                }
+            }
         }
     }
 

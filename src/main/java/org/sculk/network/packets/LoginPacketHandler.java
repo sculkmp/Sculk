@@ -117,7 +117,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
             }
         });
         server.getLogger().info("send async task");
-        //this.server.getScheduler().scheduleAsyncTask(loginData.getPreLoginEventTask());
+        this.server.getScheduler().scheduleAsyncTask(loginData.getPreLoginEventTask());
 
         PlayStatusPacket statusPacket = new PlayStatusPacket();
         statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);

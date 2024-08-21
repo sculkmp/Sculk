@@ -97,6 +97,7 @@ public class Scheduler {
         taskHandlerMap.put(taskHandler.getTaskId(), taskHandler);
         return taskHandler;
     }
+
     public void mainThread(int currentTick) {
         TaskHandler taskHandler;
         while((taskHandler = taskHandlerQueue.poll()) != null) {

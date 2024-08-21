@@ -309,6 +309,9 @@ public class Server {
         }
         try(Timing ignored = Timings.fullServerTickTimer.startTiming()) {
             ++this.tickCounter;
+            try(Timing timing1 = Timings.fullServerTickTimer.startTiming()) {
+                this.network.processInterfaces();
+            }
             try(Timing timing1 = Timings.schedulerTimer.startTiming()) {
                 this.scheduler.mainThread(this.tickCounter);
             }
