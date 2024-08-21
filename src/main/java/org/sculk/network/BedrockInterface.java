@@ -12,6 +12,7 @@ import org.cloudburstmc.protocol.bedrock.BedrockPong;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.netty.initializer.BedrockServerInitializer;
 import org.sculk.Server;
+import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.network.packets.LoginPacketHandler;
 
 import java.net.InetAddress;
@@ -53,7 +54,7 @@ public class BedrockInterface implements AdvancedSourceInterface {
                         bedrockServerSession.setPacketHandler(new LoginPacketHandler(bedrockServerSession, server, BedrockInterface.this));
                     }
                 })
-                .localAddress("0.0.0.0", 19132);
+                .localAddress(this.server.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.server.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.channels.add(bootstrap.bind().awaitUninterruptibly().channel());
     }
 

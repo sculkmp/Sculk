@@ -122,7 +122,7 @@ public class Server {
     public void start() {
         this.console.getConsoleThread().start();
 
-        InetSocketAddress bindAddress = new InetSocketAddress("0.0.0.0", 19132);
+        InetSocketAddress bindAddress = new InetSocketAddress(this.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.serverId = UUID.randomUUID();
         this.network = new Network(this);
         this.network.setName(this.motd);
