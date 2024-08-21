@@ -129,7 +129,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
 
         ServerToClientHandshakePacket serverToClientHandshakePacket = new ServerToClientHandshakePacket();
         serverToClientHandshakePacket.handle(this);
-        serverToClientHandshakePacket.setJwt();
+        // serverToClientHandshakePacket.setJwt(); //idk why this one here got pushed, it needs an argument but doesnt have one? weird
         System.out.println(serverToClientHandshakePacket.getJwt());
         session.sendPacket(serverToClientHandshakePacket);
 
