@@ -2,21 +2,14 @@ package org.sculk;
 
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.cloudburstmc.math.vector.Vector2f;
-import org.cloudburstmc.math.vector.Vector3f;
-import org.cloudburstmc.math.vector.Vector3i;
-import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
-import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
-import org.cloudburstmc.protocol.common.util.OptionalBoolean;
 import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -63,66 +56,27 @@ public class Player implements PlayerInterface {
     }
 
     public void completeLogin() {
-        ResourcePackStackPacket resourcePackStackPacket = new ResourcePackStackPacket();
-        resourcePackStackPacket.setForcedToAccept(false);
-        resourcePackStackPacket.setGameVersion("*");
-        sendDataPacket(resourcePackStackPacket);
+        ResourcePacksInfoPacket resourcePacksInfoPacket = new ResourcePacksInfoPacket();
+        sendDataPacket(resourcePacksInfoPacket);
+
+        ResourcePackClientResponsePacket resourcePackClientResponsePacket2 = new ResourcePackClientResponsePacket();
+        resourcePackClientResponsePacket2.setStatus(ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS);
+        sendDataPacket(resourcePackClientResponsePacket2);
 
         ResourcePackClientResponsePacket resourcePackClientResponsePacket = new ResourcePackClientResponsePacket();
         resourcePackClientResponsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
         sendDataPacket(resourcePackClientResponsePacket);
         Server.getInstance().getLogger().info("call pack stack");
 
-        StartGamePacket startGamePacket = new StartGamePacket();
-        startGamePacket.setUniqueEntityId(this.getUniqueId());
-        startGamePacket.setRuntimeEntityId(this.getRuntimeId());
-        startGamePacket.setPlayerGameType(GameType.CREATIVE);
-        startGamePacket.setPlayerPosition(Vector3f.from(0, 0, 0));
-        startGamePacket.setRotation(Vector2f.from(0, 0));
-        startGamePacket.setSeed(-1L);
-        startGamePacket.setDimensionId(0);
-        startGamePacket.setTrustingPlayers(false);
-        startGamePacket.setLevelGameType(GameType.CREATIVE);
-        startGamePacket.setDifficulty(0);
-        startGamePacket.setDefaultSpawn(Vector3i.from(0, 0, 0));
-        startGamePacket.setAchievementsDisabled(true);
-        startGamePacket.setDayCycleStopTime(0);
-        startGamePacket.setRainLevel(0);
-        startGamePacket.setLightningLevel(0);
-        startGamePacket.setCommandsEnabled(true);
-        startGamePacket.setMultiplayerGame(true);
-        startGamePacket.setBroadcastingToLan(true);
-        //NetworkUtils.gameRulesToNetwork(this.getLevel().getGameRules(), startGamePacket.getGamerules());
-        startGamePacket.setLevelId(""); // This is irrelevant since we have multiple levels
-        startGamePacket.setLevelName("World"); // We might as well use the MOTD instead of the default level name
-        startGamePacket.setGeneratorId(1); // 0 old, 1 infinite, 2 flat - Has no effect to my knowledge
-        startGamePacket.setItemDefinitions(List.of());
-        startGamePacket.setXblBroadcastMode(GamePublishSetting.PUBLIC);
-        startGamePacket.setPlatformBroadcastMode(GamePublishSetting.PUBLIC);
-        startGamePacket.setDefaultPlayerPermission(PlayerPermission.MEMBER);
-        startGamePacket.setServerChunkTickRange(4);
-        startGamePacket.setVanillaVersion("1.21.2"); // Temporary hack that allows player to join by disabling the new chunk columns introduced in update 1.18
-        startGamePacket.setPremiumWorldTemplateId("");
-        startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setInventoriesServerAuthoritative(true);
-        startGamePacket.setRewindHistorySize(0);
-        startGamePacket.setServerAuthoritativeBlockBreaking(false);
-        startGamePacket.setAuthoritativeMovementMode(AuthoritativeMovementMode.CLIENT);
-        startGamePacket.setServerEngine("");
-        startGamePacket.setPlayerPropertyData(NbtMap.EMPTY);
-        startGamePacket.setWorldTemplateId(new UUID(0, 0));
-        startGamePacket.setWorldEditor(false);
-        startGamePacket.setChatRestrictionLevel(ChatRestrictionLevel.NONE);
-        startGamePacket.setSpawnBiomeType(SpawnBiomeType.DEFAULT);
-        startGamePacket.setCustomBiomeName("");
-        startGamePacket.setEducationProductionId("");
-        startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
-        sendDataPacket(startGamePacket);
-        Server.getInstance().getLogger().info("call startgame");
+        ResourcePackStackPacket resourcePackStackPacket = new ResourcePackStackPacket();
+        resourcePackStackPacket.setForcedToAccept(false);
+        resourcePackStackPacket.setGameVersion("*");
+        sendDataPacket(resourcePackStackPacket);
+        Server.getInstance().getLogger().info("resourcePackStackPacket");
 
-        ResourcePackClientResponsePacket resourcePackClientResponsePacket2 = new ResourcePackClientResponsePacket();
-        resourcePackClientResponsePacket2.setStatus(ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS);
-        sendDataPacket(resourcePackClientResponsePacket2);
+
+        //sendDataPacket(startGamePacket);
+        Server.getInstance().getLogger().info("call startgame");
 
         this.getServer().addOnlinePlayer(this);
         getServer().onPlayerCompleteLogin(this);

@@ -1,9 +1,12 @@
 package org.sculk.event.player;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.sculk.Player;
 import org.sculk.event.Event;
 import org.sculk.network.SourceInterface;
+import org.sculk.network.session.SculkServerSession;
 
 import java.net.SocketAddress;
 
@@ -24,47 +27,19 @@ import java.net.SocketAddress;
  */
 public class PlayerCreationEvent extends Event {
 
-    private final SourceInterface sourceInterface;
-    private final Long clientId;
-    private final SocketAddress socketAddress;
-
+    @Getter
+    private final SculkServerSession session;
+    @Getter
+    @Setter
     private Class<? extends Player> baseClass;
+    @Getter
+    @Setter
     private Class<? extends Player> playerClass;
 
-    public PlayerCreationEvent(SourceInterface sourceInterface, Class<? extends Player> baseClass, Class<? extends Player> playerClass, Long clientId, SocketAddress socketAddress) {
-        this.sourceInterface = sourceInterface;
-        this.clientId = clientId;
-        this.socketAddress = socketAddress;
-        this.baseClass = baseClass;
-        this.playerClass = playerClass;
-    }
-
-    public SourceInterface getSourceInterface() {
-        return sourceInterface;
-    }
-
-    public SocketAddress getSocketAddress() {
-        return socketAddress;
-    }
-
-    public Long getClientId() {
-        return clientId;
-    }
-
-    public Class<? extends Player> getBaseClass() {
-        return baseClass;
-    }
-
-    public Class<? extends Player> getPlayerClass() {
-        return playerClass;
-    }
-
-    public void setBaseClass(Class<? extends Player> baseClass) {
-        this.baseClass = baseClass;
-    }
-
-    public void setPlayerClass(Class<? extends Player> playerClass) {
-        this.playerClass = playerClass;
+    public PlayerCreationEvent(SculkServerSession session) {
+        this.session = session;
+        this.baseClass = Player.class;
+        this.playerClass = Player.class;
     }
 
 }

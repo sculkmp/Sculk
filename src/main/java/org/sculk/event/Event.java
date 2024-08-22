@@ -1,6 +1,7 @@
 package org.sculk.event;
 
 
+import org.sculk.Server;
 import org.sculk.exception.EventException;
 
 /*
@@ -39,4 +40,9 @@ public abstract class Event {
         }
         isCancelled = cancelled;
     }
+
+    public final void call() {
+        Server.getInstance().getEventManager().call(this);
+    }
+
 }

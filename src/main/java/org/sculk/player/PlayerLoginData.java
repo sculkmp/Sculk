@@ -1,17 +1,12 @@
 package org.sculk.player;
 
 
-import org.apache.logging.log4j.Level;
+import lombok.Getter;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
-import org.sculk.Player;
-import org.sculk.Server;
-import org.sculk.event.player.PlayerCreationEvent;
-import org.sculk.network.BedrockInterface;
-import org.sculk.player.client.ClientChainData;
+import org.cloudburstmc.protocol.common.util.QuadConsumer;
+import org.sculk.network.session.SculkServerSession;
 import org.sculk.scheduler.AsyncTask;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -32,27 +27,19 @@ import java.util.function.Consumer;
  */
 public class PlayerLoginData {
 
-    private final BedrockServerSession session;
-    private final Server server;
-    private final BedrockInterface bedrockInterface;
-
+    private final SculkServerSession session;
     private boolean shouldLogin;
-    private String username;
-
-    private ClientChainData chainData;
     private AsyncTask preLoginEventTask;
-    private List<Consumer<Player>> loginTasks;
+    private List<Consumer<SculkServerSession>> loginTasks;
+    @Getter
+    private final QuadConsumer<Boolean, Boolean, Exception, String> authCallback;
 
-    public PlayerLoginData(BedrockServerSession serverSession, Server server, BedrockInterface bedrockInterface) {
+    public PlayerLoginData(SculkServerSession serverSession, QuadConsumer<Boolean, Boolean, Exception, String> authCallback) {
         this.session = serverSession;
-        this.server = server;
-        this.bedrockInterface = bedrockInterface;
         this.shouldLogin = false;
+        this.authCallback = authCallback;
     }
 
-    public ClientChainData getChainData() {
-        return this.chainData;
-    }
 
     public boolean isShouldLogin() {
         return shouldLogin;
@@ -66,39 +53,6 @@ public class PlayerLoginData {
         return session;
     }
 
-    public void setChainData(ClientChainData data) {
-        this.chainData = data;
-    }
-
-    public void setName(String username) {
-        this.username = username;
-    }
-
-    public String getName() {
-        return this.username;
-    }
-
-    public Player initializePlayer() {
-        Player player;
-
-        PlayerCreationEvent event = new PlayerCreationEvent(bedrockInterface, Player.class, Player.class, this.chainData.getClientId(), session.getSocketAddress());
-        this.server.getEventManager().call(event);
-        Class<? extends Player> clazz = (Class<? extends Player>) event.getPlayerClass();
-
-        try {
-            Constructor<? extends Player> constructor = clazz.getConstructor(BedrockServerSession.class, ClientChainData.class);
-            player = constructor.newInstance(session, chainData);
-            this.server.addPlayer(session.getSocketAddress(), player);
-        } catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            this.server.getLogger().throwing(Level.ERROR, e);
-            return null;
-        }
-
-        player.processLogin();
-        player.completeLogin();
-        return player;
-    }
-
     public void setPreLoginEventTask(AsyncTask asyncTask) {
         this.preLoginEventTask = asyncTask;
     }
@@ -107,11 +61,11 @@ public class PlayerLoginData {
         return preLoginEventTask;
     }
 
-    public void setLoginTasks(List<Consumer<Player>> loginTasks) {
+    public void setLoginTasks(List<Consumer<SculkServerSession>> loginTasks) {
         this.loginTasks = loginTasks;
     }
 
-    public List<Consumer<Player>> getLoginTasks() {
+    public List<Consumer<SculkServerSession>> getLoginTasks() {
         return loginTasks;
     }
 
