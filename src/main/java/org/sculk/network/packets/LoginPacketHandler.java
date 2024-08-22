@@ -84,7 +84,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
         }
 
         PlayerPreLoginEvent playerPreLoginEvent = new PlayerPreLoginEvent(loginData, "Sculk server");
-        this.server.getEventManager().fire(playerPreLoginEvent);
+        this.server.getEventManager().call(playerPreLoginEvent);
         if(playerPreLoginEvent.isCancelled()) {
             session.disconnect(playerPreLoginEvent.getKickMessage());
             return PacketSignal.HANDLED;
@@ -100,7 +100,7 @@ public class LoginPacketHandler implements BedrockPacketHandler {
             @Override
             public void onRun() {
                 playerAsyncPreLoginEvent = new PlayerAsyncPreLoginEvent(loginData.getChainData());
-                server.getEventManager().fire(playerAsyncPreLoginEvent);
+                server.getEventManager().call(playerAsyncPreLoginEvent);
                 server.getLogger().info("call async task");
             }
 

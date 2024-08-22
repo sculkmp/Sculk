@@ -19,7 +19,7 @@ import java.util.List;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public interface EventFireHandler {
+public interface EventCallHandler {
 
     interface ListenerMethod extends Comparable<ListenerMethod> {
         Object getListener();
@@ -27,7 +27,7 @@ public interface EventFireHandler {
         void run(Event event) throws Exception;
     }
 
-    void fire(Event event);
+    void call(Event event);
     List<ListenerMethod> getMethods();
 
 }

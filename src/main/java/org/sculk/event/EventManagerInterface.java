@@ -18,6 +18,6 @@ package org.sculk.event;
  */
 public interface EventManagerInterface {
 
-    void fire(Event event);
+    void call(Event event);
 
 }

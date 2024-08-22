@@ -46,7 +46,7 @@ public abstract class Form implements Serializable {
         Response response = form.processResponse(player, packet);
 
         PlayerFormRespondedEvent event = new PlayerFormRespondedEvent(player, formId, form, response);
-        Server.getInstance().getEventManager().fire(event);
+        Server.getInstance().getEventManager().call(event);
 
         return PacketSignal.HANDLED;
     }
