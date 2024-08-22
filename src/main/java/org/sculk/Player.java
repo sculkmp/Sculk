@@ -1,15 +1,19 @@
 package org.sculk;
 
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
+import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.sculk.entity.Attribute;
+import org.sculk.entity.AttributeFactory;
+import org.sculk.entity.HumanEntity;
 import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,13 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class Player implements PlayerInterface {
+public class Player extends HumanEntity implements PlayerInterface {
 
     private final BedrockServerSession serverSession;
     private LoginChainData loginChainData;
 
     private AtomicInteger formId;
     private Int2ObjectOpenHashMap<Form> forms;
+    private List<AttributeData> attributeMap;
 
     public Player(BedrockServerSession session, ClientChainData data) {
         this.serverSession = session;
@@ -116,6 +121,16 @@ public class Player implements PlayerInterface {
 
     public SerializedSkin getSerializedSkin() {
         return ((ClientChainData) this.loginChainData).getSerializedSkin();
+    }
+
+    public void sendAttributes() {
+        UpdateAttributesPacket pk = new UpdateAttributesPacket();
+        pk.setRuntimeEntityId(this.getRuntimeId());
+        List<AttributeData> attributes = pk.getAttributes();
+        //attributes.add(AttributeFactory.getINSTANCE().mustGet(Attribute.HUNGER));
+        pk.setAttributes(attributes);
+        sendDataPacket(pk);
+        System.out.println();
     }
 
     public long getPing() {

@@ -125,6 +125,7 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setScenarioId("");
 
         session.sendPacket(startGamePacket);
+        session.getPlayer().sendAttributes();
         session.sendPacket(new CreativeContentPacket());
         session.sendPacket(new BiomeDefinitionListPacket());
         session.sendPacket(new AvailableEntityIdentifiersPacket());
