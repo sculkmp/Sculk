@@ -8,21 +8,28 @@ import com.google.inject.Stage;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.config.Config;
 import org.sculk.config.ServerProperties;
 import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.console.TerminalConsole;
 import org.sculk.event.EventManager;
+import org.sculk.event.player.PlayerCreationEvent;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
 import org.sculk.network.protocol.ProtocolInfo;
+import org.sculk.network.session.SculkServerSession;
+import org.sculk.player.client.ClientChainData;
 import org.sculk.plugin.PluginManager;
 import org.sculk.scheduler.Scheduler;
 import org.sculk.utils.TextFormat;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Path;
@@ -31,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /*
  *   ____             _ _
@@ -188,6 +196,26 @@ public class Server {
 
 
         this.logger.info("Stopping other threads");
+    }
+
+    public CompletableFuture<Player> createPlayer(SculkServerSession session, ClientChainData info, boolean authenticated){
+        return  CompletableFuture.supplyAsync(() -> {
+            PlayerCreationEvent event = new PlayerCreationEvent(session);
+            event.call();
+            Class<? extends Player> clazz = (Class<? extends Player>) event.getPlayerClass();
+            Player player;
+
+            try {
+                Constructor<? extends Player> constructor = clazz.getConstructor(BedrockServerSession.class, ClientChainData.class);
+                player = constructor.newInstance(session, info);
+                this.addPlayer(session.getSocketAddress(), player);
+            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+                this.getLogger().warn("Failed to create player", e);
+                throw new RuntimeException(e);  // Propager l'exception dans le futur
+            }
+
+            return player;
+        });
     }
 
     public EventManager getEventManager() {

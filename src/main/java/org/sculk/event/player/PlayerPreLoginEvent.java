@@ -1,9 +1,13 @@
 package org.sculk.event.player;
 
 
+import lombok.Getter;
 import org.sculk.event.Cancellable;
 import org.sculk.event.Event;
 import org.sculk.player.PlayerLoginData;
+import org.sculk.player.client.ClientChainData;
+
+import java.net.SocketAddress;
 
 /*
  *   ____             _ _
@@ -22,16 +26,16 @@ import org.sculk.player.PlayerLoginData;
  */
 public class PlayerPreLoginEvent extends Event implements Cancellable {
 
-    protected PlayerLoginData loginData;
+    @Getter
+    protected ClientChainData loginData;
+    @Getter
+    protected SocketAddress address;
     protected String kickMessage;
 
-    public PlayerPreLoginEvent(PlayerLoginData loginData, String kickMessage) {
+    public PlayerPreLoginEvent(ClientChainData loginData, SocketAddress address, String kickMessage) {
         this.loginData = loginData;
+        this.address = address;
         this.kickMessage = kickMessage;
-    }
-
-    public PlayerLoginData getLoginData() {
-        return loginData;
     }
 
     public void setKickMessage(String kickMessage) {

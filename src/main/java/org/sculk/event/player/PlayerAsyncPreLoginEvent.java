@@ -2,6 +2,7 @@ package org.sculk.event.player;
 
 
 import org.sculk.Player;
+import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.client.LoginChainData;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public final class PlayerAsyncPreLoginEvent extends PlayerEvent {
     private LoginResult loginResult = LoginResult.SUCCESS;
     private String kickMessage = "Sculk server";
 
-    private final List<Consumer<Player>> scheduledActions = new ArrayList<>();
+    private final List<Consumer<SculkServerSession>> scheduledActions = new ArrayList<>();
 
     public PlayerAsyncPreLoginEvent(LoginChainData loginChainData) {
         super(null);
@@ -61,7 +62,7 @@ public final class PlayerAsyncPreLoginEvent extends PlayerEvent {
         this.kickMessage = kickMessage;
     }
 
-    public List<Consumer<Player>> getScheduledActions() {
+    public List<Consumer<SculkServerSession>> getScheduledActions() {
         return new ArrayList<>(scheduledActions);
     }
 
@@ -79,7 +80,7 @@ public final class PlayerAsyncPreLoginEvent extends PlayerEvent {
         this.loginResult = LoginResult.SUCCESS;
     }
 
-    public void scheduleSyncAction(Consumer<Player> action) {
+    public void scheduleSyncAction(Consumer<SculkServerSession> action) {
         this.scheduledActions.add(action);
     }
 
