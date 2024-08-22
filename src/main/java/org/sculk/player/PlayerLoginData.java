@@ -82,7 +82,7 @@ public class PlayerLoginData {
         Player player;
 
         PlayerCreationEvent event = new PlayerCreationEvent(bedrockInterface, Player.class, Player.class, this.chainData.getClientId(), session.getSocketAddress());
-        this.server.getEventManager().fire(event);
+        this.server.getEventManager().call(event);
         Class<? extends Player> clazz = (Class<? extends Player>) event.getPlayerClass();
 
         try {

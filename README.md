@@ -48,24 +48,24 @@ dependencies {
 }
 ```
 
-| Milestone                                | Status |
-|------------------------------------------|--------|
-| **⚒️ Construction of the server tree**   | ✅     |
-| **👓 Visible server**                    | ✅     |
-| **🛜 Join server**                       | ⏳     |
-| **🎍 World loader**                      | 🚧     |
-| **🔌Plugin loader**                      | 🚧     |
-| **⌨️ Command System**                    | 🚧     |
-| **🔐 Permission System**                 | 🚧     |
-| **🎈 Event System**                      | ⏳     |
-| **🖼 Scoreboard API**             | 🚧     |
-| **🖼 Form API**             | ⏳     |
-| **👤 Player & Actor API**                | 🚧     |
-| **🔩 Item API**                          | 🚧     |
-| **🧱 Block API**                         | 🚧     |
-| **📦 Inventory API**                     | 🚧     |
-| **🔬 Beta Testing & Community Feedback** | 🚧     |
-| **🚀 Official Release & Support**        | 🚧     |
+| Milestone                                  | Status |
+|--------------------------------------------|--------|
+| **⚒️ Construction of the server tree**     | ✅     |
+| **👓 Visible server**                      | ✅     |
+| **🛜 Join server**                         | ⏳     |
+| **🎍 World loader**                        | 🚧     |
+| **🔌Plugin loader**                        | ⏳     |
+| **⌨️ Command System**                      | 🚧     |
+| **🔐 Permission System**                   | 🚧     |
+| **🎈 Event System**                        | ⏳     |
+| **🖼 Scoreboard API**                      | 🚧     |
+| **🖼 Form API**                            | ✅     |
+| **👤 Player & Actor API**                  | ⏳     |
+| **🔩 Item API**                            | 🚧     |
+| **🧱 Block API**                           | 🚧     |
+| **📦 Inventory API**                       | 🚧     |
+| **🔬 Beta Testing & Community Feedback**   | 🚧     |
+| **🚀 Official Release & Support**          | 🚧     |
 
 Here's a legend to guide you:
 - ✅: Task is completed. Woohoo! 🎉

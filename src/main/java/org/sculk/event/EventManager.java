@@ -1,9 +1,6 @@
 package org.sculk.event;
 
 
-import jline.internal.Preconditions;
-import org.sculk.Server;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,14 +23,14 @@ import static org.cloudburstmc.protocol.common.util.Preconditions.checkNotNull;
  */
 public class EventManager implements EventManagerInterface {
 
-    private volatile Map<Class<? extends Event>, EventFireHandler> eventHandlers = Collections.emptyMap();
+    private volatile Map<Class<? extends Event>, EventCallHandler> eventHandlers = Collections.emptyMap();
 
     @Override
-    public void fire(Event event) {
+    public void call(Event event) {
         checkNotNull(event, "event");
-        EventFireHandler handler = eventHandlers.get(event.getClass());
+        EventCallHandler handler = eventHandlers.get(event.getClass());
         if(handler != null) {
-            handler.fire(event);
+            handler.call(event);
         }
     }
 
