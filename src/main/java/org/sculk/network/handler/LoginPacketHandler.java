@@ -4,18 +4,14 @@ import lombok.SneakyThrows;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.cloudburstmc.protocol.common.util.QuadConsumer;
-import org.jose4j.jws.JsonWebSignature;
-import org.sculk.Player;
 import org.sculk.Server;
 import org.sculk.event.player.PlayerAsyncPreLoginEvent;
 import org.sculk.event.player.PlayerPreLoginEvent;
-import org.sculk.network.BedrockInterface;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.PlayerLoginData;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.scheduler.AsyncTask;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,9 +94,6 @@ public class LoginPacketHandler extends SculkPacketHandler {
                     } else if(loginData.isShouldLogin()) {
                         Exception error = null;
                         try {
-                            PlayStatusPacket statusPacket = new PlayStatusPacket();
-                            statusPacket.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
-                            session.sendPacket(statusPacket);
                             for(Consumer<SculkServerSession> action : playerAsyncPreLoginEvent.getScheduledActions()) {
                                 action.accept(LoginPacketHandler.this.session);
                             }

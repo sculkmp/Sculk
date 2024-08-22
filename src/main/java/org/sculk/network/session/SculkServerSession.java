@@ -8,7 +8,6 @@ import org.cloudburstmc.protocol.bedrock.BedrockPeer;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
-import org.cloudburstmc.protocol.common.util.QuadConsumer;
 import org.sculk.Player;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
@@ -16,8 +15,7 @@ import org.sculk.network.handler.*;
 import org.sculk.player.client.ClientChainData;
 
 import javax.annotation.Nullable;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.Objects;
 
 /*
  *   ____             _ _
@@ -67,7 +65,7 @@ public class SculkServerSession extends BedrockServerSession {
 
     private void setAuthenticationStatus(boolean authenticated, boolean authRequired, Exception error, String clientPubKey) {
         if(error == null){
-            if(authenticated && playerInfo.getXUID() == null){
+            if(authenticated && Objects.requireNonNull(playerInfo).getXUID() == null){
                 error = new Exception("Expected XUID but none found");
             }else if(clientPubKey == null){
                 error = new Exception("Missing client public key"); //failsafe
@@ -96,6 +94,7 @@ public class SculkServerSession extends BedrockServerSession {
 
     private void createPlayer(Object e) {
         this.server.createPlayer(this, this.playerInfo, false).thenAccept(this::onPlayerCreated).exceptionally(ex -> {
+            server.getLogger().throwing(ex);
             this.disconnect("Failed to create player.");
             return  null;
         });
@@ -112,19 +111,17 @@ public class SculkServerSession extends BedrockServerSession {
         PlayStatusPacket packet = new PlayStatusPacket();
         packet.setStatus(PlayStatusPacket.Status.PLAYER_SPAWN);
         this.sendPacket(packet);
-        System.out.println(packet);
         this.setPacketHandler(new SpawnResponsePacketHandler(this, this::onClientSpawnResponse));
     }
 
     private void onClientSpawnResponse(Object e) {
-        System.out.println("vvvvvvvvvvvvvvvv");
         this.setPacketHandler(new InGamePacketHandler(this.getPlayer(),this));
     }
 
     @Override
     public void setPacketHandler(@NonNull BedrockPacketHandler packetHandler) {
+        super.setPacketHandler(packetHandler);
         if (packetHandler instanceof SculkPacketHandler _sculkHandler)
             _sculkHandler.setUp();
-        super.setPacketHandler(packetHandler);
     }
 }

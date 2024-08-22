@@ -4,12 +4,9 @@ import org.cloudburstmc.protocol.bedrock.packet.ResourcePackClientResponsePacket
 import org.cloudburstmc.protocol.bedrock.packet.ResourcePackStackPacket;
 import org.cloudburstmc.protocol.bedrock.packet.ResourcePacksInfoPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
-import org.sculk.Player;
 import org.sculk.network.session.SculkServerSession;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Consumer;
 
 /*
@@ -40,8 +37,6 @@ public class ResourcePackHandler extends SculkPacketHandler {
         ResourcePacksInfoPacket resourcePacksInfoPacket = new ResourcePacksInfoPacket();
         session.sendPacket(resourcePacksInfoPacket);
     }
-
-
 
 
     public PacketSignal handle(ResourcePackClientResponsePacket packet) {
