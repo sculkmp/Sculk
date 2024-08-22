@@ -16,6 +16,8 @@ import org.sculk.network.handler.*;
 import org.sculk.player.client.ClientChainData;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 /*
  *   ____             _ _
@@ -34,7 +36,6 @@ import javax.annotation.Nullable;
  */
 public class SculkServerSession extends BedrockServerSession {
 
-    @Setter
     @Getter
     private @Nullable Player player;
     @Getter
@@ -101,11 +102,23 @@ public class SculkServerSession extends BedrockServerSession {
     }
 
     private void onPlayerCreated(Player player) {
-        System.out.println(player.getUniqueId());
+        this.player = player;
+        this.setPacketHandler(new PreSpawnPacketHandler(this, player));
+        this.notifyTerrainReady(null);
+    }
+
+    private void notifyTerrainReady(Object e) {
+
         PlayStatusPacket packet = new PlayStatusPacket();
         packet.setStatus(PlayStatusPacket.Status.PLAYER_SPAWN);
         this.sendPacket(packet);
-        this.setPacketHandler(new PreSpawnPacketHandler(this, player));
+        System.out.println(packet);
+        this.setPacketHandler(new SpawnResponsePacketHandler(this, this::onClientSpawnResponse));
+    }
+
+    private void onClientSpawnResponse(Object e) {
+        System.out.println("vvvvvvvvvvvvvvvv");
+        this.setPacketHandler(new InGamePacketHandler(this.getPlayer(),this));
     }
 
     @Override

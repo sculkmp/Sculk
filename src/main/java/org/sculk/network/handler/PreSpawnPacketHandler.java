@@ -6,7 +6,9 @@ import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.data.*;
+import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.StartGamePacket;
+import org.cloudburstmc.protocol.common.PacketSignal;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
 import org.sculk.Player;
 import org.sculk.network.session.SculkServerSession;
@@ -60,7 +62,7 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setBroadcastingToLan(true);
         //NetworkUtils.gameRulesToNetwork(this.getLevel().getGameRules(), startGamePacket.getGamerules());
         startGamePacket.setLevelId(""); // This is irrelevant since we have multiple levels
-        startGamePacket.setLevelName("World"); // We might as well use the MOTD instead of the default level name
+        startGamePacket.setLevelName("world"); // We might as well use the MOTD instead of the default level name
         startGamePacket.setGeneratorId(1); // 0 old, 1 infinite, 2 flat - Has no effect to my knowledge
         startGamePacket.setItemDefinitions(List.of());
         startGamePacket.setXblBroadcastMode(GamePublishSetting.PUBLIC);
@@ -74,7 +76,7 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setRewindHistorySize(0);
         startGamePacket.setServerAuthoritativeBlockBreaking(false);
         startGamePacket.setAuthoritativeMovementMode(AuthoritativeMovementMode.CLIENT);
-        startGamePacket.setServerEngine("");
+        startGamePacket.setServerEngine("Sculk");
         startGamePacket.setPlayerPropertyData(NbtMap.EMPTY);
         startGamePacket.setWorldTemplateId(new UUID(0, 0));
         startGamePacket.setWorldEditor(false);
@@ -83,7 +85,14 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setCustomBiomeName("");
         startGamePacket.setEducationProductionId("");
         startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
+
         session.sendPacket(startGamePacket);
+    }
+
+    @Override
+    public PacketSignal handlePacket(BedrockPacket packet) {
+        System.out.println(packet);
+        return super.handlePacket(packet);
     }
 
 }

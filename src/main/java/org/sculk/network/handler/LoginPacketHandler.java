@@ -87,18 +87,15 @@ public class LoginPacketHandler extends SculkPacketHandler {
             public void onRun() {
                 playerAsyncPreLoginEvent = new PlayerAsyncPreLoginEvent(session.getPlayerInfo());
                 playerAsyncPreLoginEvent.call();
-                Server.getInstance().getLogger().info("call async task");
             }
 
             @Override
             public void onCompletion(Server server) {
-                server.getLogger().info("on complete");
                 if(loginData.getSession().getPeer().isConnected()) {
                     loginData.setShouldLogin(true);
                     if(playerAsyncPreLoginEvent.getLoginResult() == PlayerAsyncPreLoginEvent.LoginResult.KICK) {
                         loginData.getSession().disconnect(playerAsyncPreLoginEvent.getKickMessage());
                     } else if(loginData.isShouldLogin()) {
-                        System.out.println("should login");
                         Exception error = null;
                         try {
                             PlayStatusPacket statusPacket = new PlayStatusPacket();
@@ -112,15 +109,13 @@ public class LoginPacketHandler extends SculkPacketHandler {
                         }
                         loginData.getAuthCallback().accept(clientChainData.isXboxAuthed(), false, error, clientChainData.getIdentityPublicKey());
                     } else {
-                        server.getLogger().info("unshould login");
                         loginData.setLoginTasks(playerAsyncPreLoginEvent.getScheduledActions());
                     }
                 } else {
-                    server.getLogger().info("Already connecter");
+                    session.disconnect("Already connected");
                 }
             }
         });
-        Server.getInstance().getLogger().info("send async task");
         Server.getInstance().getScheduler().scheduleAsyncTask(loginData.getPreLoginEventTask());
         /*
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
@@ -140,7 +135,6 @@ public class LoginPacketHandler extends SculkPacketHandler {
         //packet.getChain().add();
 
         // TODO: View Login in log
-        Server.getInstance().getLogger().info("login packet call");
         return PacketSignal.HANDLED;
     }
 

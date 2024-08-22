@@ -148,5 +148,12 @@ public class Scheduler {
         }
     }
 
+    public TaskHandler scheduleDelayedTask(Task task, int delay, boolean async) {
+        return this.addTask(task, delay, 0, async);
+    }
+
+    public TaskHandler scheduleDelayedTask(Runnable task, int delay, boolean async) {
+        return this.addTask(task, delay, 0, async);
+    }
 
 }

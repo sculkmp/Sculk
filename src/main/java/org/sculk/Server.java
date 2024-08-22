@@ -169,6 +169,11 @@ public class Server {
         logger.info("All plugins enabled successfully");
 
         getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
+
+        this.getScheduler().scheduleDelayedTask(() -> {
+            System.out.println("5ms");
+        }, 5, false);
+
         this.tickProcessor();
     }
 

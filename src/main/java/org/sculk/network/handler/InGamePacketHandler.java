@@ -3,6 +3,7 @@ package org.sculk.network.handler;
 
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
+import org.sculk.Player;
 import org.sculk.network.session.SculkServerSession;
 
 /*
@@ -22,7 +23,7 @@ import org.sculk.network.session.SculkServerSession;
  */
 public class InGamePacketHandler extends SculkPacketHandler {
 
-    public InGamePacketHandler(SculkServerSession session) {
+    public InGamePacketHandler(Player player, SculkServerSession session) {
         super(session);
     }
 
