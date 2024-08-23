@@ -8,7 +8,6 @@ import com.google.inject.Stage;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
@@ -23,6 +22,7 @@ import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.network.session.SculkServerSession;
+import org.sculk.player.Player;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.plugin.PluginManager;
 import org.sculk.scheduler.Scheduler;
@@ -207,11 +207,11 @@ public class Server {
         return  CompletableFuture.supplyAsync(() -> {
             PlayerCreationEvent event = new PlayerCreationEvent(session);
             event.call();
-            Class<? extends Player> clazz = (Class<? extends Player>) event.getPlayerClass();
+            Class<? extends Player> clazz = event.getPlayerClass();
             Player player;
 
             try {
-                Constructor<? extends Player> constructor = clazz.getConstructor(BedrockServerSession.class, ClientChainData.class);
+                Constructor<? extends Player> constructor = clazz.getConstructor(SculkServerSession.class, ClientChainData.class);
                 player = constructor.newInstance(session, info);
                 this.addPlayer(session.getSocketAddress(), player);
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
