@@ -49,6 +49,11 @@ public class Player extends HumanEntity implements PlayerInterface {
         this.forms = new Int2ObjectOpenHashMap<>();
     }
 
+    @Override
+    public void initEntity() {
+        super.initEntity();
+    }
+
     public void kick(String message) {
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
@@ -124,13 +129,22 @@ public class Player extends HumanEntity implements PlayerInterface {
     }
 
     public void sendAttributes() {
-        UpdateAttributesPacket pk = new UpdateAttributesPacket();
-        pk.setRuntimeEntityId(this.getRuntimeId());
-        List<AttributeData> attributes = pk.getAttributes();
-        //attributes.add(AttributeFactory.getINSTANCE().mustGet(Attribute.HUNGER));
-        pk.setAttributes(attributes);
-        sendDataPacket(pk);
-        System.out.println();
+        UpdateAttributesPacket updateAttributesPacket = new UpdateAttributesPacket();
+        updateAttributesPacket.setRuntimeEntityId(this.getRuntimeId());
+        List<AttributeData> attributes = updateAttributesPacket.getAttributes();
+
+        Attribute hunger = AttributeFactory.getINSTANCE().mustGet(Attribute.HUNGER);
+        attributes.add(new AttributeData(hunger.getId(), hunger.getMinValue(), hunger.getMaxValue(), hunger.getCurrentValue(), hunger.getDefaultValue()));
+
+        Attribute experienceLevel = AttributeFactory.getINSTANCE().mustGet(Attribute.EXPERIENCE_LEVEL);
+        attributes.add(new AttributeData(experienceLevel.getId(), experienceLevel.getMinValue(), experienceLevel.getMaxValue(), experienceLevel.getCurrentValue(), experienceLevel.getDefaultValue()));
+
+        Attribute experience = AttributeFactory.getINSTANCE().mustGet(Attribute.EXPERIENCE);
+        attributes.add(new AttributeData(experience.getId(), experience.getMinValue(), experience.getMaxValue(), experience.getCurrentValue(), experience.getDefaultValue()));
+
+        updateAttributesPacket.setAttributes(attributes);
+        sendDataPacket(updateAttributesPacket);
+        System.out.println(updateAttributesPacket);
     }
 
     public long getPing() {

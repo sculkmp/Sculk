@@ -1,6 +1,9 @@
 package org.sculk.entity;
 
 
+import org.sculk.entity.manager.ExperienceManager;
+import org.sculk.entity.manager.HungerManager;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -17,4 +20,23 @@ package org.sculk.entity;
  * @link: http://www.sculkmp.org/
  */
 public class HumanEntity extends Living {
+
+    protected HungerManager hungerManager;
+    protected ExperienceManager experienceManager;
+
+    @Override
+    public void initEntity() {
+        super.initEntity();
+        this.hungerManager = new HungerManager(this);
+        this.experienceManager = new ExperienceManager(this);
+    }
+
+    public HungerManager getHungerManager() {
+        return hungerManager;
+    }
+
+    public ExperienceManager getExperienceManager() {
+        return experienceManager;
+    }
+
 }
