@@ -9,13 +9,15 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
-import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
+import org.sculk.command.CommandSender;
+import org.sculk.command.SimpleCommandMap;
 import org.sculk.config.Config;
 import org.sculk.config.ServerProperties;
 import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.console.TerminalConsole;
 import org.sculk.event.EventManager;
+import org.sculk.event.command.CommandEvent;
 import org.sculk.event.player.PlayerCreationEvent;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
@@ -65,7 +67,9 @@ public class Server {
     private final EventManager eventManager;
     private final PluginManager pluginManager;
     private final Injector injector;
+
     private Scheduler scheduler;
+    private SimpleCommandMap simpleCommandMap;
 
     private Network network;
 
@@ -121,6 +125,7 @@ public class Server {
         this.eventManager = injector.getInstance(EventManager.class);
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
+        this.simpleCommandMap = new SimpleCommandMap(this);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
         this.whitelist = new Config(this.dataPath.resolve("whitelist.txt").toString(), Config.ENUM);
@@ -368,6 +373,22 @@ public class Server {
             }
         }
         return true;
+    }
+
+    public SimpleCommandMap getCommandMap() {
+        return this.simpleCommandMap;
+    }
+
+    public void dispatchCommand(CommandSender sender, String commandLine, boolean internal) {
+        if(!internal) {
+            CommandEvent commandEvent = new CommandEvent(sender, commandLine);
+            commandEvent.call();
+            if(commandEvent.isCancelled()) {
+                return;
+            }
+            commandLine = commandEvent.getCommand();
+        }
+        simpleCommandMap.dispatch(sender, commandLine);
     }
 
 }
