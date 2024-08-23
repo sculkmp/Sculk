@@ -13,6 +13,7 @@ import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
+import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 import org.sculk.utils.TextFormat;
@@ -243,18 +244,24 @@ public class Player extends HumanEntity implements PlayerInterface {
                 }
             }
         }*/
-        PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message);
-        playerChatEvent.call();
-        if(playerChatEvent.isCancelled()) {
-            return false;
+        if(message.startsWith("./")) {
+            message = message.substring(1);
         }
-        TextPacket textFormat = new TextPacket();
-        textFormat.setType(TextPacket.Type.CHAT);
-        textFormat.setXuid("");
-        textFormat.setSourceName(this.getName());
-        textFormat.setMessage(message);
-
-        this.sendDataPacket(textFormat);
+        if(message.startsWith("/")) {
+            System.out.println("commande executable");
+        } else {
+            PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message, new StandardChatFormatter());
+            playerChatEvent.call();
+            if(!playerChatEvent.isCancelled()) {
+                // TODO please change for use this.messageCount
+                TextPacket textFormat = new TextPacket();
+                textFormat.setType(TextPacket.Type.CHAT);
+                textFormat.setXuid("");
+                textFormat.setSourceName(this.getName());
+                textFormat.setMessage(playerChatEvent.getMessage());
+                this.sendDataPacket(textFormat);
+            }
+        }
         return true;
     }
 

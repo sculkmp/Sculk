@@ -3,6 +3,7 @@ package org.sculk.event.player;
 
 import org.sculk.Player;
 import org.sculk.event.Cancellable;
+import org.sculk.player.chat.ChatFormatter;
 
 /*
  *   ____             _ _
@@ -22,9 +23,11 @@ import org.sculk.event.Cancellable;
 public class PlayerChatEvent extends PlayerEvent implements Cancellable {
 
     protected String message;
+    protected ChatFormatter chatFormatter;
 
-    public PlayerChatEvent(Player player, String message) {
+    public PlayerChatEvent(Player player, String message, ChatFormatter chatFormatter) {
         super(player);
+        this.chatFormatter = chatFormatter;
         this.message = message;
     }
 
@@ -36,4 +39,11 @@ public class PlayerChatEvent extends PlayerEvent implements Cancellable {
         this.message = message;
     }
 
+    public ChatFormatter getChatFormatter() {
+        return chatFormatter;
+    }
+
+    public void setChatFormatter(ChatFormatter chatFormatter) {
+        this.chatFormatter = chatFormatter;
+    }
 }
