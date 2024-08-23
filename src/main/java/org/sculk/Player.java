@@ -3,11 +3,13 @@ package org.sculk;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
+import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.form.Form;
 import org.sculk.player.PlayerInterface;
 import org.sculk.player.client.ClientChainData;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Player extends HumanEntity implements PlayerInterface {
 
     private final BedrockServerSession serverSession;
+    private final SyncedEntityData data = new SyncedEntityData(this);
     private LoginChainData loginChainData;
 
     private AtomicInteger formId;
@@ -47,11 +50,20 @@ public class Player extends HumanEntity implements PlayerInterface {
 
         this.formId = new AtomicInteger(0);
         this.forms = new Int2ObjectOpenHashMap<>();
+
+        initEntity();
     }
 
     @Override
     public void initEntity() {
         super.initEntity();
+        System.out.println("init Entity");
+
+    }
+
+    public void updateFlags() {
+        this.data.setFlags(EntityFlag.BREATHING, true);
+        this.data.updateFlag();
     }
 
     public void kick(String message) {
