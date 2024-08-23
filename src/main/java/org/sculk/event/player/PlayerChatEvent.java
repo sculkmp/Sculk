@@ -1,5 +1,8 @@
-package org.sculk.entity;
+package org.sculk.event.player;
 
+
+import org.sculk.Player;
+import org.sculk.event.Cancellable;
 
 /*
  *   ____             _ _
@@ -16,10 +19,21 @@ package org.sculk.entity;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class Entity {
+public class PlayerChatEvent extends PlayerEvent implements Cancellable {
 
-    public void initEntity() {}
+    protected String message;
 
-    public void onUpdate() {}
+    public PlayerChatEvent(Player player, String message) {
+        super(player);
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
 }

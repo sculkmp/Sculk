@@ -25,4 +25,8 @@ public abstract class Living extends Entity {
         super.initEntity();
     }
 
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+    }
 }

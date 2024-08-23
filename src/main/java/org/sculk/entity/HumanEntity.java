@@ -31,6 +31,11 @@ public class HumanEntity extends Living {
         this.experienceManager = new ExperienceManager(this);
     }
 
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+    }
+
     public HungerManager getHungerManager() {
         return hungerManager;
     }
