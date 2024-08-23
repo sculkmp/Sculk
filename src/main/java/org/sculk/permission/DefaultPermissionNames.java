@@ -1,9 +1,5 @@
-package org.sculk.command;
+package org.sculk.permission;
 
-
-import org.sculk.Server;
-import org.sculk.permission.Permissible;
-import org.sculk.player.text.RawTextBuilder;
 
 /*
  *   ____             _ _
@@ -20,11 +16,12 @@ import org.sculk.player.text.RawTextBuilder;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public interface CommandSender extends Permissible {
+public class DefaultPermissionNames {
 
-    void sendMessage(String message);
-    void sendMessage(RawTextBuilder textBuilder);
-    Server getServer();
-    String getName();
+    public static final String COMMAND_VERSION = "sculk.command.version";
+
+    public static final String GROUP_CONSOLE = "sculk.group.console";
+    public static final String GROUP_OPERATOR = "sculk.group.operator";
+    public static final String GROUP_USER = "sculk.group.user";
 
 }

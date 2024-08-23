@@ -70,6 +70,10 @@ public abstract class Command {
         this.description = description;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setUsage(String usage) {
         this.usageMessage = usage;
     }

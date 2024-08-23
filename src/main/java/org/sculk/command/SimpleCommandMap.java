@@ -2,6 +2,8 @@ package org.sculk.command;
 
 
 import org.sculk.Server;
+import org.sculk.command.defaults.VersionCommand;
+import org.sculk.command.utils.CommandStringHelper;
 
 import java.util.*;
 
@@ -32,7 +34,7 @@ public class SimpleCommandMap implements CommandMap {
 
     private void setDefaultCommands() {
         registerAll("sculk", List.of(
-
+            new VersionCommand()
         ));
     }
 
@@ -79,11 +81,30 @@ public class SimpleCommandMap implements CommandMap {
         return true;
     }
 
-    private boolean registerAlias(Command command, boolean b, String fallbackPrefix, String label) {
+    private boolean registerAlias(Command command, boolean isAliases, String fallbackPrefix, String label) {
+        this.knownCommands.put(fallbackPrefix + ":" + label, command);
+        if(!isAliases) {
+            command.setLabel(label);
+        }
+        this.knownCommands.put(label, command);
         return true;
     }
 
     public boolean dispatch(CommandSender sender, String commandLine) {
+        String[] args = CommandStringHelper.parseQuoteAware(commandLine);
+        if(args.length == 0) {
+            sender.sendMessage("§cUnknown command: §4" + commandLine + "§c. Use /help for a list available commands.");
+            return false;
+        }
+        String sendCommandLabel = args[0];
+        args = Arrays.copyOfRange(args, 1, args.length);
+        
+        Command target = this.getCommand(sendCommandLabel);
+        if(target != null) {
+            target.execute(sender, sendCommandLabel, List.of(args));
+            return true;
+        }
+        sender.sendMessage("§cUnknown command: §4" + commandLine + "§c. Use /help for a list available commands.");
         return false;
     }
 
@@ -92,6 +113,7 @@ public class SimpleCommandMap implements CommandMap {
     }
 
     public Command getCommand(String name) {
+        System.out.println(knownCommands);
         return knownCommands.get(name);
     }
 
