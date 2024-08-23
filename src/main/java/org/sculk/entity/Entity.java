@@ -16,5 +16,8 @@ package org.sculk.entity;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class Entity {
+public abstract class Entity {
+
+    public void initEntity() {}
+
 }

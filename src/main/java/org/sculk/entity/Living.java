@@ -1,6 +1,8 @@
 package org.sculk.entity;
 
 
+import org.sculk.entity.manager.HungerManager;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -16,5 +18,11 @@ package org.sculk.entity;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class Living extends Entity {
+public abstract class Living extends Entity {
+
+    @Override
+    public void initEntity() {
+        super.initEntity();
+    }
+
 }
