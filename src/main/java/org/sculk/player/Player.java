@@ -251,7 +251,8 @@ public class Player extends HumanEntity implements PlayerInterface {
             message = message.substring(1);
         }
         if(message.startsWith("/")) {
-            System.out.println("commande executable");
+            String command = message.substring(1);
+            System.out.println(command);
         } else {
             PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message, new StandardChatFormatter());
             playerChatEvent.call();

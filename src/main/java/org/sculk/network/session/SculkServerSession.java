@@ -135,6 +135,7 @@ public class SculkServerSession extends BedrockServerSession {
         packet.setType(TextPacket.Type.RAW);
         packet.setMessage(message);
         this.sendPacket(packet);
+        this.getServer().getLogger().info(message);
     }
 
     public void onChatMessageJson(HashMap<String, Object> json) {
