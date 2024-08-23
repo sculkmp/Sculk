@@ -35,6 +35,7 @@ public class PluginClassLoader extends URLClassLoader {
         if (result == null && (result = super.findClass(name)) != null) {
             this.pluginManager.cacheClass(name, result);
         }
+
         this.classes.put(name, result);
         return result;
     }

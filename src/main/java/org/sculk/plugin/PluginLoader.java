@@ -1,7 +1,7 @@
 package org.sculk.plugin;
 
 import lombok.extern.log4j.Log4j2;
-import org.yaml.snakeyaml.Yaml;
+import org.sculk.Sculk;
 
 import java.io.File;
 import java.io.InputStream;
@@ -49,9 +49,10 @@ public class PluginLoader {
         return null;
     }
 
-    protected PluginData loadPluginData(File file, Yaml yaml) {
+    protected PluginData loadPluginData(File file) {
         try (JarFile pluginJar = new JarFile(file)) {
-            JarEntry configEntry = pluginJar.getJarEntry("plugin.yml");
+            JarEntry configEntry = pluginJar.getJarEntry("sculk.yml");
+
             if (configEntry == null) {
                 configEntry = pluginJar.getJarEntry("plugin.yml");
             }
@@ -62,13 +63,15 @@ public class PluginLoader {
             }
 
             try (InputStream fileStream = pluginJar.getInputStream(configEntry)) {
-                PluginData pluginConfig = yaml.loadAs(fileStream, PluginData.class);
-                if (pluginConfig.getMain() != null && pluginConfig.getName() != null) {
+                PluginData pluginConfig = PluginManager.yamlLoader.loadAs(fileStream, PluginData.class);
+                if (pluginConfig.getMain() != null && pluginConfig.getName() != null && pluginConfig.getApi().contains(Sculk.CODE_VERSION.replace("v", ""))) {
                     // Valid plugin.yml, main and name set
                     return pluginConfig;
                 }
             }
-            log.warn("Invalid plugin.yml for " + file.getName() + ": main and/or name property missing");
+
+            log.warn("Invalid plugin.yml for " + file.getName() + ": main and/or name property missing, incompactible api version");
+
         } catch (Exception e) {
             log.error("Can not load plugin files in " + file.getPath(), e);
         }
