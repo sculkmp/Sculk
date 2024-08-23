@@ -15,6 +15,7 @@ import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.handler.*;
 import org.sculk.player.client.ClientChainData;
+import org.sculk.player.text.RawTextBuilder;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -138,15 +139,12 @@ public class SculkServerSession extends BedrockServerSession {
         this.getServer().getLogger().info(message);
     }
 
-    public void onChatMessageJson(HashMap<String, Object> json) {
+    public void onChatMessageJson(RawTextBuilder textBuilder) {
         TextPacket packet = new TextPacket();
-        HashMap<String, Object> rawtext = new HashMap<>();
-        rawtext.put("rawtext", List.of(json));
         packet.setXuid("");
         packet.setSourceName("");
         packet.setType(TextPacket.Type.JSON);
-        System.out.println(new Gson().toJson(rawtext));
-        packet.setMessage(new Gson().toJson(rawtext));
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
         this.sendPacket(packet);
     }
 
