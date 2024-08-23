@@ -13,6 +13,7 @@ import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
 import org.sculk.Player;
+import org.sculk.Server;
 import org.sculk.network.session.SculkServerSession;
 
 import java.util.EnumSet;
@@ -141,6 +142,8 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         SetTimePacket setTimePacket = new SetTimePacket();
         setTimePacket.setTime(0);
         session.sendPacket(setTimePacket);
+
+        Server.getInstance().getLogger().info("Player: §b" + session.getPlayer().getName());
     }
 
     @Override

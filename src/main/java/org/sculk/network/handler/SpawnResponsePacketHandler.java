@@ -5,7 +5,9 @@ import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket;
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
+import org.sculk.Server;
 import org.sculk.network.session.SculkServerSession;
+import org.sculk.utils.TextFormat;
 
 import java.util.function.Consumer;
 
@@ -43,6 +45,7 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
     public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet) {
         System.out.println(packet);
         this.responseCallback.accept(null);
+        Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with entity id " + session.getPlayer().getUniqueId());
         return PacketSignal.HANDLED;
     }
 }
