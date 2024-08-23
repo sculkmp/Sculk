@@ -50,8 +50,8 @@ public class RuntimeDataSizeCalculator implements RuntimeDataDescriber{
         long currentBits = this.bits;
         this.boundedIntAuto(min, max, value);
         long actualBits = this.bits - currentBits;
-        if(actualBits != bits){
-            throw new IllegalArgumentException(STR."Bits should be \{actualBits} for the given bounds, but received $bits. Use boundedIntAuto() for automatic bits calculation.");
+        if (actualBits != bits) {
+            throw new IllegalArgumentException("Bits should be " + actualBits + " for the given bounds, but received " + bits + ". Use boundedIntAuto() for automatic bits calculation.");
         }
     }
 

@@ -51,7 +51,7 @@ public class RuntimeBlockStateRegistry {
         long typeId = block.getTypeId();
 
         if (typeIndex.containsKey(typeId)) {
-            throw new IllegalArgumentException(STR."Block ID \{typeId} is already used by another block");
+            throw new IllegalArgumentException("Block ID " + typeId + " is already used by another block");
         }
 
         typeIndex.put(typeId, block.clone());

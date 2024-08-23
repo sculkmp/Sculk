@@ -26,22 +26,22 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class RuntimeDataWriter implements RuntimeDataDescriber{
+public class RuntimeDataWriter implements RuntimeDataDescriber {
     private final long maxBits;
     @Getter
     private long value = 0;
     @Getter
     private long offset = 0;
-    public RuntimeDataWriter(long maxBits){
+
+    public RuntimeDataWriter(long maxBits) {
         this.maxBits = maxBits;
     }
 
     public void writeInt(long bits, AtomicLong value) {
         if (this.offset + bits > this.maxBits)
-            throw new IllegalArgumentException("Bit buffer cannot be larger than this.maxBits bits (already have this.offset bits)");
+            throw new IllegalArgumentException("Bit buffer cannot be larger than " + this.maxBits + " bits (already have " + this.offset + " bits)");
         if ((value.get() & (~0L << bits)) != 0)
-            throw new IllegalArgumentException(STR."Value \{value} does not fit into \{bits} bits");
-
+            throw new IllegalArgumentException("Value " + value + " does not fit into " + bits + " bits");
         this.value |= (value.get() << this.offset);
         this.offset += bits;
     }
@@ -56,20 +56,19 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
         long offset = this.offset;
         this.writeBoundedIntAuto(min, max, value);
         long actualBits = this.offset - offset;
-        if(actualBits != bits){
-            throw new IllegalArgumentException("Bits should be $actualBits for the given bounds, but received $bits. Use boundedIntAuto() for automatic bits calculation.");
+        if (actualBits != bits) {
+            throw new IllegalArgumentException("Bits should be " + actualBits + " for the given bounds, but received " + bits + ". Use boundedIntAuto() for automatic bits calculation.");
         }
     }
 
     private void writeBoundedIntAuto(long min, long max, AtomicLong value) {
         long _value = value.get();
-        if(_value < min || _value > max){
-            throw new IllegalArgumentException(STR."Value $value is outside the range \{min} - \{max}");
+        if (_value < min || _value > max) {
+            throw new IllegalArgumentException("Value " + _value + " is outside the range " + min + " - " + max);
         }
         long bits = SculkMath.log2(max - min) + 1;
         this.writeInt(bits, new AtomicLong(_value - min));
     }
-
 
     @Override
     public void boundedIntAuto(long min, long max, @Nullable AtomicLong value) {
@@ -80,6 +79,7 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
     public void writeBool(AtomicBoolean value) {
         this.writeInt(1, new AtomicLong(value.get() ? 1L : 0L));
     }
+
     @Override
     public void bool(AtomicBoolean value) {
         this.writeBool(value);
@@ -100,8 +100,7 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
     @Override
     public void facingFlags(@Nullable List<Integer> faces) {
         assert faces != null;
-        for (int facings: Facing.ALL)
-        {
+        for (int facings : Facing.ALL) {
             this.writeBool(new AtomicBoolean(faces.contains(facings)));
         }
     }
@@ -109,11 +108,9 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
     @Override
     public void horizontalFacingFlags(@Nullable List<Integer> faces) {
         assert faces != null;
-        for (int facings: Facing.HORIZONTAL)
-        {
+        for (int facings : Facing.HORIZONTAL) {
             this.writeBool(new AtomicBoolean(faces.contains(facings)));
         }
-
     }
 
     @Override
@@ -126,7 +123,7 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
             case 3 -> Facing.SOUTH;
             case 4 -> Facing.WEST;
             case 5 -> Facing.EAST;
-            default -> throw new IllegalArgumentException(STR."Invalid horizontal facing \{facing.get()}");
+            default -> throw new IllegalArgumentException("Invalid horizontal facing " + facing.get());
         }));
     }
 
@@ -142,7 +139,7 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
             case Axis.X -> 0;
             case Axis.Y -> 1;
             case Axis.Z -> 2;
-            default -> throw new IllegalArgumentException(STR."Invalid horizontal facing \{axis.get()}");
+            default -> throw new IllegalArgumentException("Invalid axis value " + axis.get());
         }));
     }
 
@@ -152,9 +149,8 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
         this.writeInt(1, new AtomicLong(switch (axis.get()) {
             case Axis.X -> 0;
             case Axis.Z -> 1;
-            default -> throw new IllegalArgumentException(STR."Invalid horizontal facing \{axis.get()}");
+            default -> throw new IllegalArgumentException("Invalid horizontal axis value " + axis.get());
         }));
-
     }
 
     @Override
@@ -167,6 +163,5 @@ public class RuntimeDataWriter implements RuntimeDataDescriber{
     public void straightOnlyRailShape(@Nullable AtomicInteger railShape) {
         assert railShape != null;
         this._int(3, new AtomicLong(railShape.get()));
-
     }
 }

@@ -52,7 +52,7 @@ public class RuntimeDataReader implements RuntimeDataDescriber{
     public long readInt(long bits) {
         long bitsLeft = maxBits - offset;
         if (bits > bitsLeft) {
-            throw new IllegalArgumentException(STR."No bits left in buffer (need \{bits}, have \{bitsLeft})");
+            throw new IllegalArgumentException("No bits left in buffer (need " + bits + ", have " + bitsLeft + ")");
         }
 
         int mask = (~0 >>> (32 - bits));
@@ -70,7 +70,7 @@ public class RuntimeDataReader implements RuntimeDataDescriber{
     public int readInt(int bits) {
         long bitsLeft = maxBits - offset;
         if (bits > bitsLeft) {
-            throw new IllegalArgumentException(STR."No bits left in buffer (need \{bits}, have \{bitsLeft})");
+            throw new IllegalArgumentException("No bits left in buffer (need " + bits + ", have " + bitsLeft + ")");
         }
 
         int mask = (~0 >>> (32 - bits));
@@ -98,7 +98,7 @@ public class RuntimeDataReader implements RuntimeDataDescriber{
         long bits = SculkMath.log2(max - min) + 1;
         long result = this.readInt(bits) + min;
         if (result < min || result > max) {
-            throw new InvalidSerializedRuntimeDataException(STR."Value is outside the range \{min} - \{max}");
+            throw new InvalidSerializedRuntimeDataException("Value is outside the range " + min + " - " + max);
         }
         return result;
     }

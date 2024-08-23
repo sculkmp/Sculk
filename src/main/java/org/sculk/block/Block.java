@@ -13,9 +13,7 @@ import org.sculk.utils.Binary;
 import org.sculk.world.World;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /*
  *   ____             _ _              __  __ ____
@@ -155,49 +153,46 @@ public class Block implements Cloneable{
 
      private void decodeBlockItemState(long data) throws InvalidSerializedRuntimeDataException {
           RuntimeDataReader reader = new RuntimeDataReader(this.requiredBlockItemStateDataBits, data);
-
           this.describeBlockItemState(reader);
           long readBits = reader.getOffset();
           if(this.requiredBlockItemStateDataBits != readBits){
-               throw new InvalidSerializedRuntimeDataException(STR."\{this.getClass()}: Exactly $this->requiredBlockItemStateDataBits bits of block-item state data were provided, but \{readBits} were read");
+               throw new InvalidSerializedRuntimeDataException(this.getClass() + ": Exactly " + this.requiredBlockItemStateDataBits + " bits of block-item state data were provided, but " + readBits + " were read");
           }
      }
 
      private void decodeBlockOnlyState(long data) throws InvalidSerializedRuntimeDataException {
           RuntimeDataReader reader = new RuntimeDataReader(this.requiredBlockOnlyStateDataBits, data);
-
           this.describeBlockOnlyState(reader);
           long readBits = reader.getOffset();
-          if(this.requiredBlockOnlyStateDataBits != readBits)
-              throw new InvalidSerializedRuntimeDataException(STR."\{this.getClass()}: Exactly this.requiredBlockOnlyStateDataBits bits of block-only state data were provided, but \{readBits} were read");
+          if(this.requiredBlockOnlyStateDataBits != readBits) {
+               throw new InvalidSerializedRuntimeDataException(this.getClass() + ": Exactly " + this.requiredBlockOnlyStateDataBits + " bits of block-only state data were provided, but " + readBits + " were read");
+          }
      }
 
-     public long encodeBlockItemState() throws InvalidSerializedRuntimeDataException {
+     @SneakyThrows
+     public long encodeBlockItemState() {
           RuntimeDataWriter writer = new RuntimeDataWriter(this.requiredBlockItemStateDataBits);
-
           this.describeBlockItemState(writer);
           long writtenBits = writer.getOffset();
           if(this.requiredBlockItemStateDataBits != writtenBits){
-               throw new InvalidSerializedRuntimeDataException(STR."\{this.getClass()}: Exactly this.requiredBlockItemStateDataBits bits of block-item state data were expected, but \{writtenBits} were written");
+               throw new InvalidSerializedRuntimeDataException(this.getClass() + ": Exactly " + this.requiredBlockItemStateDataBits + " bits of block-item state data were expected, but " + writtenBits + " were written");
           }
-
           return writer.getValue();
      }
 
-     public long encodeBlockOnlyState() throws InvalidSerializedRuntimeDataException {
-
+     @SneakyThrows
+     public long encodeBlockOnlyState() {
           RuntimeDataWriter writer = new RuntimeDataWriter(this.requiredBlockOnlyStateDataBits);
-
           this.describeBlockOnlyState(writer);
           long writtenBits = writer.getOffset();
           if(this.requiredBlockOnlyStateDataBits != writtenBits){
-               throw new InvalidSerializedRuntimeDataException(STR."\{this.getClass()}: Exactly this.requiredBlockOnlyStateDataBits bits of block-only state data were expected, but \{writtenBits} were written");
+               throw new InvalidSerializedRuntimeDataException(this.getClass() + ": Exactly " + this.requiredBlockOnlyStateDataBits + " bits of block-only state data were expected, but " + writtenBits + " were written");
           }
-
           return writer.getValue();
      }
 
-     private long encodeFullState() throws InvalidSerializedRuntimeDataException {
+     @SneakyThrows
+     private long encodeFullState() {
           long blockItemBits = this.requiredBlockItemStateDataBits;
           long blockOnlyBits = this.requiredBlockOnlyStateDataBits;
 
@@ -216,13 +211,12 @@ public class Block implements Cloneable{
           return result;
      }
 
-
+     @SneakyThrows
      public List<Block> generateStatePermutations() {
           List<Block> permutations = new ArrayList<>();
-
           long totalBits = this.requiredBlockItemStateDataBits + this.requiredBlockOnlyStateDataBits;
           if (totalBits > INTERNAL_STATE_DATA_BITS) {
-               throw new IllegalStateException(STR."Block state data cannot use more than \{INTERNAL_STATE_DATA_BITS} bits");
+               throw new IllegalStateException("Block state data cannot use more than " + INTERNAL_STATE_DATA_BITS + " bits");
           }
 
           for (long blockItemStateData = 0; blockItemStateData < (1L << this.requiredBlockItemStateDataBits); blockItemStateData++) {
@@ -231,7 +225,7 @@ public class Block implements Cloneable{
                     withType.decodeBlockItemState(blockItemStateData);
                     long encoded = withType.encodeBlockItemState();
                     if (encoded != blockItemStateData) {
-                         throw new IllegalStateException(STR."\{this.getClass().getSimpleName()}::decodeBlockItemState() accepts invalid inputs (returned \{encoded} for input \{blockItemStateData})");
+                         throw new IllegalStateException(this.getClass().getSimpleName() + "::decodeBlockItemState() accepts invalid inputs (returned " + encoded + " for input " + blockItemStateData + ")");
                     }
                } catch (InvalidSerializedRuntimeDataException e) {
                     continue;
@@ -243,7 +237,7 @@ public class Block implements Cloneable{
                          withState.decodeBlockOnlyState(blockOnlyStateData);
                          long encoded = withState.encodeBlockOnlyState();
                          if (encoded != blockOnlyStateData) {
-                              throw new IllegalStateException(STR."\{this.getClass().getSimpleName()}::decodeBlockOnlyState() accepts invalid inputs (returned \{encoded} for input \{blockOnlyStateData})");
+                              throw new IllegalStateException(this.getClass().getSimpleName() + "::decodeBlockOnlyState() accepts invalid inputs (returned " + encoded + " for input " + blockOnlyStateData + ")");
                          }
                     } catch (InvalidSerializedRuntimeDataException e) {
                          continue;
@@ -260,42 +254,31 @@ public class Block implements Cloneable{
           try {
                o = (Block) super.clone();
                o.position = o.getPosition().clone();
-
           } catch(CloneNotSupportedException cnse) {
                // Ne devrait jamais arriver, car nous implémentons
                // l'interface Cloneable
                cnse.printStackTrace(System.err);
           }
-          // on renvoie le clone
           return o;
      }
 
      public int getLightLevel() {
           return 0;
      }
+
      public int getLightFilter() {
           return this.isTransparent() ? 0 : 15;
      }
+
      public boolean blocksDirectSkyLight() {
           return getLightFilter() > 0;
      }
 
-     /**
-      * Returns whether this block allows any light to pass through it.
-      */
      public boolean isTransparent() {
           return false;
      }
 
-     /**
-      * @deprecated Don't use this function. Its results are confusing and inconsistent.
-      * <p>
-      * No one is sure what the meaning of this property actually is. It's borrowed from Minecraft Java Edition, and is
-      * used by various blocks for support checks.
-      * <p>
-      * Things like signs and banners are considered "solid" despite having no collision box, and things like skulls and
-      * flower pots are considered non-solid despite obviously being "solid" in the conventional, real-world sense.
-      */
+     @Deprecated
      public boolean isSolid() {
           return true;
      }
