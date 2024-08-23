@@ -258,7 +258,7 @@ public class Player extends HumanEntity implements PlayerInterface {
             if(!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
                 this.getNetworkSession().onChatMessage(playerChatEvent.getChatFormatter().format(this.getName(), message));
-                this.sendPopup("test de popup");
+                /*this.sendPopup("test de popup");
                 //this.sendJsonMessage("{ \"rawtext\": [ { \"translate\" : \"commands.op.success\", \"\" } ] }");
                 HashMap<String, Object> stringObjectHashMap = new HashMap<>();
                 HashMap<String, Object> test = new HashMap<>();
@@ -267,7 +267,7 @@ public class Player extends HumanEntity implements PlayerInterface {
                 test.put("rawtext", List.of(test1));
                 stringObjectHashMap.put("translate", "test de message §a%%s§r\ntest de message 2 §b%%s§r\nVoici un item super génial §e%%s");
                 stringObjectHashMap.put("with", List.of(this.getName(), "test", test));
-                this.sendJsonMessage(stringObjectHashMap);
+                this.sendJsonMessage(stringObjectHashMap);*/
             }
         }
         return true;
