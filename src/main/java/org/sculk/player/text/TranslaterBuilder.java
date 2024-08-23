@@ -1,9 +1,6 @@
 package org.sculk.player.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,7 +38,7 @@ public class TranslaterBuilder implements IJsonText {
 
     public TranslaterBuilder addWith(String data) {
         if (this.with == null)
-            this.with = new ArrayList<String>(List.of(data));
+            this.with = Arrays.asList(data);
         else if (this.with instanceof ArrayList<?>) {
             ArrayList<String> _with = (ArrayList<String>) this.with;
             _with.add(data);

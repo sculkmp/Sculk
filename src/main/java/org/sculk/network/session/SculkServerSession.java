@@ -18,7 +18,6 @@ import org.sculk.player.client.ClientChainData;
 import org.sculk.player.text.RawTextBuilder;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -139,13 +138,14 @@ public class SculkServerSession extends BedrockServerSession {
         this.getServer().getLogger().info(message);
     }
 
-    public void onChatMessageJson(RawTextBuilder textBuilder) {
+    public void onChatMessage(RawTextBuilder textBuilder) {
         TextPacket packet = new TextPacket();
         packet.setXuid("");
         packet.setSourceName("");
         packet.setType(TextPacket.Type.JSON);
         packet.setMessage(new Gson().toJson(textBuilder.build()));
         this.sendPacket(packet);
+        this.getServer().getLogger().info(textBuilder.toString());
     }
 
     public void onJukeboxPopup(String message) {
@@ -180,21 +180,48 @@ public class SculkServerSession extends BedrockServerSession {
         this.sendPacket(packet);
     }
 
-    public void onAnnouncementJson(String message) {
+    public void onAnnouncement(RawTextBuilder textBuilder) {
         TextPacket packet = new TextPacket();
         packet.setType(TextPacket.Type.ANNOUNCEMENT_JSON);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onWhisper(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.WHISPER_JSON);
         packet.setXuid("");
         packet.setSourceName("");
         packet.setMessage(message);
         this.sendPacket(packet);
     }
 
-    public void onTranslation(String message) {
+    public void onWhisper(RawTextBuilder textBuilder) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.WHISPER_JSON);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onMessageTranslation(String translate, List<String> param) {
         TextPacket packet = new TextPacket();
         packet.setType(TextPacket.Type.TRANSLATION);
         packet.setXuid("");
         packet.setSourceName("");
-        packet.setMessage(message);
+        packet.setMessage(translate);
+        packet.setParameters(param);
+        this.sendPacket(packet);
+    }
+
+    public void onMessageSystem(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.TRANSLATION);
+        packet.setXuid("");
+        packet.setSourceName("");
         this.sendPacket(packet);
     }
 }
