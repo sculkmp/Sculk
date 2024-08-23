@@ -7,7 +7,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
 import org.cloudburstmc.protocol.common.util.Preconditions;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.form.Form;
 import org.sculk.form.element.button.ElementButton;
 import org.sculk.form.element.button.Image;

@@ -3,12 +3,9 @@ package org.sculk.event.player;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.event.Event;
-import org.sculk.network.SourceInterface;
 import org.sculk.network.session.SculkServerSession;
-
-import java.net.SocketAddress;
 
 /*
  *   ____             _ _

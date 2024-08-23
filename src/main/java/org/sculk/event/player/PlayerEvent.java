@@ -1,7 +1,7 @@
 package org.sculk.event.player;
 
 
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.event.Event;
 
 /*

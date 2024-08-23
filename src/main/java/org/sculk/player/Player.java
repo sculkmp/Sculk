@@ -1,23 +1,25 @@
-package org.sculk;
+package org.sculk.player;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import lombok.Getter;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.sculk.Server;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
-import org.sculk.player.PlayerInterface;
+import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
-import org.sculk.utils.TextFormat;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +41,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Player extends HumanEntity implements PlayerInterface {
 
-    private final BedrockServerSession serverSession;
+    @Getter
+    private final SculkServerSession networkSession;
     private final SyncedEntityData data = new SyncedEntityData(this);
     private LoginChainData loginChainData;
 
@@ -54,8 +57,8 @@ public class Player extends HumanEntity implements PlayerInterface {
     protected int MAX_CHAT_CHAR_LENGTH = 512;
     protected int MAX_CHAT_BYTES_LENGTH = MAX_CHAT_CHAR_LENGTH * 2;
 
-    public Player(BedrockServerSession session, ClientChainData data) {
-        this.serverSession = session;
+    public Player(SculkServerSession networkSession, ClientChainData data) {
+        this.networkSession = networkSession;
         this.loginChainData = data;
 
         this.formId = new AtomicInteger(0);
@@ -148,7 +151,7 @@ public class Player extends HumanEntity implements PlayerInterface {
     }
 
     public void sendPacketInternal(BedrockPacket packet) {
-        this.serverSession.sendPacket(packet);
+        this.networkSession.sendPacket(packet);
     }
 
     public SerializedSkin getSerializedSkin() {
@@ -254,15 +257,42 @@ public class Player extends HumanEntity implements PlayerInterface {
             playerChatEvent.call();
             if(!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
-                TextPacket textFormat = new TextPacket();
-                textFormat.setType(TextPacket.Type.CHAT);
-                textFormat.setXuid("");
-                textFormat.setSourceName(this.getName());
-                textFormat.setMessage(playerChatEvent.getMessage());
-                this.sendDataPacket(textFormat);
+                this.getNetworkSession().onChatMessage(playerChatEvent.getChatFormatter().format(this.getName(), message));
+                this.sendPopup("test de popup");
+                //this.sendJsonMessage("{ \"rawtext\": [ { \"translate\" : \"commands.op.success\", \"\" } ] }");
+                HashMap<String, Object> stringObjectHashMap = new HashMap<>();
+                HashMap<String, Object> test = new HashMap<>();
+                HashMap<String, String> test1 = new HashMap<>();
+                test1.put("translate", "item.spawn_egg.entity.warden.name");
+                test.put("rawtext", List.of(test1));
+                stringObjectHashMap.put("translate", "test de message §a%%s§r\ntest de message 2 §b%%s§r\nVoici un item super génial §e%%s");
+                stringObjectHashMap.put("with", List.of(this.getName(), "test", test));
+                this.sendJsonMessage(stringObjectHashMap);
             }
         }
         return true;
     }
+
+    public void sendMessage(String message) {
+        this.getNetworkSession().onChatMessage(message);
+    }
+
+    public void sendJsonMessage(HashMap<String, Object> hashMap) {
+        this.getNetworkSession().onChatMessageJson(hashMap);
+    }
+
+    public void sendJukeboxPopup(String message) {
+        this.getNetworkSession().onJukeboxPopup(message);
+    }
+
+    public void sendPopup(String message) {
+        this.getNetworkSession().onPopup(message);
+    }
+
+    public void sendTip(String message) {
+        this.getNetworkSession().onTip(message);
+    }
+
+
 
 }
