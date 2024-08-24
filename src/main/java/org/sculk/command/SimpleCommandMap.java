@@ -3,6 +3,7 @@ package org.sculk.command;
 
 import org.sculk.Server;
 import org.sculk.command.defaults.HelpCommand;
+import org.sculk.command.defaults.StopCommand;
 import org.sculk.command.defaults.VersionCommand;
 import org.sculk.command.utils.CommandStringHelper;
 
@@ -35,7 +36,9 @@ public class SimpleCommandMap implements CommandMap {
 
     private void setDefaultCommands() {
         registerAll("sculk", List.of(
-            new VersionCommand(), new HelpCommand()
+            new VersionCommand(),
+            new HelpCommand(),
+            new StopCommand()
         ));
     }
 

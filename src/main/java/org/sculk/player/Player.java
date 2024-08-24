@@ -4,6 +4,7 @@ import co.aikar.timings.Timings;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Getter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
+import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
 import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
@@ -79,6 +80,8 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         super.initEntity();
         System.out.println("init Entity");
         sendCommandsData();
+        this.getServer().addOnlinePlayer(this);
+        System.out.println(getServer().getOnlinePlayers());
     }
 
     public void sendCommandsData() {
@@ -103,6 +106,14 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void kick(String message) {
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
+        packet.setReason(DisconnectFailReason.KICKED);
+        sendDataPacket(packet);
+    }
+
+    public void kick(String message, DisconnectFailReason disconnectFailReason) {
+        DisconnectPacket packet = new DisconnectPacket();
+        packet.setKickMessage(message);
+        packet.setReason(disconnectFailReason);
         sendDataPacket(packet);
     }
 
@@ -161,9 +172,8 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         return Server.getInstance();
     }
 
-    public boolean sendDataPacket(BedrockPacket packet) {
+    public void sendDataPacket(BedrockPacket packet) {
         sendPacketInternal(packet);
-        return true;
     }
 
     public void sendPacketInternal(BedrockPacket packet) {
@@ -233,7 +243,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         super.onUpdate();
     }
 
-    public boolean onChat(String message) {
+    public void onChat(String message) {
         if(message.startsWith("./")) {
             message = message.substring(1);
         }
@@ -252,7 +262,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
                 this.getServer().getLogger().info(messageFormat);
             }
         }
-        return true;
     }
 
     public void sendMessage(String message) {

@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
+import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.command.CommandSender;
 import org.sculk.command.SimpleCommandMap;
@@ -185,10 +186,16 @@ public class Server {
     }
 
     public void shutdown() {
+        Map<UUID, Player> onlinePlayers = this.getOnlinePlayers();
+        for(Map.Entry<UUID, Player> entry : onlinePlayers.entrySet()) {
+            Player player = entry.getValue();
+            player.getNetworkSession().disconnect("Server closed");
+        }
         if(this.shutdown) {
             return;
         }
         this.logger.info("Stopping the server");
+
         this.shutdown = true;
 
         logger.info("Disabling all plugins...");
