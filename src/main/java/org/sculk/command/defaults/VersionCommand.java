@@ -37,6 +37,16 @@ public class VersionCommand extends Command {
 
     @Override
     public void execute(CommandSender sender, String commandLabel, List<String> args) throws CommandException {
+        /*System.out.println(new RawTextBuilder().add(
+                new TranslaterBuilder()
+                        .setTranslate("§fThis server is running §a%%s\n§fServer version: §a%%s\n§fCompatible Minecraft version: §a%%s §f(protocol version: §a%%s§f)\nOperating system: §a%%s %%s")
+                        .setWith(new RawTextBuilder()
+                                .add(new TextBuilder().setText(Sculk.CODE_NAME)) // software name
+                                .add(new TextBuilder().setText(Sculk.CODE_VERSION)) // software version
+                                .add(new TextBuilder().setText(ProtocolInfo.MINECRAFT_VERSION)) // Minecraft version
+                                .add(new TextBuilder().setText(String.valueOf(ProtocolInfo.CURRENT_PROTOCOL))) // software protocol
+                                .add(new TextBuilder().setText(System.getProperty("os.name").toLowerCase())) // system
+                        )).toString());*/
         sender.sendMessage(new RawTextBuilder().add(
                 new TranslaterBuilder()
                         .setTranslate("§fThis server is running §a%%s\n§fServer version: §a%%s\n§fCompatible Minecraft version: §a%%s §f(protocol version: §a%%s§f)\nOperating system: §a%%s")

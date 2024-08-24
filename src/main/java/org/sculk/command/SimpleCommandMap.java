@@ -40,8 +40,12 @@ public class SimpleCommandMap implements CommandMap {
 
     public void registerAll(String fallbackPrefix, List<Command> commands) {
         for(Command command : commands) {
-            register(fallbackPrefix, command, null);
+            register(fallbackPrefix, command);
         }
+    }
+
+    public void register(String fallbackPrefix, Command command) {
+        register(fallbackPrefix, command, null);
     }
 
     public void register(String fallbackPrefix, Command command, String label) {
@@ -113,7 +117,6 @@ public class SimpleCommandMap implements CommandMap {
     }
 
     public Command getCommand(String name) {
-        System.out.println(knownCommands);
         return knownCommands.get(name);
     }
 

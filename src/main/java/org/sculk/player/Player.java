@@ -1,13 +1,16 @@
 package org.sculk.player;
 
+import co.aikar.timings.Timings;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Getter;
-import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
+import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.sculk.Server;
+import org.sculk.command.Command;
+import org.sculk.command.CommandSender;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
@@ -18,10 +21,9 @@ import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
+import org.sculk.player.text.RawTextBuilder;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class Player extends HumanEntity implements PlayerInterface {
+public class Player extends HumanEntity implements PlayerInterface, CommandSender {
 
     @Getter
     private final SculkServerSession networkSession;
@@ -77,6 +79,32 @@ public class Player extends HumanEntity implements PlayerInterface {
         super.initEntity();
         System.out.println("init Entity");
 
+       AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
+        List<CommandData> commandData = availableCommandsPacket.getCommands();
+        for(Command command : this.getServer().getCommandMap().getCommands()) {
+            Set<CommandData.Flag> commandFlag = new HashSet<>();
+            commandFlag.add(CommandData.Flag.MESSAGE_TYPE);
+
+            Map<String, Set<CommandEnumConstraint>> valuesMap = new HashMap<>();
+            for(String value : command.getAliases()) {
+                if(!valuesMap.containsKey(value)) {
+                    Set<CommandEnumConstraint> constraints = new HashSet<>();
+                    valuesMap.put(value, constraints);
+                }
+            }
+            System.out.println(valuesMap);
+            CommandEnumData commandEnumData = new CommandEnumData(command.getName(), valuesMap, false);
+
+            CommandParamData simpleData = new CommandParamData();
+            simpleData.setName(command.getName());
+            simpleData.setOptional(true);
+            simpleData.setType(CommandParam.TEXT);
+
+            commandData.add(new CommandData(command.getName(), command.getDescription(), commandFlag, CommandPermission.ANY, commandEnumData, new ArrayList<>(), new CommandOverloadData[]{
+                    new CommandOverloadData(false, new CommandParamData[]{simpleData})}
+            ));
+        }
+        sendDataPacket(availableCommandsPacket);
     }
 
     public void updateFlags() {
@@ -218,57 +246,20 @@ public class Player extends HumanEntity implements PlayerInterface {
     }
 
     public boolean onChat(String message) {
-        /*if(messageCounter <= 0) {
-            return false;
-        }
-        int maxTotalLenght = this.messageCounter * (MAX_CHAT_BYTES_LENGTH + 1);
-        if(message.length() > maxTotalLenght) {
-            return false;
-        }
-        String[] messageParts = message.split("\n", this.messageCounter + 1);
-        for(String messagePart : messageParts) {
-            if(!messagePart.trim().isEmpty() && messagePart.length() <= MAX_CHAT_BYTES_LENGTH &&
-                    messagePart.codePointCount(0, messagePart.length()) <= MAX_CHAT_CHAR_LENGTH && messageCounter-- > 0) {
-
-                System.out.println(messagePart);
-                if(messagePart.startsWith("./")) {
-                    messagePart = messagePart.substring(1);
-                }
-                if(messagePart.startsWith("/")) {
-                    // TODO command
-                } else {
-                    // call event
-                    TextPacket textFormat = new TextPacket();
-                    textFormat.setType(TextPacket.Type.CHAT);
-                    textFormat.setXuid("");
-                    textFormat.setSourceName("");
-                    textFormat.setMessage(message);
-                    this.sendDataPacket(textFormat);
-                }
-            }
-        }*/
         if(message.startsWith("./")) {
             message = message.substring(1);
         }
         if(message.startsWith("/")) {
             String command = message.substring(1);
-            System.out.println(command);
+            Timings.playerCommandTimer.startTiming();
+            this.getServer().dispatchCommand(this, command, false);
+            Timings.playerCommandTimer.stopTiming();
         } else {
             PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message, new StandardChatFormatter());
             playerChatEvent.call();
             if(!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
                 this.getNetworkSession().onChatMessage(playerChatEvent.getChatFormatter().format(this.getName(), message));
-                /*this.sendPopup("test de popup");
-                //this.sendJsonMessage("{ \"rawtext\": [ { \"translate\" : \"commands.op.success\", \"\" } ] }");
-                HashMap<String, Object> stringObjectHashMap = new HashMap<>();
-                HashMap<String, Object> test = new HashMap<>();
-                HashMap<String, String> test1 = new HashMap<>();
-                test1.put("translate", "item.spawn_egg.entity.warden.name");
-                test.put("rawtext", List.of(test1));
-                stringObjectHashMap.put("translate", "test de message §a%%s§r\ntest de message 2 §b%%s§r\nVoici un item super génial §e%%s");
-                stringObjectHashMap.put("with", List.of(this.getName(), "test", test));
-                this.sendJsonMessage(stringObjectHashMap);*/
             }
         }
         return true;
@@ -278,8 +269,8 @@ public class Player extends HumanEntity implements PlayerInterface {
         this.getNetworkSession().onChatMessage(message);
     }
 
-    public void sendJsonMessage(HashMap<String, Object> hashMap) {
-        this.getNetworkSession().onChatMessageJson(hashMap);
+    public void sendMessage(RawTextBuilder textBuilder) {
+        this.getNetworkSession().onChatMessage(textBuilder);
     }
 
     public void sendJukeboxPopup(String message) {
@@ -294,6 +285,28 @@ public class Player extends HumanEntity implements PlayerInterface {
         this.getNetworkSession().onTip(message);
     }
 
+    public void sendAnnouncement(String message) {
+        this.getNetworkSession().onAnnouncement(message);
+    }
 
+    public void sendAnnouncement(RawTextBuilder rawTextBuilder) {
+        this.getNetworkSession().onAnnouncement(rawTextBuilder);
+    }
+
+    public void sendMessageSystem(String message) {
+        this.getNetworkSession().onMessageSystem(message);
+    }
+
+    public void sendWhisper(String message) {
+        this.getNetworkSession().onWhisper(message);
+    }
+
+    public void sendWhisper(RawTextBuilder rawTextBuilder) {
+        this.getNetworkSession().onWhisper(rawTextBuilder);
+    }
+
+    public void sendMessageTranslation(String translate, List<String> parameters) {
+        this.getNetworkSession().onMessageTranslation(translate, parameters);
+    }
 
 }

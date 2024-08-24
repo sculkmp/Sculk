@@ -191,7 +191,7 @@ public class SculkServerSession extends BedrockServerSession {
 
     public void onWhisper(String message) {
         TextPacket packet = new TextPacket();
-        packet.setType(TextPacket.Type.WHISPER_JSON);
+        packet.setType(TextPacket.Type.WHISPER);
         packet.setXuid("");
         packet.setSourceName("");
         packet.setMessage(message);
@@ -219,9 +219,10 @@ public class SculkServerSession extends BedrockServerSession {
 
     public void onMessageSystem(String message) {
         TextPacket packet = new TextPacket();
-        packet.setType(TextPacket.Type.TRANSLATION);
+        packet.setType(TextPacket.Type.SYSTEM);
         packet.setXuid("");
         packet.setSourceName("");
+        packet.setMessage(message);
         this.sendPacket(packet);
     }
 }
