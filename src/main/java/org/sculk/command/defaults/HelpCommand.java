@@ -42,25 +42,18 @@ public class HelpCommand extends Command {
         List<String> commandSending = new ArrayList<>();
         translaterBuilder.setTranslate("§6-------------- §fHelp - %%s command(s) §6--------------\n%%s");
         Server.getInstance().getCommandMap().getCommands().forEach((s, command) -> {
-            String commandName = s.contains(":") ? s.substring(s.indexOf(':') + 1) : s;
+        String commandName = s.contains(":") ? s.substring(s.indexOf(':') + 1) : s;
             if(!commandSending.contains(commandName)) {
                 builder.append("§6/").append(commandName).append(":§f ").append(command.getDescription()).append("\n");
                 commandSending.add(commandName);
             }
         });
-/*        sender.sendMessage(new RawTextBuilder().add(
-                new TranslaterBuilder()
-                        .setTranslate("§6-------------- §fHelp - %%1 command(s) §6--------------\n%%2")
-                        .setWith(new RawTextBuilder()
-                                .add(new TextBuilder().setText(String.valueOf(commandSending.size())))
-                                .add(new TextBuilder().setText(builder.toString()))
-                        )
-        ));*/
+
         translaterBuilder.setWith(new RawTextBuilder()
                 .add(new TextBuilder()
                         .setText(Integer.toString(commandSending.size())))
                 .add(new TextBuilder()
-                        .setText(builder.toString()))
+                        .setText(builder.substring(0, builder.length() - 2)))
         );
         sender.sendMessage(new RawTextBuilder().add(translaterBuilder));
 
