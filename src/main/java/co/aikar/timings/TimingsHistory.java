@@ -26,7 +26,7 @@ package co.aikar.timings;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.checkerframework.checker.signature.qual.Identifier;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.Sculk;
 import org.sculk.Server;
 import org.sculk.timings.JsonUtil;

@@ -1,8 +1,5 @@
-package org.sculk.event.player;
+package org.sculk.player.chat;
 
-
-import org.sculk.player.Player;
-import org.sculk.event.Event;
 
 /*
  *   ____             _ _
@@ -19,16 +16,8 @@ import org.sculk.event.Event;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class PlayerEvent extends Event {
+public interface ChatFormatter {
 
-    private final Player player;
-
-    public PlayerEvent(Player player) {
-        this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
+    String format(String username, String message);
 
 }

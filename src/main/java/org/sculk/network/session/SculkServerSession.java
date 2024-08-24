@@ -1,6 +1,7 @@
 package org.sculk.network.session;
 
 
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -8,13 +9,16 @@ import org.cloudburstmc.protocol.bedrock.BedrockPeer;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
-import org.sculk.Player;
+import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
+import org.sculk.player.Player;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.handler.*;
 import org.sculk.player.client.ClientChainData;
+import org.sculk.player.text.RawTextBuilder;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 
 /*
@@ -123,5 +127,100 @@ public class SculkServerSession extends BedrockServerSession {
         super.setPacketHandler(packetHandler);
         if (packetHandler instanceof SculkPacketHandler _sculkHandler)
             _sculkHandler.setUp();
+    }
+
+    public void onChatMessage(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setXuid("");
+        packet.setType(TextPacket.Type.RAW);
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onChatMessage(RawTextBuilder textBuilder) {
+        TextPacket packet = new TextPacket();
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setType(TextPacket.Type.JSON);
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onJukeboxPopup(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.JUKEBOX_POPUP);
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onPopup(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.POPUP);
+        packet.setXuid("");
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onTip(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.TIP);
+        packet.setXuid("");
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onAnnouncement(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.ANNOUNCEMENT);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onAnnouncement(RawTextBuilder textBuilder) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.ANNOUNCEMENT_JSON);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onWhisper(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.WHISPER);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(message);
+        this.sendPacket(packet);
+    }
+
+    public void onWhisper(RawTextBuilder textBuilder) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.WHISPER_JSON);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onMessageTranslation(String translate, List<String> param) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.TRANSLATION);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(translate);
+        packet.setParameters(param);
+        this.sendPacket(packet);
+    }
+
+    public void onMessageSystem(String message) {
+        TextPacket packet = new TextPacket();
+        packet.setType(TextPacket.Type.SYSTEM);
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setMessage(message);
+        this.sendPacket(packet);
     }
 }

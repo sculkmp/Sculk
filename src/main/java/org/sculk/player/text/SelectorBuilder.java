@@ -1,8 +1,4 @@
-package org.sculk.event.player;
-
-
-import org.sculk.player.Player;
-import org.sculk.event.Event;
+package org.sculk.player.text;
 
 /*
  *   ____             _ _
@@ -19,16 +15,15 @@ import org.sculk.event.Event;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class PlayerEvent extends Event {
+public class SelectorBuilder implements IJsonText{
 
-    private final Player player;
-
-    public PlayerEvent(Player player) {
-        this.player = player;
+    @Override
+    public String getName() {
+        return "";
     }
 
-    public Player getPlayer() {
-        return player;
+    @Override
+    public Object build() {
+        return null;
     }
-
 }

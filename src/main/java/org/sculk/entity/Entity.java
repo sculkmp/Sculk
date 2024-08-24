@@ -20,4 +20,6 @@ public abstract class Entity {
 
     public void initEntity() {}
 
+    public void onUpdate() {}
+
 }

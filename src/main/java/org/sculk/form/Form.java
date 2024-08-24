@@ -2,7 +2,7 @@ package org.sculk.form;
 
 import org.cloudburstmc.protocol.bedrock.packet.ModalFormResponsePacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.Server;
 import org.sculk.event.player.PlayerFormRespondedEvent;
 import org.sculk.form.response.Response;

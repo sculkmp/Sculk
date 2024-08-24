@@ -1,8 +1,7 @@
-package org.sculk.event.player;
+package org.sculk.command;
 
 
-import org.sculk.player.Player;
-import org.sculk.event.Event;
+import java.util.List;
 
 /*
  *   ____             _ _
@@ -19,16 +18,12 @@ import org.sculk.event.Event;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class PlayerEvent extends Event {
+public interface CommandMap {
 
-    private final Player player;
-
-    public PlayerEvent(Player player) {
-        this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
+    void registerAll(String fallbackPrefix, List<Command> commands);
+    void register(String fallbackPrefix, Command command, String label);
+    boolean dispatch(CommandSender sender, String cmdLine);
+    void clearCommands();
+    Command getCommand(String name);
 
 }

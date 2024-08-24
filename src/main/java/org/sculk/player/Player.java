@@ -1,22 +1,29 @@
-package org.sculk;
+package org.sculk.player;
 
+import co.aikar.timings.Timings;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
+import lombok.Getter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
+import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.sculk.Server;
+import org.sculk.command.Command;
+import org.sculk.command.CommandSender;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
+import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
-import org.sculk.player.PlayerInterface;
+import org.sculk.network.session.SculkServerSession;
+import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
+import org.sculk.player.text.RawTextBuilder;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -34,9 +41,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class Player extends HumanEntity implements PlayerInterface {
+public class Player extends HumanEntity implements PlayerInterface, CommandSender {
 
-    private final BedrockServerSession serverSession;
+    @Getter
+    private final SculkServerSession networkSession;
     private final SyncedEntityData data = new SyncedEntityData(this);
     private LoginChainData loginChainData;
 
@@ -44,12 +52,24 @@ public class Player extends HumanEntity implements PlayerInterface {
     private Int2ObjectOpenHashMap<Form> forms;
     private List<AttributeData> attributeMap;
 
-    public Player(BedrockServerSession session, ClientChainData data) {
-        this.serverSession = session;
+    private String displayName;
+    private String username;
+
+    protected int messageCounter = 2;
+    protected int MAX_CHAT_CHAR_LENGTH = 512;
+    protected int MAX_CHAT_BYTES_LENGTH = MAX_CHAT_CHAR_LENGTH * 2;
+
+    public Player(SculkServerSession networkSession, ClientChainData data) {
+        this.networkSession = networkSession;
         this.loginChainData = data;
 
         this.formId = new AtomicInteger(0);
         this.forms = new Int2ObjectOpenHashMap<>();
+
+        this.displayName = data.getUsername();
+        this.username = data.getUsername();
+
+        System.out.println(this.username);
 
         initEntity();
     }
@@ -58,17 +78,26 @@ public class Player extends HumanEntity implements PlayerInterface {
     public void initEntity() {
         super.initEntity();
         System.out.println("init Entity");
+        sendCommandsData();
+    }
 
+    public void sendCommandsData() {
+        AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
+        List<CommandData> commandData = availableCommandsPacket.getCommands();
+        List<String> commandSend = new ArrayList<>();
+        for(Command command : this.getServer().getCommandMap().getCommands().values()) {
+            if (commandSend.contains(command.getLabel())){
+                continue;
+            }
+            commandData.add(command.getCommandData().toNetwork());
+            commandSend.add(command.getLabel());
+        }
+        sendDataPacket(availableCommandsPacket);
     }
 
     public void updateFlags() {
         this.data.setFlags(EntityFlag.BREATHING, true);
         this.data.updateFlag();
-    }
-
-    @Override
-    public void initEntity() {
-        super.initEntity();
     }
 
     public void kick(String message) {
@@ -119,7 +148,7 @@ public class Player extends HumanEntity implements PlayerInterface {
 
     @Override
     public String getName() {
-        return "";
+        return this.username;
     }
 
     @Override
@@ -138,7 +167,7 @@ public class Player extends HumanEntity implements PlayerInterface {
     }
 
     public void sendPacketInternal(BedrockPacket packet) {
-        this.serverSession.sendPacket(packet);
+        this.networkSession.sendPacket(packet);
     }
 
     public SerializedSkin getSerializedSkin() {
@@ -197,4 +226,77 @@ public class Player extends HumanEntity implements PlayerInterface {
     public Form getForm(int id) {
         return this.forms.remove(id);
     }
+
+    @Override
+    public void onUpdate() {
+        this.messageCounter = 2;
+        super.onUpdate();
+    }
+
+    public boolean onChat(String message) {
+        if(message.startsWith("./")) {
+            message = message.substring(1);
+        }
+        if(message.startsWith("/")) {
+            String command = message.substring(1);
+            Timings.playerCommandTimer.startTiming();
+            this.getServer().dispatchCommand(this, command, false);
+            Timings.playerCommandTimer.stopTiming();
+        } else {
+            PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message, new StandardChatFormatter());
+            playerChatEvent.call();
+            if(!playerChatEvent.isCancelled()) {
+                // TODO please change for use this.messageCount
+                String messageFormat = playerChatEvent.getChatFormatter().format(this.getName(), message);
+                this.getNetworkSession().onChatMessage(messageFormat);
+                this.getServer().getLogger().info(messageFormat);
+            }
+        }
+        return true;
+    }
+
+    public void sendMessage(String message) {
+        this.getNetworkSession().onChatMessage(message);
+    }
+
+    public void sendMessage(RawTextBuilder textBuilder) {
+        this.getNetworkSession().onChatMessage(textBuilder);
+    }
+
+    public void sendJukeboxPopup(String message) {
+        this.getNetworkSession().onJukeboxPopup(message);
+    }
+
+    public void sendPopup(String message) {
+        this.getNetworkSession().onPopup(message);
+    }
+
+    public void sendTip(String message) {
+        this.getNetworkSession().onTip(message);
+    }
+
+    public void sendAnnouncement(String message) {
+        this.getNetworkSession().onAnnouncement(message);
+    }
+
+    public void sendAnnouncement(RawTextBuilder rawTextBuilder) {
+        this.getNetworkSession().onAnnouncement(rawTextBuilder);
+    }
+
+    public void sendMessageSystem(String message) {
+        this.getNetworkSession().onMessageSystem(message);
+    }
+
+    public void sendWhisper(String message) {
+        this.getNetworkSession().onWhisper(message);
+    }
+
+    public void sendWhisper(RawTextBuilder rawTextBuilder) {
+        this.getNetworkSession().onWhisper(rawTextBuilder);
+    }
+
+    public void sendMessageTranslation(String translate, List<String> parameters) {
+        this.getNetworkSession().onMessageTranslation(translate, parameters);
+    }
+
 }

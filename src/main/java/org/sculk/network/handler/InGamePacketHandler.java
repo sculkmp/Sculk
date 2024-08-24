@@ -1,9 +1,12 @@
 package org.sculk.network.handler;
 
 
+import lombok.NonNull;
+import org.cloudburstmc.protocol.bedrock.packet.CommandRequestPacket;
+import org.cloudburstmc.protocol.bedrock.packet.EmotePacket;
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.network.session.SculkServerSession;
 
 /*
@@ -23,13 +26,33 @@ import org.sculk.network.session.SculkServerSession;
  */
 public class InGamePacketHandler extends SculkPacketHandler {
 
+    private final @NonNull Player player;
+
     public InGamePacketHandler(Player player, SculkServerSession session) {
         super(session);
+        this.player = player;
     }
 
     @Override
     public PacketSignal handle(TextPacket packet) {
-        return super.handle(packet);
+        switch(packet.getType()) {
+            case TextPacket.Type.CHAT -> {
+                String chatMessage = packet.getMessage();
+                int breakLine = chatMessage.indexOf("\n");
+                if(breakLine != -1) {
+                    chatMessage = chatMessage.substring(0, breakLine);
+                }
+                this.player.onChat(chatMessage);
+            }
+        }
+        return PacketSignal.HANDLED;
     }
 
+    @Override
+    public PacketSignal handle(CommandRequestPacket packet) {
+        if(packet.getCommand().startsWith("/")) {
+            this.player.onChat(packet.getCommand());
+        }
+        return PacketSignal.HANDLED;
+    }
 }

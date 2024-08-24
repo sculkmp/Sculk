@@ -1,8 +1,5 @@
-package org.sculk.event.player;
+package org.sculk.permission;
 
-
-import org.sculk.player.Player;
-import org.sculk.event.Event;
 
 /*
  *   ____             _ _
@@ -19,16 +16,13 @@ import org.sculk.event.Event;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class PlayerEvent extends Event {
+public class DefaultPermissionNames {
 
-    private final Player player;
+    public static final String COMMAND_VERSION = "sculk.command.version";
+    public static final String COMMAND_HELP = "sculk.command.help";
 
-    public PlayerEvent(Player player) {
-        this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
+    public static final String GROUP_CONSOLE = "sculk.group.console";
+    public static final String GROUP_OPERATOR = "sculk.group.operator";
+    public static final String GROUP_USER = "sculk.group.user";
 
 }

@@ -4,7 +4,7 @@ package org.sculk.entity.data;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.packet.SetEntityDataPacket;
-import org.sculk.Player;
+import org.sculk.player.Player;
 
 import java.util.EnumSet;
 

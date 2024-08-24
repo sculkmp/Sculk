@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Sculk" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="org.sculk.Sculk" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.run" />
     <module name="Sculk" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.run" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="org.sculk.*" />
+        <option name="PATTERN" value="org.sculk.player.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

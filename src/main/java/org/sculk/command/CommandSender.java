@@ -1,8 +1,9 @@
-package org.sculk.event.player;
+package org.sculk.command;
 
 
-import org.sculk.player.Player;
-import org.sculk.event.Event;
+import org.sculk.Server;
+import org.sculk.permission.Permissible;
+import org.sculk.player.text.RawTextBuilder;
 
 /*
  *   ____             _ _
@@ -19,16 +20,11 @@ import org.sculk.event.Event;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class PlayerEvent extends Event {
+public interface CommandSender extends Permissible {
 
-    private final Player player;
-
-    public PlayerEvent(Player player) {
-        this.player = player;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
+    void sendMessage(String message);
+    void sendMessage(RawTextBuilder textBuilder);
+    Server getServer();
+    String getName();
 
 }

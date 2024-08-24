@@ -1,11 +1,11 @@
-package org.sculk.event.player;
+package org.sculk.event.command;
 
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sculk.player.Player;
-import org.sculk.event.Event;
-import org.sculk.network.session.SculkServerSession;
+import org.sculk.command.CommandSender;
+import org.sculk.event.Cancellable;
+import org.sculk.event.ServerEvent;
 
 /*
  *   ____             _ _
@@ -22,21 +22,18 @@ import org.sculk.network.session.SculkServerSession;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class PlayerCreationEvent extends Event {
+public class CommandEvent extends ServerEvent implements Cancellable {
 
     @Getter
-    private final SculkServerSession session;
+    @Setter
+    protected CommandSender sender;
     @Getter
     @Setter
-    private Class<? extends Player> baseClass;
-    @Getter
-    @Setter
-    private Class<? extends Player> playerClass;
-
-    public PlayerCreationEvent(SculkServerSession session) {
-        this.session = session;
-        this.baseClass = Player.class;
-        this.playerClass = Player.class;
+    protected String command;
+    
+    public CommandEvent(CommandSender sender, String command) {
+        this.sender = sender;
+        this.command = command;
     }
 
 }

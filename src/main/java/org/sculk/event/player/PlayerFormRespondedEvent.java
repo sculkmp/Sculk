@@ -1,7 +1,7 @@
 package org.sculk.event.player;
 
 import lombok.Getter;
-import org.sculk.Player;
+import org.sculk.player.Player;
 import org.sculk.form.Form;
 import org.sculk.form.response.Response;
 
