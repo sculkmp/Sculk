@@ -286,6 +286,10 @@ public class Server {
         return motd;
     }
 
+    public String getSubMotd() {
+        return submotd;
+    }
+
     public UUID getServerId() {
         return serverId;
     }
