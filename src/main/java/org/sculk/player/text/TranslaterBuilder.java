@@ -90,8 +90,8 @@ public class TranslaterBuilder implements IJsonText {
             List<Object> clone = getCloneOfWith();
 
             if (clone != null) {
+                data = replaceStringPatterns(data, clone.iterator());
                 data = replaceIndexedPatterns(data, clone);
-                data = replaceStringPatterns(data, clone);
             }
         }
         return data;
@@ -120,7 +120,7 @@ public class TranslaterBuilder implements IJsonText {
             } catch (NumberFormatException e) {
                 continue;
             }
-            String replacer = safeRemoveAtIndex(clone, index);
+            String replacer = safeGetAtIndex(clone, index - 1);
             result.append(replacer);
             lastEnd = matcher.end();
         }
@@ -128,14 +128,14 @@ public class TranslaterBuilder implements IJsonText {
         return result.toString();
     }
 
-    private String replaceStringPatterns(String data, List<Object> clone) {
+    private String replaceStringPatterns(String data, Iterator<Object> clone) {
         Matcher matcher = PATTERN_STRING.matcher(data);
         StringBuilder result = new StringBuilder();
         int lastEnd = 0;
 
         while (matcher.find()) {
             result.append(data, lastEnd, matcher.start());
-            String replacer = safeRemoveFirst(clone);
+            String replacer = clone.hasNext() ? clone.next().toString() : "";
             result.append(replacer);
             lastEnd = matcher.end();
         }
@@ -143,17 +143,9 @@ public class TranslaterBuilder implements IJsonText {
         return result.toString();
     }
 
-    private String safeRemoveFirst(List<Object> list) {
+    private String safeGetAtIndex(List<Object> list, int index) {
         if (!list.isEmpty()) {
-            Object removed = list.removeFirst();
-            return removed != null ? removed.toString() : "";
-        }
-        return "";
-    }
-
-    private String safeRemoveAtIndex(List<Object> list, int index) {
-        if (index >= 0 && index < list.size()) {
-            Object removed = list.remove(index);
+            Object removed = list.get(index);
             return removed != null ? removed.toString() : "";
         }
         return "";

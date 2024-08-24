@@ -37,7 +37,7 @@ public class RawTextBuilder implements IJsonText{
 
     @Override
     public Object build() {
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, List<Object>> map = new HashMap<>();
         map.put(this.getName(), this.build.stream().map(IJsonText::build).toList());
         return map;
     }
