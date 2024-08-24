@@ -33,6 +33,7 @@ public abstract class Command {
     private String label;
     @Getter
     private String description;
+    @Getter
     private String usageMessage;
 
     @Getter
