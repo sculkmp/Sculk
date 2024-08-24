@@ -35,7 +35,6 @@ public class VersionCommand extends Command {
     public VersionCommand() {
         super("version", "Gets the version of this server including any plugins in use", "/version [plugin name]", List.of("ver", "about"));
         this.setPermission(DefaultPermissionNames.COMMAND_VERSION);
-        this.registerParameter(new CommandParameter("player", CommandParamType.TARGET, true));
     }
 
     @Override
