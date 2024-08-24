@@ -2,6 +2,7 @@ package org.sculk.command;
 
 
 import org.sculk.Server;
+import org.sculk.command.defaults.HelpCommand;
 import org.sculk.command.defaults.VersionCommand;
 import org.sculk.command.utils.CommandStringHelper;
 
@@ -34,17 +35,19 @@ public class SimpleCommandMap implements CommandMap {
 
     private void setDefaultCommands() {
         registerAll("sculk", List.of(
-            new VersionCommand()
+            new VersionCommand(), new HelpCommand()
         ));
     }
 
     public void registerAll(String fallbackPrefix, List<Command> commands) {
         for(Command command : commands) {
+            command.buildCommand();
             register(fallbackPrefix, command);
         }
     }
 
     public void register(String fallbackPrefix, Command command) {
+        command.buildCommand();
         register(fallbackPrefix, command, null);
     }
 
@@ -120,8 +123,8 @@ public class SimpleCommandMap implements CommandMap {
         return knownCommands.get(name);
     }
 
-    public List<Command> getCommands() {
-        return new ArrayList<>(knownCommands.values());
+    public Map<String, Command> getCommands() {
+        return knownCommands;
     }
 
     public void registerServerAliases() {

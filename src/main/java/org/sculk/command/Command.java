@@ -1,9 +1,14 @@
 package org.sculk.command;
 
 
+import lombok.Getter;
+import lombok.NonNull;
+import org.sculk.command.data.CommandData;
+import org.sculk.command.data.CommandParameter;
 import org.sculk.exception.CommandException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -26,9 +31,11 @@ public abstract class Command {
     private String name;
     private String nextLabel;
     private String label;
+    @Getter
     private String description;
     private String usageMessage;
 
+    @Getter
     private List<String> aliases = new ArrayList<>();
     private List<String> activeAliases = new ArrayList<>();
 
@@ -36,6 +43,10 @@ public abstract class Command {
     private String permissionMessage = null;
 
     private CommandMap commandMap = null;
+    @Getter
+    private CommandData commandData;
+    @Getter
+    private List<CommandParameter[]> parameters = new ArrayList<>();
 
     public Command(String name, String description, String usageMessage, List<String> aliases) {
         this.name = name;
@@ -43,6 +54,12 @@ public abstract class Command {
         this.setDescription(description);
         this.usageMessage = usageMessage != null ? usageMessage : "/" + name;
         this.setAliases(aliases);
+    }
+
+    public void registerParameter(@NonNull CommandParameter paramSet) {
+        List<CommandParameter[]> parameters1 = new ArrayList<>();
+        parameters1.add(new CommandParameter[]{paramSet});
+        this.parameters.addAll(parameters1);
     }
 
     public abstract void execute(CommandSender sender, String commandLabel, List<String> args) throws CommandException;
@@ -56,10 +73,7 @@ public abstract class Command {
     }
 
     public void setPermissions(List<String> permissions) {
-        for(String perm : permissions) {
-            // Checked if permission exists
-        }
-        this.permissions = permissions;
+        this.permissions.addAll(permissions);
     }
 
     public void setPermission(String permission) {
@@ -70,52 +84,32 @@ public abstract class Command {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void setUsage(String usage) {
         this.usageMessage = usage;
-    }
-
-    public String getUsage() {
-        return usageMessage;
     }
 
     public void setAliases(List<String> aliases) {
         this.aliases = aliases != null ? aliases : new ArrayList<>();
     }
 
-    public List<String> getAliases() {
-        return aliases;
-    }
-
     public String getLabel() {
         return this.label;
     }
 
-    public void setLabel(String name) {
+    public boolean setLabel(String name) {
         this.nextLabel = name;
         if(!isRegistered()) {
             this.label = name;
-        }
-    }
-
-    public boolean register(CommandMap commandMap) {
-        if(allowChangeFrom(commandMap)) {
-            this.commandMap = commandMap;
             return true;
         }
         return false;
     }
 
+    public boolean register(CommandMap commandMap) {
+        return false;
+    }
+
     public boolean unregister(CommandMap commandMap) {
-        if(allowChangeFrom(commandMap)) {
-            this.commandMap = null;
-            this.activeAliases = new ArrayList<>(aliases);
-            this.label = nextLabel;
-            return true;
-        }
         return false;
     }
 
@@ -127,9 +121,15 @@ public abstract class Command {
         return this.commandMap != null;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
 
+    public final void buildCommand() {
+        this.commandData = CommandData.builder(name)
+                .setDescription(description)
+                .setUsageMessage(usageMessage)
+                .setAliases(aliases)
+                .setPermissionMessage(this.permissionMessage == null ? "" : this.permissionMessage)
+                .setParameters(this.getParameters())
+                .setPermissions(this.getPermissions())
+                .build();
+    }
 }

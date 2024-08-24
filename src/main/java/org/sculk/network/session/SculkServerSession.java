@@ -135,7 +135,6 @@ public class SculkServerSession extends BedrockServerSession {
         packet.setType(TextPacket.Type.RAW);
         packet.setMessage(message);
         this.sendPacket(packet);
-        this.getServer().getLogger().info(message);
     }
 
     public void onChatMessage(RawTextBuilder textBuilder) {
@@ -145,7 +144,6 @@ public class SculkServerSession extends BedrockServerSession {
         packet.setType(TextPacket.Type.JSON);
         packet.setMessage(new Gson().toJson(textBuilder.build()));
         this.sendPacket(packet);
-        this.getServer().getLogger().info(textBuilder.toString());
     }
 
     public void onJukeboxPopup(String message) {

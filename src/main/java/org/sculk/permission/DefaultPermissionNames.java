@@ -19,6 +19,7 @@ package org.sculk.permission;
 public class DefaultPermissionNames {
 
     public static final String COMMAND_VERSION = "sculk.command.version";
+    public static final String COMMAND_HELP = "sculk.command.help";
 
     public static final String GROUP_CONSOLE = "sculk.group.console";
     public static final String GROUP_OPERATOR = "sculk.group.operator";

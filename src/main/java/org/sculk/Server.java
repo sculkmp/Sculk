@@ -125,6 +125,8 @@ public class Server {
         this.eventManager = injector.getInstance(EventManager.class);
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
+
+        logger.info("Loading commands...");
         this.simpleCommandMap = new SimpleCommandMap(this);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);

@@ -78,31 +78,19 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void initEntity() {
         super.initEntity();
         System.out.println("init Entity");
+        sendCommandsData();
+    }
 
-       AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
+    public void sendCommandsData() {
+        AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
         List<CommandData> commandData = availableCommandsPacket.getCommands();
-        for(Command command : this.getServer().getCommandMap().getCommands()) {
-            Set<CommandData.Flag> commandFlag = new HashSet<>();
-            commandFlag.add(CommandData.Flag.MESSAGE_TYPE);
-
-            Map<String, Set<CommandEnumConstraint>> valuesMap = new HashMap<>();
-            for(String value : command.getAliases()) {
-                if(!valuesMap.containsKey(value)) {
-                    Set<CommandEnumConstraint> constraints = new HashSet<>();
-                    valuesMap.put(value, constraints);
-                }
+        List<String> commandSend = new ArrayList<>();
+        for(Command command : this.getServer().getCommandMap().getCommands().values()) {
+            if (commandSend.contains(command.getLabel())){
+                continue;
             }
-            System.out.println(valuesMap);
-            CommandEnumData commandEnumData = new CommandEnumData(command.getName(), valuesMap, false);
-
-            CommandParamData simpleData = new CommandParamData();
-            simpleData.setName(command.getName());
-            simpleData.setOptional(true);
-            simpleData.setType(CommandParam.TEXT);
-
-            commandData.add(new CommandData(command.getName(), command.getDescription(), commandFlag, CommandPermission.ANY, commandEnumData, new ArrayList<>(), new CommandOverloadData[]{
-                    new CommandOverloadData(false, new CommandParamData[]{simpleData})}
-            ));
+            commandData.add(command.getCommandData().toNetwork());
+            commandSend.add(command.getLabel());
         }
         sendDataPacket(availableCommandsPacket);
     }
@@ -259,7 +247,9 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
             playerChatEvent.call();
             if(!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
-                this.getNetworkSession().onChatMessage(playerChatEvent.getChatFormatter().format(this.getName(), message));
+                String messageFormat = playerChatEvent.getChatFormatter().format(this.getName(), message);
+                this.getNetworkSession().onChatMessage(messageFormat);
+                this.getServer().getLogger().info(messageFormat);
             }
         }
         return true;
