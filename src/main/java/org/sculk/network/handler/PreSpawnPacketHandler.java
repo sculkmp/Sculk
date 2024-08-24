@@ -83,7 +83,7 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setEducationProductionId("");
         startGamePacket.setForceExperimentalGameplay(OptionalBoolean.empty());
 
-        String serverName = session.getServer().getMotd();
+        String serverName = session.getServer().getSubMotd();
         startGamePacket.setLevelId(serverName);
         startGamePacket.setLevelName(serverName);
 
