@@ -20,11 +20,11 @@ import java.util.List;
  */
 public interface Permissible {
 
-    void setPermission(Permission permission);
+    /**
+     * TODO: Maybe add methods with Permission equivalent ?
+     */
     void setPermission(String permission);
-    void unsetPermission(Permission permission);
     void unsetPermission(String permission);
-    boolean hasPermission(Permission permission);
     boolean hasPermission(String permission);
     List<Permission> getPermissions();
 
