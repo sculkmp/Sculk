@@ -1,6 +1,8 @@
 package org.sculk.permission;
 
 
+import java.util.List;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -18,6 +20,12 @@ package org.sculk.permission;
  */
 public interface Permissible {
 
-
+    void setPermission(Permission permission);
+    void setPermission(String permission);
+    void unsetPermission(Permission permission);
+    void unsetPermission(String permission);
+    boolean hasPermission(Permission permission);
+    boolean hasPermission(String permission);
+    List<Permission> getPermissions();
 
 }
