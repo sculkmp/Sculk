@@ -1,12 +1,10 @@
 package org.sculk.command.defaults;
 
-import com.google.gson.Gson;
-import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
-import org.sculk.command.data.CommandParameter;
-import org.sculk.exception.CommandException;
+import org.sculk.command.args.CommandArgument;
+import org.sculk.command.args.IntegerArgument;
 import org.sculk.permission.DefaultPermissionNames;
 import org.sculk.player.text.RawTextBuilder;
 import org.sculk.player.text.TextBuilder;
@@ -35,13 +33,16 @@ public class HelpCommand extends Command {
 
     public HelpCommand() {
         super("help", "Show the help menu", "/help [page|command name]", List.of("?"));
-        this.setPermission(DefaultPermissionNames.COMMAND_HELP);
-        this.registerParameter(new CommandParameter("page", CommandParamType.INT, true));
-        this.registerParameter(new CommandParameter("command", CommandParamType.TEXT, true));
     }
 
     @Override
-    public void execute(CommandSender sender, String commandLabel, List<String> args) throws CommandException {
+    protected void prepare() {
+        this.setPermission(DefaultPermissionNames.COMMAND_HELP);
+        this.registerArgument(0, new IntegerArgument("page", true));
+        this.registerArgument(0, new CommandArgument("command", true));
+    }
+
+    public void onRun(CommandSender sender, String commandLabel, Map<String, Object> args) {
         StringBuilder builder = new StringBuilder();
         List<String> commandSending = new ArrayList<>();
         Server.getInstance().getCommandMap().getCommands().forEach((s, command) -> {
@@ -59,37 +60,31 @@ public class HelpCommand extends Command {
         int startIndex = 0;
         int endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
 
-        if (!args.isEmpty()) {
-            try {
-                actualPage = Integer.parseInt(args.getFirst());
-                if (actualPage < 1 || actualPage > totalPage) {
-                    actualPage = 1;
-                }
-            } catch (NumberFormatException e) {
+        if (args.containsKey("page")) {
+            actualPage = Integer.parseInt(args.get("page").toString());
+            if (actualPage < 1 || actualPage > totalPage) {
                 actualPage = 1;
-                String commandName = args.getFirst();
-                Command command = Server.getInstance().getCommandMap().getCommand(commandName);
-                try {
-                    sender.sendMessage(command.getLabel());
-                    sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder()
-                            .setTranslate("§6/%%s: §f%%s\nUsage: §e%%s")
-                            .setWith(new RawTextBuilder()
-                                    .add(new TextBuilder().setText(command.getLabel()))
-                                    .add(new TextBuilder().setText(command.getDescription()))
-                                    .add(new TextBuilder().setText(command.getUsageMessage()))
-                            )
-                    ));
-                } catch(RuntimeException exception) {
-                    sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder().setTranslate("§4/%%s§c does not seem to exist, checked the list of commands with §4/help§c.").setWith(new RawTextBuilder()
-                            .add(new TextBuilder().setText(args.getFirst()))
-                    )));
-                }
-                return;
             }
-
-            startIndex = (actualPage - 1) * commandsPerPage;
-            endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
+        } else if (args.containsKey("command")) {
+            Command command = (Command) args.get("command");
+            try {
+                sender.sendMessage(command.getLabel());
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder()
+                        .setTranslate("§6/%%s: §f%%s\nUsage: §e%%s")
+                        .setWith(new RawTextBuilder()
+                                .add(new TextBuilder().setText(command.getLabel()))
+                                .add(new TextBuilder().setText(command.getDescription()))
+                                .add(new TextBuilder().setText(command.getUsageMessage()))
+                        )
+                ));
+            } catch(RuntimeException exception) {
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder().setTranslate("§4/%%s§c does not seem to exist, checked the list of commands with §4/help§c.").setWith(new RawTextBuilder()
+                        .add(new TextBuilder().setText(command.getName()))
+                )));
+            }
         }
+        startIndex = (actualPage - 1) * commandsPerPage;
+        endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
 
         for (int i = startIndex; i < endIndex; i++) {
             String commandName = commandSending.get(i);

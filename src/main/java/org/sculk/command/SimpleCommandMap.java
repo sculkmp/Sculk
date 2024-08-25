@@ -44,13 +44,13 @@ public class SimpleCommandMap implements CommandMap {
 
     public void registerAll(String fallbackPrefix, List<Command> commands) {
         for(Command command : commands) {
-            command.buildCommand();
             register(fallbackPrefix, command);
         }
     }
 
     public void register(String fallbackPrefix, Command command) {
-        command.buildCommand();
+        if (!command.isRegistered())
+            command.prepare();
         register(fallbackPrefix, command, null);
     }
 
@@ -111,7 +111,7 @@ public class SimpleCommandMap implements CommandMap {
         
         Command target = this.getCommand(sendCommandLabel);
         if(target != null) {
-            target.execute(sender, sendCommandLabel, List.of(args));
+            target.execute(sender, sendCommandLabel, new ArrayList<>(List.of(args)));
             return true;
         }
         sender.sendMessage("§cUnknown command: §4" + commandLine + "§c. Use /help for a list available commands.");

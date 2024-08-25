@@ -12,6 +12,7 @@ import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
+import org.sculk.command.network.CreatorCommandData;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
@@ -87,13 +88,10 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void sendCommandsData() {
         AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
         List<CommandData> commandData = availableCommandsPacket.getCommands();
-        List<String> commandSend = new ArrayList<>();
-        for(Command command : this.getServer().getCommandMap().getCommands().values()) {
-            if (commandSend.contains(command.getLabel())){
+        for(Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
+            if (!Objects.equals(command.getValue().getName(), command.getKey()))
                 continue;
-            }
-            commandData.add(command.getCommandData().toNetwork());
-            commandSend.add(command.getLabel());
+            commandData.add(new CreatorCommandData(command.getValue()).toNetwork());
         }
         sendDataPacket(availableCommandsPacket);
     }
