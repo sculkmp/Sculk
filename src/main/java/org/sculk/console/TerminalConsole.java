@@ -6,7 +6,10 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.sculk.Server;
 import org.sculk.command.CommandSender;
+import org.sculk.permission.Permission;
 import org.sculk.player.text.RawTextBuilder;
+
+import java.util.List;
 
 /*
  *   ____             _ _
@@ -49,6 +52,24 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     public void sendMessage(String message) {
         this.server.getLogger().info(message);
 
+    }
+
+    @Override
+    public void setPermission(String permission) {
+    }
+
+    @Override
+    public void unsetPermission(String permission) {
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return true;
+    }
+
+    @Override
+    public List<Permission> getPermissions() {
+        return List.of();
     }
 
     @Override
