@@ -20,6 +20,7 @@ import org.sculk.console.TerminalConsole;
 import org.sculk.event.EventManager;
 import org.sculk.event.command.CommandEvent;
 import org.sculk.event.player.PlayerCreationEvent;
+import org.sculk.event.server.ServerStopEvent;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
@@ -183,10 +184,12 @@ public class Server {
     }
 
     public void shutdown() {
-        Map<UUID, Player> onlinePlayers = this.getOnlinePlayers();
-        for(Map.Entry<UUID, Player> entry : onlinePlayers.entrySet()) {
-            Player player = entry.getValue();
-            player.getNetworkSession().disconnect("Server closed");
+        ServerStopEvent serverStopEvent = new ServerStopEvent(getOnlinePlayers());
+        serverStopEvent.call();
+
+        Collection<Player> players = getOnlinePlayers().values();
+        for(Player player : players) {
+            player.kick("Server closed");
         }
         if(this.shutdown) {
             return;
@@ -197,19 +200,23 @@ public class Server {
 
         logger.info("Disabling all plugins...");
         pluginManager.disableAllPlugins();
-        logger.info("Disabled all plugins");
+
+        logger.info("Stopping all tasks...");
+        // next
+
+        logger.info("Unloading all levels...");
+        // next
 
         Sculk.shutdown();
+
+        this.logger.info("Closing console");
+        this.console.getConsoleThread().interrupt();
 
         this.logger.info("Stopping network interfaces");
         for(SourceInterface sourceInterface : this.network.getInterfaces()) {
             sourceInterface.shutdown();
             this.network.unregisterInterface(sourceInterface);
         }
-
-        this.logger.info("Closing console");
-        this.console.getConsoleThread().interrupt();
-
 
         this.logger.info("Stopping other threads");
     }

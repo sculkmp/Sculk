@@ -18,6 +18,7 @@ import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
+import org.sculk.event.player.PlayerQuitEvent;
 import org.sculk.form.Form;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
@@ -102,6 +103,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     public void kick(String message) {
+        this.close();
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
         packet.setReason(DisconnectFailReason.KICKED);
@@ -109,10 +111,17 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     public void kick(String message, DisconnectFailReason disconnectFailReason) {
+        this.close();
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
         packet.setReason(disconnectFailReason);
         sendDataPacket(packet);
+    }
+
+    public void close() {
+        PlayerQuitEvent playerQuitEvent = new PlayerQuitEvent(this, "§e" + this.getName() + " left the game");
+        playerQuitEvent.call();
+        this.getServer().broadcastMessage(playerQuitEvent.getQuitMessage());
     }
 
     public void processLogin() {
