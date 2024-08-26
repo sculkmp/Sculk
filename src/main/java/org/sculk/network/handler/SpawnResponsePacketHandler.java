@@ -6,6 +6,7 @@ import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacke
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
+import org.sculk.event.player.PlayerJoinEvent;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.utils.TextFormat;
 
@@ -44,6 +45,9 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
     public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet) {
         this.responseCallback.accept(null);
         Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with entity id " + session.getPlayer().getUniqueId());
+        PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(session.getPlayer(), "§e" + session.getPlayer().getName() + " joined the game");
+        playerJoinEvent.call();
+        Server.getInstance().broadcastMessage(playerJoinEvent.getJoinMessage());
         return PacketSignal.HANDLED;
     }
 }
