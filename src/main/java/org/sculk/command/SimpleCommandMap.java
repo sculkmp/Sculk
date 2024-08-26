@@ -38,7 +38,8 @@ public class SimpleCommandMap implements CommandMap {
             new HelpCommand(),
             new StopCommand(),
             new PluginCommand(),
-            new SayCommand()
+            new SayCommand(),
+            new KickCommand()
         ));
     }
 
