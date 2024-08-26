@@ -37,10 +37,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /*
@@ -398,6 +395,14 @@ public class Server {
             commandLine = commandEvent.getCommand();
         }
         simpleCommandMap.dispatch(sender, commandLine);
+    }
+
+    public void broadcastMessage(String message) {
+        Collection<Player> players = getOnlinePlayers().values();
+        for(Player player : players) {
+            player.sendMessage(message);
+        }
+        getLogger().info(message);
     }
 
 }
