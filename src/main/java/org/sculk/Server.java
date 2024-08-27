@@ -20,6 +20,9 @@ import org.sculk.console.TerminalConsole;
 import org.sculk.event.EventManager;
 import org.sculk.event.command.CommandEvent;
 import org.sculk.event.player.PlayerCreationEvent;
+import org.sculk.lang.Language;
+import org.sculk.lang.LanguageKeys;
+import org.sculk.lang.LanguageManager;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
@@ -42,6 +45,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import static org.sculk.Sculk.CODE_NAME;
 
 /*
  *   ____             _ _
@@ -74,6 +79,8 @@ public class Server {
 
     private Network network;
 
+    private LanguageManager languageManager;
+
     private final Path dataPath;
     private final Path pluginDataPath;
 
@@ -102,6 +109,7 @@ public class Server {
         instance = this;
         this.logger = logger;
         this.dataPath = Paths.get(dataPath);
+        this.properties = new ServerProperties(this.dataPath);
         Path pluginsPath = Path.of(dataPath, "plugins");
         this.pluginDataPath = Path.of(dataPath, "plugin_data");
         Path worldsPath = Path.of(dataPath, "worlds");
@@ -114,11 +122,12 @@ public class Server {
         if(!resourcePath.toFile().exists()) resourcePath.toFile().mkdirs();
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
-        logger.info("Loading {}...", TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE);
+        this.languageManager = new LanguageManager(getLangCode());
+
+        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE));
         this.config = new Config(this.dataPath + "/sculk.yml");
 
-        logger.info("Loading {}...", TextFormat.AQUA + "server.properties" + TextFormat.WHITE);
-        this.properties = new ServerProperties(this.dataPath);
+        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "server.properties" + TextFormat.WHITE));
         this.motd = this.properties.get(ServerPropertiesKeys.MOTD, "A Sculk Server Software");
         this.submotd = this.properties.get(ServerPropertiesKeys.SUB_MOTD, "Powered by Sculk");
 
@@ -127,7 +136,7 @@ public class Server {
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
 
-        logger.info("Loading commands...");
+        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING_COMMANDS));
         this.simpleCommandMap = new SimpleCommandMap(this);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
@@ -135,8 +144,8 @@ public class Server {
         this.banByName = new Config(this.dataPath.resolve("banned-players.txt").toString(), Config.ENUM);
         this.banByIp = new Config(this.dataPath.resolve("banned-ip.txt").toString(), Config.ENUM);
 
-        logger.info("Selected {} as the base language", this.properties.get(ServerPropertiesKeys.LANGUAGE, "English"));
-        logger.info("Starting Minecraft: Bedrock Edition server version {}", TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE);
+        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, Language.fromLang(getLangCode())));
+        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_STARTING_VERSION, TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE));
 
         this.console = new TerminalConsole(this);
         this.start();
@@ -145,9 +154,9 @@ public class Server {
     public void start() {
         this.console.getConsoleThread().start();
 
-        logger.info("Loading all plugins...");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING_PLUGINS));
         pluginManager.loadAllPlugins();
-        logger.info("All plugins loaded successfully");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_PLUGINS_LOADED));
 
         InetSocketAddress bindAddress = new InetSocketAddress(this.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.serverId = UUID.randomUUID();
@@ -155,29 +164,28 @@ public class Server {
         this.network.setName(this.motd);
         try {
             this.network.registerInterface(new BedrockInterface(this));
-            getLogger().info("Minecraft network interface running on {}", bindAddress);
+            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_NETWORK_INTERFACE_RUNNING, bindAddress));
         } catch(Exception e) {
-            logger.fatal("**** FAILED TO BIND TO " + bindAddress);
-            logger.fatal("Peahaps a server s already running on that port?");
+            getLogger().error(getLanguage().tr(LanguageKeys.SCULK_SERVER_FAILED_BIND, bindAddress), e);
+            getLogger().fatal(getLanguage().tr(LanguageKeys.SCULK_SERVER_SERVER_ALREADY_RUNNING));
             shutdown();
         }
 
         this.tickCounter = 0;
 
         if(this.properties.get(ServerPropertiesKeys.XBOX_AUTH, true)) {
-            logger.info("Online mode is enable. The server will verify that players are authenticated to XboxLive.");
+            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ONLINE_MODE_ENABLED));
         } else {
-            logger.info("{}Online mode is not enabled. The server no longer checks if players are authenticated to XboxLive.", TextFormat.RED);
+            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ONLINE_MODE_DISABLED, TextFormat.RED));
         }
-        logger.info("This server is running on version {}",TextFormat.AQUA + Sculk.CODE_VERSION);
-        logger.info("Sculk is distributed undex the {}",TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_RUNNING_VERSION, TextFormat.AQUA + Sculk.CODE_VERSION + TextFormat.WHITE));
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_DISTRIBUTED_UNDER, TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE"));
 
-        logger.info("Enable all plugins...");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ENABLE_ALL_PLUGINS));
         pluginManager.enableAllPlugins();
-        logger.info("All plugins enabled successfully");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ALL_PLUGINS_ENABLED));
 
-        getLogger().info("Done ({}s)! For help, type \"help\" or \"?", (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000);
-
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_DONE, (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000));
         this.getScheduler().scheduleDelayedTask(() -> {
             System.out.println("5ms");
         }, 5, false);
@@ -329,6 +337,14 @@ public class Server {
 
     public String getVersion() {
         return ProtocolInfo.MINECRAFT_VERSION;
+    }
+
+    public LanguageManager getLanguage() {
+        return this.languageManager;
+    }
+
+    public Language getLangCode() {
+        return Language.fromCode(this.properties.get(ServerPropertiesKeys.LANGUAGE, "eng"));
     }
 
     public boolean isXboxAuth() {
