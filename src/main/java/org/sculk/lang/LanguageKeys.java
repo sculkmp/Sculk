@@ -18,7 +18,13 @@ public enum LanguageKeys {
     SCULK_SERVER_DISTRIBUTED_UNDER("sculk.server.distributed.under"),
     SCULK_SERVER_ENABLE_ALL_PLUGINS("sculk.server.enable.all.plugins"),
     SCULK_SERVER_ALL_PLUGINS_ENABLED("sculk.server.all.plugins.enabled"),
-    SCULK_SERVER_DONE("sculk.server.done");
+    SCULK_SERVER_DONE("sculk.server.done"),
+    SCULK_SERVER_STOPPING("sculk.server.stopping"),
+    SCULK_PLUGINS_DISABLING("sculk.plugins.disabling"),
+    SCULK_PLUGINS_DISABLED("sculk.plugins.disabled"),
+    SCULK_NETWORK_INTERFACES_STOPPING("sculk.network.interfaces.stopping"),
+    SCULK_CONSOLE_CLOSING("sculk.console.closing"),
+    SCULK_THREADS_STOPPING("sculk.threads.stopping");
 
     private final String key;
 

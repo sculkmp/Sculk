@@ -46,8 +46,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static org.sculk.Sculk.CODE_NAME;
-
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -202,27 +200,27 @@ public class Server {
         if(this.shutdown) {
             return;
         }
-        this.logger.info("Stopping the server");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_STOPPING));
 
         this.shutdown = true;
 
-        logger.info("Disabling all plugins...");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_PLUGINS_DISABLING));
         pluginManager.disableAllPlugins();
-        logger.info("Disabled all plugins");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_PLUGINS_DISABLED));
 
         Sculk.shutdown();
 
-        this.logger.info("Stopping network interfaces");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_NETWORK_INTERFACES_STOPPING));
         for(SourceInterface sourceInterface : this.network.getInterfaces()) {
             sourceInterface.shutdown();
             this.network.unregisterInterface(sourceInterface);
         }
 
-        this.logger.info("Closing console");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_CONSOLE_CLOSING));
         this.console.getConsoleThread().interrupt();
 
 
-        this.logger.info("Stopping other threads");
+        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_THREADS_STOPPING));
     }
 
     public CompletableFuture<Player> createPlayer(SculkServerSession session, ClientChainData info, boolean authenticated){
