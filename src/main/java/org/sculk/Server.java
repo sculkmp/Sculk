@@ -176,7 +176,6 @@ public class Server {
         } else {
             getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ONLINE_MODE_DISABLED, TextFormat.RED));
         }
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_RUNNING_VERSION, TextFormat.AQUA + Sculk.CODE_VERSION + TextFormat.WHITE));
         getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_DISTRIBUTED_UNDER, TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE"));
 
         getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ENABLE_ALL_PLUGINS));
@@ -346,7 +345,7 @@ public class Server {
     }
 
     public boolean isXboxAuth() {
-        return true; // TODO default true for test
+        return this.properties.get(ServerPropertiesKeys.XBOX_AUTH, true);
     }
 
     public void tickProcessor() {
