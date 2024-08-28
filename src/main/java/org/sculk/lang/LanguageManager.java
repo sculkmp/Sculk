@@ -44,7 +44,10 @@ public class LanguageManager {
 
     public String tr(LanguageKeys key, Object... params) {
         String pattern = currentLanguage.getProperty(String.valueOf(key), "Translation not found");
-        return MessageFormat.format(pattern, params);
+        for (int i = 0; i < params.length; i++) {
+            pattern = pattern.replace("{" + "%" + i + "}", params[i].toString());
+        }
+        return pattern;
     }
 
     public String tr(LanguageKeys key) {
