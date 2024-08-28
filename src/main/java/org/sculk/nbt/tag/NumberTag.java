@@ -1,7 +1,9 @@
-package org.sculk.entity;
+package org.sculk.nbt.tag;
 
 
-import org.sculk.nbt.CompoundTag;
+import org.cloudburstmc.nbt.NBTOutputStream;
+
+import java.io.IOException;
 
 /*
  *   ____             _ _
@@ -18,12 +20,16 @@ import org.sculk.nbt.CompoundTag;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class Entity {
+public abstract class NumberTag<T extends Number> extends Tag {
 
-    public CompoundTag namedTag;
+    public NumberTag(String name) {
+        super(name);
+    }
 
-    public void initEntity() {}
+    public abstract T getData();
+    public abstract void setData(T data);
 
-    public void onUpdate() {}
+    abstract void write(NBTOutputStream dos) throws IOException;
 
+    public abstract Tag copy();
 }

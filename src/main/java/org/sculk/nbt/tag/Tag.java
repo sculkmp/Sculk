@@ -1,7 +1,7 @@
-package org.sculk.entity;
+package org.sculk.nbt.tag;
 
 
-import org.sculk.nbt.CompoundTag;
+import java.util.Objects;
 
 /*
  *   ____             _ _
@@ -18,12 +18,17 @@ import org.sculk.nbt.CompoundTag;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class Entity {
+public class Tag {
 
-    public CompoundTag namedTag;
+    private final String name;
 
-    public void initEntity() {}
+    protected Tag(String name) {
+        this.name = Objects.requireNonNullElse(name, "");
+    }
 
-    public void onUpdate() {}
+    public String getName() {
+        if(name == null) return "";
+        return name;
+    }
 
 }

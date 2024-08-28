@@ -1,7 +1,9 @@
-package org.sculk.entity;
+package org.sculk.nbt.tag;
 
 
-import org.sculk.nbt.CompoundTag;
+import org.cloudburstmc.nbt.NBTOutputStream;
+
+import java.io.IOException;
 
 /*
  *   ____             _ _
@@ -18,12 +20,20 @@ import org.sculk.nbt.CompoundTag;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public abstract class Entity {
+public class StringTag extends Tag {
 
-    public CompoundTag namedTag;
+    public String data;
 
-    public void initEntity() {}
+    public StringTag(String name) {
+        super(name);
+    }
 
-    public void onUpdate() {}
+    public StringTag(String name, String data) {
+        super(name);
+        this.data = data;
+        if(data == null) {
+            throw new IllegalArgumentException("Empty string not allowed");
+        }
+    }
 
 }

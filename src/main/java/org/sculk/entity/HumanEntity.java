@@ -3,6 +3,9 @@ package org.sculk.entity;
 
 import org.sculk.entity.manager.ExperienceManager;
 import org.sculk.entity.manager.HungerManager;
+import org.sculk.nbt.CompoundTag;
+import org.sculk.player.Player;
+import org.sculk.player.skin.Skin;
 
 /*
  *   ____             _ _
@@ -29,6 +32,19 @@ public class HumanEntity extends Living {
         super.initEntity();
         this.hungerManager = new HungerManager(this);
         this.experienceManager = new ExperienceManager(this);
+
+        if(!(this instanceof Player)) {
+            if(this.namedTag.contains("Skin") && this.namedTag.get("Skin") instanceof CompoundTag) {
+                CompoundTag skinTag = this.namedTag.getCompound("Skin");
+                if(!skinTag.contains("Transparent")) {
+                    skinTag.putBoolean("Transparent", false);
+                }
+                Skin newSkin = new Skin();
+                if(skinTag.contains("ModelId")) {
+                    //newSkin.setSkinId(skinTag.get);
+                }
+            }
+        }
     }
 
     @Override
