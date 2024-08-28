@@ -14,7 +14,6 @@ public enum LanguageKeys {
     SCULK_SERVER_SERVER_ALREADY_RUNNING("sculk.server.server.already.running"),
     SCULK_SERVER_ONLINE_MODE_ENABLED("sculk.server.online.mode.enabled"),
     SCULK_SERVER_ONLINE_MODE_DISABLED("sculk.server.online.mode.disabled"),
-    SCULK_SERVER_RUNNING_VERSION("sculk.server.running.version"),
     SCULK_SERVER_DISTRIBUTED_UNDER("sculk.server.distributed.under"),
     SCULK_SERVER_ENABLE_ALL_PLUGINS("sculk.server.enable.all.plugins"),
     SCULK_SERVER_ALL_PLUGINS_ENABLED("sculk.server.all.plugins.enabled"),
