@@ -81,6 +81,10 @@ public class Sculk {
     private static Properties loadServerProperties() throws IOException {
         File file = new File(DATA_PATH + "server.properties");
         Properties properties = new Properties();
+        if (!file.exists()) {
+            properties.setProperty("language", "eng");
+            return properties;
+        }
         try (FileInputStream input = new FileInputStream(file)) {
             properties.load(input);
         }
