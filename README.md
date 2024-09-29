@@ -1,12 +1,13 @@
-![Header](https://capsule-render.vercel.app/api?type=Waving&color=timeGradient&height=200&animation=fadeIn&section=header&text=Sculk-MP&fontSize=70)
 <div align="center">
-<h3>Open source server software for Minecraft: Bedrock Edition written in Java</h3>
+<img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e2/Sculk_%28pre-release%29.png" width="150" height="150" alt="Logo Sculk">
+<h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
+[![SculkVersion](https://img.shields.io/badge/version-soon-14191E.svg?cacheSeconds=2592000)]()
+[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.21%20(Bedrock)-17272F)]()
+[![ProtocolVersion](https://img.shields.io/badge/protocol-712-38D3DF)]()
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
-[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.1%20(Bedrock)-56383E)]()
-[![SculkVersion](https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000)]()
 
 </div>
 
@@ -18,7 +19,7 @@ Sculk is open source server software for Minecraft: Bedrock Edition, It has a fe
 * We provided a high-level friendly API akin PocketMine plugin developers. Save yourself the hassle of dealing with the dot-and-cross of the low-level system API and hooks, we've done the difficult part for you!
 
 ## ✨ Creating plugins
-Add SculkMP to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
+Add Sculk to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
 
 For maven:
 ```xml
@@ -49,15 +50,17 @@ dependencies {
 
 | Milestone                                | Status |
 |------------------------------------------|--------|
-| **⚒️ Construction of the server tree**   | ✅     |
-| **🛜 Join server**                       | ⏳     |
+| **⚒️ Construction of the server tree**   | ✅      |
+| **👓 Visible server**                    | ✅      |
+| **🛜 Join server**                       | ✅      |
 | **🎍 World loader**                      | 🚧     |
-| **🔌Plugin loader**                      | 🚧     |
+| **🔌Plugin loader**                      | ⏳      |
 | **⌨️ Command System**                    | 🚧     |
 | **🔐 Permission System**                 | 🚧     |
-| **🎈 Event System**                      | 🚧     |
-| **🖼 Form & Scoreboard API**             | 🚧     |
-| **👤 Player & Actor API**                | 🚧     |
+| **🎈 Event System**                      | ⏳      |
+| **🖼 Scoreboard API**                    | 🚧     |
+| **🖼 Form API**                          | ✅      |
+| **👤 Player & Actor API**                | ⏳      |
 | **🔩 Item API**                          | 🚧     |
 | **🧱 Block API**                         | 🚧     |
 | **📦 Inventory API**                     | 🚧     |
@@ -95,5 +98,5 @@ Please ensure your code follows our coding standards and include tests where pos
 This project is licensed under LGPL-3.0. Please see the [LICENSE](/LICENSE) file for details.
 
 `sculkmp/Sculk` are not affiliated with Mojang. 
-All brands and trademarks belong to their respective owners. Sculk-MP is not a Mojang-approved software, 
+All brands and trademarks belong to their respective owners. Sculk is not a Mojang-approved software, 
 nor is it associated with Mojang.
