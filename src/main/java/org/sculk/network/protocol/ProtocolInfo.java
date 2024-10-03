@@ -8,6 +8,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -32,6 +36,7 @@ public class ProtocolInfo {
     private static final Set<BedrockCodec> CODECS = ConcurrentHashMap.newKeySet();
 
     public static String MINECRAFT_VERSION_NETWORK = "1.21.30";
+  
     public static String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;
 
     static {
