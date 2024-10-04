@@ -18,6 +18,7 @@ import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.network.session.SculkServerSession;
+import org.sculk.permission.Permission;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
@@ -299,4 +300,21 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         this.getNetworkSession().onMessageTranslation(translate, parameters);
     }
 
+    @Override
+    public void setPermission(String permission) {
+    }
+
+    @Override
+    public void unsetPermission(String permission) {
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return true;
+    }
+
+    @Override
+    public List<Permission> getPermissions() {
+        return List.of();
+    }
 }

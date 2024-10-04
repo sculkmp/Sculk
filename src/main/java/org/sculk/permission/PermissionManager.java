@@ -1,8 +1,5 @@
 package org.sculk.permission;
 
-
-import java.util.List;
-
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -18,14 +15,8 @@ import java.util.List;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public interface Permissible {
-
-    /**
-     * TODO: Maybe add methods with Permission equivalent ?
-     */
-    void setPermission(String permission);
-    void unsetPermission(String permission);
-    boolean hasPermission(String permission);
-    List<Permission> getPermissions();
-
+public class PermissionManager {
+    // TODO: Add Console to DefaultPermissionNames.GROUP_CONSOLE
+    // TODO: Add Player to DefaultPermissionNames.GROUP_USER
+    // TODO: Parse an ops.txt File to add OPs users to DefaultPermissionNames.GROUP_OPERATOR
 }
