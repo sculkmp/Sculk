@@ -139,13 +139,10 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         SetTimePacket setTimePacket = new SetTimePacket();
         setTimePacket.setTime(0);
         session.sendPacket(setTimePacket);
-
-        Server.getInstance().getLogger().info("Player: §b" + session.getPlayer().getName());
     }
 
     @Override
     public PacketSignal handlePacket(BedrockPacket packet) {
-        System.out.println(packet);
         return super.handlePacket(packet);
     }
 

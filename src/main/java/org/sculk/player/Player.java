@@ -69,7 +69,8 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         this.displayName = data.getUsername();
         this.username = data.getUsername();
 
-        System.out.println(this.username);
+        //todo delete this
+        //System.out.println(this.username);
 
         initEntity();
     }
@@ -77,7 +78,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public void initEntity() {
         super.initEntity();
-        System.out.println("init Entity");
         sendCommandsData();
     }
 
@@ -190,7 +190,8 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
         updateAttributesPacket.setAttributes(attributes);
         sendDataPacket(updateAttributesPacket);
-        System.out.println(updateAttributesPacket);
+        //todo delete this
+        //System.out.println(updateAttributesPacket);
     }
 
     public long getPing() {
