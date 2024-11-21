@@ -6,7 +6,10 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.sculk.Server;
 import org.sculk.command.CommandSender;
+import org.sculk.permission.Permission;
 import org.sculk.player.text.RawTextBuilder;
+
+import java.util.List;
 
 /*
  *   ____             _ _
@@ -23,9 +26,9 @@ import org.sculk.player.text.RawTextBuilder;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
+@Getter
 public class TerminalConsole extends SimpleTerminalConsole implements CommandSender {
 
-    @Getter
     private final Server server;
     private final ConsoleThread consoleThread;
 
@@ -52,6 +55,24 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     }
 
     @Override
+    public void setPermission(String permission) {
+    }
+
+    @Override
+    public void unsetPermission(String permission) {
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        return true;
+    }
+
+    @Override
+    public List<Permission> getPermissions() {
+        return List.of();
+    }
+
+    @Override
     public void sendMessage(RawTextBuilder textBuilder) {
         this.server.getLogger().info(textBuilder.toString());
     }
@@ -64,10 +85,6 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     @Override
     protected void shutdown() {
         Server.getInstance().shutdown();
-    }
-
-    public ConsoleThread getConsoleThread() {
-        return this.consoleThread;
     }
 
     @Override
