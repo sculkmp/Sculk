@@ -28,6 +28,7 @@ import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 import org.sculk.player.text.RawTextBuilder;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,13 +54,12 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     private final SyncedEntityData data = new SyncedEntityData(this);
     private LoginChainData loginChainData;
 
-    private AtomicInteger formId;
-    private Int2ObjectOpenHashMap<Form> forms;
+    private final AtomicInteger formId;
+    private final Int2ObjectOpenHashMap<Form> forms;
     private List<AttributeData> attributeMap;
 
     private String displayName;
     private String username;
-    private UUID   uuid;
     @Getter
     private String xuid;
     @Getter
@@ -79,20 +79,18 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         this.displayName = data.getUsername();
         this.username = data.getUsername();
         this.skin = data.getSerializedSkin();
-        this.uuid = data.getClientUUID();
         this.xuid = data.getXUID();
 
-        //todo delete this
-        //System.out.println(this.username);
         this.initEntity();
     }
 
     @Override
     public void initEntity() {
         super.initEntity();
+        this.uuid = this.loginChainData.getClientUUID();
         sendCommandsData();
         this.getServer().addOnlinePlayer(this);
-        System.out.println(getServer().getOnlinePlayers());
+        this.getServer().sendFullPlayerList(this);
     }
 
     public void sendCommandsData() {
@@ -101,7 +99,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         for(Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
             if (!Objects.equals(command.getValue().getName(), command.getKey()))
                 continue;
-            commandData.add(new CreatorCommandData(command.getValue()).toNetwork(this.getLanguage()::translate));
+            commandData.add(new CreatorCommandData(this, command.getValue()).toNetwork());
         }
         sendDataPacket(availableCommandsPacket);
     }
@@ -125,40 +123,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(packet);
     }
 
-    public void completeLogin() {
-        ResourcePacksInfoPacket resourcePacksInfoPacket = new ResourcePacksInfoPacket();
-        sendDataPacket(resourcePacksInfoPacket);
-
-        ResourcePackClientResponsePacket resourcePackClientResponsePacket2 = new ResourcePackClientResponsePacket();
-        resourcePackClientResponsePacket2.setStatus(ResourcePackClientResponsePacket.Status.HAVE_ALL_PACKS);
-        sendDataPacket(resourcePackClientResponsePacket2);
-
-        ResourcePackClientResponsePacket resourcePackClientResponsePacket = new ResourcePackClientResponsePacket();
-        resourcePackClientResponsePacket.setStatus(ResourcePackClientResponsePacket.Status.COMPLETED);
-        sendDataPacket(resourcePackClientResponsePacket);
-        Server.getInstance().getLogger().info("call pack stack");
-
-        ResourcePackStackPacket resourcePackStackPacket = new ResourcePackStackPacket();
-        resourcePackStackPacket.setForcedToAccept(false);
-        resourcePackStackPacket.setGameVersion("*");
-        sendDataPacket(resourcePackStackPacket);
-        Server.getInstance().getLogger().info("resourcePackStackPacket");
-
-        //sendDataPacket(startGamePacket);
-        Server.getInstance().getLogger().info("call startgame");
-
-        this.getServer().addOnlinePlayer(this);
-        getServer().onPlayerCompleteLogin(this);
-    }
-
-    public UUID getUniqueId() {
-        return this.uuid;
-    }
-
-    public long getRuntimeId() {
-        return this.uuid.getMostSignificantBits();
-    }
-
     @Override
     public String getName() {
         return this.username;
@@ -166,17 +130,13 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     @Override
     public Locale getLocale() {
-        return Locale.forLanguageTag("fr_FR");
+        String[] languagePart = this.loginChainData.getLanguageCode().split("_");
+        return Locale.of(languagePart[0], languagePart.length > 1 ? languagePart[1] : "");
     }
 
     @Override
     public Language getLanguage() {
         return Server.getInstance().getLocalManager().getLanguage(this.getLocale());
-    }
-
-    @Override
-    public UUID getServerId() {
-        return null;
     }
 
     @Override
@@ -198,7 +158,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     public void sendAttributes() {
         UpdateAttributesPacket updateAttributesPacket = new UpdateAttributesPacket();
-        updateAttributesPacket.setRuntimeEntityId(this.getRuntimeId());
+        updateAttributesPacket.setRuntimeEntityId(this.getEntityId());
         List<AttributeData> attributes = updateAttributesPacket.getAttributes();
 
         Attribute hunger = AttributeFactory.getINSTANCE().mustGet(Attribute.HUNGER);

@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 /*
@@ -50,7 +51,7 @@ public class Sculk {
         LocalManager localManager = new LocalManager(Sculk.class.getClassLoader(), "language");
         try {
             Properties properties = loadServerProperties();
-            String langCode = properties.getProperty("language", "fra");
+            String langCode = properties.getProperty("language", "en_GB");
 
             log.info(localManager.getLanguage(langCode).translate(LanguageKeys.SCULK_SERVER_STARTING, List.of(TextFormat.DARK_AQUA + CODE_NAME + TextFormat.WHITE, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE)));
 

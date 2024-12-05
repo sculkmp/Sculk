@@ -1,6 +1,7 @@
 package org.sculk.lang;
 
 import lombok.Getter;
+import org.sculk.Server;
 import org.sculk.config.Config;
 
 import java.io.InputStream;
@@ -44,16 +45,17 @@ public class LocalManager {
                 throw new AssertionError("Unable to find " + resourcePath + "/" +key + ".ini");
             }
             config.load(data);
-            languageMap.put(locale.getDisplayName(), new Language(value, locale, (Map)config.getAll()));
+            String[] languagePart = key.split("_");
+            languageMap.put(key, new Language(value, Locale.of(languagePart[0],  languagePart.length > 1 ? languagePart[1] : ""), (Map)config.getAll()));
         }
     }
 
     public Language getLanguage(Locale locale){
-        return languageMap.get(locale.getDisplayName());
+        return languageMap.get(locale.getLanguage() + (locale.getCountry().isEmpty() ? "" : "_" + locale.getCountry()));
     }
 
     public Language getLanguage(String language){
-        return getLanguage(Locale.forLanguageTag(language));
+        return languageMap.get(language);
     }
 
     private String getNameLanguage(Config languagesName, String local)

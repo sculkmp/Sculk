@@ -32,7 +32,7 @@ import java.util.Map;
 public class HelpCommand extends Command {
 
     public HelpCommand() {
-        super("help", "Show the help menu", "/help [page|command name]", List.of("?"));
+        super("help", "commands.help.description", "/help [page|command name]", List.of("?"));
     }
 
     @Override

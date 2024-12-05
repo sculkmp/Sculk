@@ -6,8 +6,10 @@ import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.sculk.command.BaseSubCommand;
 import org.sculk.command.Command;
 import org.sculk.command.args.BaseArgument;
+import org.sculk.player.Player;
 
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Function;
 
@@ -34,9 +36,11 @@ public class CreatorCommandData {
     private List<String> aliases;
     private List<BaseArgument[]> overloads;
     private Map<String, BaseSubCommand> subCommands;
+    private Player player;
 
-    public CreatorCommandData(@NonNull Command command) {
+    public CreatorCommandData(Player player, @NonNull Command command) {
         this.name = command.getName();
+        this.player = player;
         this.setDescription(command.getDescription());
         this.setAliases(command.getAliases());
         this.setPermissions(command.getPermissions());
@@ -47,8 +51,8 @@ public class CreatorCommandData {
         this.setParameters(baseArguments);
     }
 
-    public CommandData toNetwork(Function<String, String> translate) {
-        return new CommandData(this.name, translate.apply(this.desc), Collections.emptySet(), CommandPermission.ANY, new CreatorCommandEnum(name, aliases).toNetwork(), Collections.emptyList(), this.generateOverloads().toArray(CommandOverloadData[]::new));
+    public CommandData toNetwork() {
+        return new CommandData(this.name, this.player.getLanguage().translate(this.desc), Collections.emptySet(), CommandPermission.ANY, new CreatorCommandEnum(name, aliases).toNetwork(), Collections.emptyList(), this.generateOverloads().toArray(CommandOverloadData[]::new));
     }
 
     public ArrayList<CommandOverloadData> generateOverloadsSubCommand() {
@@ -64,7 +68,7 @@ public class CreatorCommandData {
             commandParamData.setOptional(false);
             commandParamData.setEnumData(new CreatorCommandEnum(label, List.of(label)).toNetwork());
             subCommandParamData.add(commandParamData);
-            ArrayList<CommandOverloadData> subCommandOverloads = new CreatorCommandData(command).generateOverloads();
+            ArrayList<CommandOverloadData> subCommandOverloads = new CreatorCommandData(this.player, command).generateOverloads();
             if (subCommandOverloads.isEmpty()){
                 overloads.add(new CommandOverloadData(false, subCommandParamData.toArray(CommandParamData[]::new)));
             }else {

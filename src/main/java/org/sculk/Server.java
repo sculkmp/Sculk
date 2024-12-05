@@ -123,7 +123,7 @@ public class Server {
         this.localManager = localManager;
         this.language = localManager.getLanguage(this.properties.get(ServerPropertiesKeys.LANGUAGE, "eng"));
 
-        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING, List.of(TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE)));
         this.config = new Config(this.dataPath + "/sculk.yml");
 
         this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING, List.of(TextFormat.AQUA + "server.properties" + TextFormat.WHITE)));
@@ -308,19 +308,15 @@ public class Server {
     }
 
     public void addOnlinePlayer(Player player) {
-        this.playerList.put(player.getServerId(), player);
-    }
-
-    public void onPlayerCompleteLogin(Player player) {
-        this.sendFullPlayerList(player);
+        this.playerList.put(player.getUniqueId(), player);
     }
 
     public void sendFullPlayerList(Player player) {
         PlayerListPacket packet = new PlayerListPacket();
         packet.setAction(PlayerListPacket.Action.ADD);
         packet.getEntries().addAll(this.playerList.values().stream().map(p -> {
-            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getServerId());
-            entry.setEntityId(p.getUniqueId().getMostSignificantBits());
+            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getUniqueId());
+            entry.setEntityId(p.getEntityId());
             entry.setName(p.getName());
             entry.setSkin(p.getSerializedSkin());
             entry.setPlatformChatId("");
