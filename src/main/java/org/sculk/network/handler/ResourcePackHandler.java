@@ -7,6 +7,7 @@ import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.network.session.SculkServerSession;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /*
@@ -35,6 +36,8 @@ public class ResourcePackHandler extends SculkPacketHandler {
     @Override
     public void setUp() {
         ResourcePacksInfoPacket resourcePacksInfoPacket = new ResourcePacksInfoPacket();
+        resourcePacksInfoPacket.setWorldTemplateId(UUID.randomUUID());
+        resourcePacksInfoPacket.setWorldTemplateVersion("");
         session.sendPacket(resourcePacksInfoPacket);
     }
 
@@ -56,6 +59,7 @@ public class ResourcePackHandler extends SculkPacketHandler {
                stackPacket.setForcedToAccept(false);
                stackPacket.setExperimentsPreviouslyToggled(false);
                stackPacket.setGameVersion("*");
+                stackPacket.setHasEditorPacks(false);
                //todo: create ResourcePackManager return packs
                session.sendPacket(stackPacket);
                break;
