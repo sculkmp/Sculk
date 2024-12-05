@@ -3,6 +3,7 @@ package org.sculk.player;
 import co.aikar.timings.Timings;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Getter;
+import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
@@ -15,16 +16,21 @@ import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
+import org.sculk.event.player.PlayerAsyncPreLoginEvent;
+import org.sculk.event.player.PlayerChangeSkinEvent;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
+import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
+import org.sculk.scheduler.AsyncTask;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /*
  *   ____             _ _
@@ -54,6 +60,11 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     private String displayName;
     private String username;
+    private UUID   uuid;
+    @Getter
+    private String xuid;
+    @Getter
+    private SerializedSkin skin;
 
     protected int messageCounter = 2;
     protected int MAX_CHAT_CHAR_LENGTH = 512;
@@ -68,11 +79,13 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
         this.displayName = data.getUsername();
         this.username = data.getUsername();
+        this.skin = data.getSerializedSkin();
+        this.uuid = data.getClientUUID();
+        this.xuid = data.getXUID();
 
         //todo delete this
         //System.out.println(this.username);
-
-        initEntity();
+        this.initEntity();
     }
 
     @Override
@@ -106,11 +119,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(packet);
     }
 
-    public void processLogin() {
-        getServer().getLogger().info("process login call");
-
-    }
-
     public void completeLogin() {
         ResourcePacksInfoPacket resourcePacksInfoPacket = new ResourcePacksInfoPacket();
         sendDataPacket(resourcePacksInfoPacket);
@@ -130,7 +138,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(resourcePackStackPacket);
         Server.getInstance().getLogger().info("resourcePackStackPacket");
 
-
         //sendDataPacket(startGamePacket);
         Server.getInstance().getLogger().info("call startgame");
 
@@ -138,12 +145,12 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         getServer().onPlayerCompleteLogin(this);
     }
 
-    public long getUniqueId() {
-        return UUID.randomUUID().getMostSignificantBits();
+    public UUID getUniqueId() {
+        return this.uuid;
     }
 
     public long getRuntimeId() {
-        return UUID.randomUUID().getMostSignificantBits();
+        return this.uuid.getMostSignificantBits();
     }
 
     @Override

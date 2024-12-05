@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
+import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.command.CommandSender;
 import org.sculk.command.SimpleCommandMap;
@@ -311,7 +312,7 @@ public class Server {
         packet.setAction(PlayerListPacket.Action.ADD);
         packet.getEntries().addAll(this.playerList.values().stream().map(p -> {
             PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getServerId());
-            entry.setEntityId(p.getUniqueId());
+            entry.setEntityId(p.getUniqueId().getMostSignificantBits());
             entry.setName(p.getName());
             entry.setSkin(p.getSerializedSkin());
             entry.setPlatformChatId("");
