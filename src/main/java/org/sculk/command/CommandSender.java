@@ -2,8 +2,12 @@ package org.sculk.command;
 
 
 import org.sculk.Server;
+import org.sculk.lang.Language;
+import org.sculk.lang.Translatable;
 import org.sculk.permission.Permissible;
 import org.sculk.player.text.RawTextBuilder;
+
+import java.util.Locale;
 
 /*
  *   ____             _ _
@@ -24,7 +28,9 @@ public interface CommandSender extends Permissible {
 
     void sendMessage(String message);
     void sendMessage(RawTextBuilder textBuilder);
+    void sendMessage(Translatable<?> translatable);
     Server getServer();
     String getName();
-
+    Locale getLocale();
+    Language getLanguage();
 }

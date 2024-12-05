@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
+import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
 import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
@@ -12,12 +13,15 @@ import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
+import org.sculk.command.network.CreatorCommandData;
 import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
+import org.sculk.lang.Language;
+import org.sculk.lang.Translatable;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
@@ -87,18 +91,17 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void initEntity() {
         super.initEntity();
         sendCommandsData();
+        this.getServer().addOnlinePlayer(this);
+        System.out.println(getServer().getOnlinePlayers());
     }
 
     public void sendCommandsData() {
         AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
         List<CommandData> commandData = availableCommandsPacket.getCommands();
-        List<String> commandSend = new ArrayList<>();
-        for(Command command : this.getServer().getCommandMap().getCommands().values()) {
-            if (commandSend.contains(command.getLabel())){
+        for(Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
+            if (!Objects.equals(command.getValue().getName(), command.getKey()))
                 continue;
-            }
-            commandData.add(command.getCommandData().toNetwork());
-            commandSend.add(command.getLabel());
+            commandData.add(new CreatorCommandData(command.getValue()).toNetwork(this.getLanguage()::translate));
         }
         sendDataPacket(availableCommandsPacket);
     }
@@ -111,6 +114,14 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void kick(String message) {
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
+        packet.setReason(DisconnectFailReason.KICKED);
+        sendDataPacket(packet);
+    }
+
+    public void kick(String message, DisconnectFailReason disconnectFailReason) {
+        DisconnectPacket packet = new DisconnectPacket();
+        packet.setKickMessage(message);
+        packet.setReason(disconnectFailReason);
         sendDataPacket(packet);
     }
 
@@ -154,6 +165,16 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     @Override
+    public Locale getLocale() {
+        return Locale.forLanguageTag("fr_FR");
+    }
+
+    @Override
+    public Language getLanguage() {
+        return Server.getInstance().getLocalManager().getLanguage(this.getLocale());
+    }
+
+    @Override
     public UUID getServerId() {
         return null;
     }
@@ -163,9 +184,8 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         return Server.getInstance();
     }
 
-    public boolean sendDataPacket(BedrockPacket packet) {
+    public void sendDataPacket(BedrockPacket packet) {
         sendPacketInternal(packet);
-        return true;
     }
 
     public void sendPacketInternal(BedrockPacket packet) {
@@ -236,7 +256,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         super.onUpdate();
     }
 
-    public boolean onChat(String message) {
+    public void onChat(String message) {
         if(message.startsWith("./")) {
             message = message.substring(1);
         }
@@ -255,15 +275,19 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
                 this.getServer().getLogger().info(messageFormat);
             }
         }
-        return true;
     }
 
     public void sendMessage(String message) {
         this.getNetworkSession().onChatMessage(message);
     }
 
+    @Override
     public void sendMessage(RawTextBuilder textBuilder) {
         this.getNetworkSession().onChatMessage(textBuilder);
+    }
+
+    public void sendMessage(Translatable<?> translatable) {
+        this.getNetworkSession().onChatMessage(translatable);
     }
 
     public void sendJukeboxPopup(String message) {

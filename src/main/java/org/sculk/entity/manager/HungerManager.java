@@ -33,7 +33,7 @@ public class HungerManager {
     private int foodTickTimer = 0;
     @Getter
     private boolean enabled = true;
-    private HumanEntity humanEntity;
+    private final HumanEntity humanEntity;
 
     public HungerManager(HumanEntity humanEntity) {
         this.humanEntity = humanEntity;

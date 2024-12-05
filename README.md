@@ -54,9 +54,9 @@ dependencies {
 | **👓 Visible server**                    | ✅      |
 | **🛜 Join server**                       | ✅      |
 | **🎍 World loader**                      | 🚧     |
-| **🔌Plugin loader**                      | ⏳      |
-| **⌨️ Command System**                    | 🚧     |
-| **🔐 Permission System**                 | 🚧     |
+| **🔌Plugin loader**                      | ✅      |
+| **⌨️ Command System**                    | ⏳     |
+| **🔐 Permission System**                 | ⏳     |
 | **🎈 Event System**                      | ⏳      |
 | **🖼 Scoreboard API**                    | 🚧     |
 | **🖼 Form API**                          | ✅      |
