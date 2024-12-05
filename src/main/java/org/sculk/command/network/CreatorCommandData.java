@@ -9,6 +9,7 @@ import org.sculk.command.args.BaseArgument;
 
 
 import java.util.*;
+import java.util.function.Function;
 
 /*
  *   ____             _ _
@@ -46,8 +47,8 @@ public class CreatorCommandData {
         this.setParameters(baseArguments);
     }
 
-    public CommandData toNetwork() {
-        return new CommandData(this.name, this.desc, Collections.emptySet(), CommandPermission.ANY, new CreatorCommandEnum(name, aliases).toNetwork(), Collections.emptyList(), this.generateOverloads().toArray(CommandOverloadData[]::new));
+    public CommandData toNetwork(Function<String, String> translate) {
+        return new CommandData(this.name, translate.apply(this.desc), Collections.emptySet(), CommandPermission.ANY, new CreatorCommandEnum(name, aliases).toNetwork(), Collections.emptyList(), this.generateOverloads().toArray(CommandOverloadData[]::new));
     }
 
     public ArrayList<CommandOverloadData> generateOverloadsSubCommand() {

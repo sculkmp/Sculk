@@ -19,6 +19,8 @@ import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
+import org.sculk.lang.Language;
+import org.sculk.lang.Translatable;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
@@ -91,7 +93,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         for(Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
             if (!Objects.equals(command.getValue().getName(), command.getKey()))
                 continue;
-            commandData.add(new CreatorCommandData(command.getValue()).toNetwork());
+            commandData.add(new CreatorCommandData(command.getValue()).toNetwork(this.getLanguage()::translate));
         }
         sendDataPacket(availableCommandsPacket);
     }
@@ -158,6 +160,16 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public String getName() {
         return this.username;
+    }
+
+    @Override
+    public Locale getLocale() {
+        return Locale.forLanguageTag("fr_FR");
+    }
+
+    @Override
+    public Language getLanguage() {
+        return Server.getInstance().getLocalManager().getLanguage(this.getLocale());
     }
 
     @Override
@@ -266,8 +278,13 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         this.getNetworkSession().onChatMessage(message);
     }
 
+    @Override
     public void sendMessage(RawTextBuilder textBuilder) {
         this.getNetworkSession().onChatMessage(textBuilder);
+    }
+
+    public void sendMessage(Translatable<?> translatable) {
+        this.getNetworkSession().onChatMessage(translatable);
     }
 
     public void sendJukeboxPopup(String message) {

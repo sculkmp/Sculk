@@ -4,17 +4,15 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.sculk.config.ServerProperties;
-import org.sculk.config.ServerPropertiesKeys;
-import org.sculk.lang.Language;
 import org.sculk.lang.LanguageKeys;
-import org.sculk.lang.LanguageManager;
+import org.sculk.lang.LocalManager;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.utils.TextFormat;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /*
@@ -49,15 +47,14 @@ public class Sculk {
         System.setProperty("log4j.skipJansi", "false");
         Logger log = LogManager.getLogger(Sculk.class);
 
+        LocalManager localManager = new LocalManager(Sculk.class.getClassLoader(), "language");
         try {
             Properties properties = loadServerProperties();
-            String langCode = properties.getProperty("language", "eng");
-            Language language = Language.fromCode(langCode);
-            LanguageManager languageManager = new LanguageManager(language);
+            String langCode = properties.getProperty("language", "fra");
 
-            log.info(languageManager.tr(LanguageKeys.SCULK_SERVER_STARTING, TextFormat.DARK_AQUA + CODE_NAME + TextFormat.WHITE, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE));
+            log.info(localManager.getLanguage(langCode).translate(LanguageKeys.SCULK_SERVER_STARTING, List.of(TextFormat.DARK_AQUA + CODE_NAME + TextFormat.WHITE, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE)));
 
-            new Server(log, DATA_PATH);
+            new Server(localManager, log, DATA_PATH);
         } catch (Exception e) {
             log.throwing(e);
             shutdown();
@@ -71,7 +68,7 @@ public class Sculk {
         }
 
         try {
-            new Server(log, DATA_PATH);
+            new Server(localManager, log, DATA_PATH);
         } catch (Exception e) {
             log.throwing(e);
             shutdown();
@@ -82,7 +79,7 @@ public class Sculk {
         File file = new File(DATA_PATH + "server.properties");
         Properties properties = new Properties();
         if (!file.exists()) {
-            properties.setProperty("language", "eng");
+            properties.setProperty("language", "fr");
             return properties;
         }
         try (FileInputStream input = new FileInputStream(file)) {

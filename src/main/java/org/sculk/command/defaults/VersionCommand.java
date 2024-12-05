@@ -4,10 +4,10 @@ package org.sculk.command.defaults;
 import org.sculk.Sculk;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
+import org.sculk.player.text.TextBuilder;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.permission.DefaultPermissionNames;
 import org.sculk.player.text.RawTextBuilder;
-import org.sculk.player.text.TextBuilder;
 import org.sculk.player.text.TranslaterBuilder;
 
 import java.util.List;

@@ -5,11 +5,11 @@ import co.aikar.timings.Timings;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import org.apache.logging.log4j.Logger;
-import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
 import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
 import org.sculk.command.CommandSender;
 import org.sculk.command.SimpleCommandMap;
@@ -22,7 +22,7 @@ import org.sculk.event.command.CommandEvent;
 import org.sculk.event.player.PlayerCreationEvent;
 import org.sculk.lang.Language;
 import org.sculk.lang.LanguageKeys;
-import org.sculk.lang.LanguageManager;
+import org.sculk.lang.LocalManager;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.Network;
 import org.sculk.network.SourceInterface;
@@ -40,10 +40,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /*
@@ -72,12 +69,14 @@ public class Server {
     private final PluginManager pluginManager;
     private final Injector injector;
 
-    private Scheduler scheduler;
-    private SimpleCommandMap simpleCommandMap;
+    private final Scheduler scheduler;
+    private final SimpleCommandMap simpleCommandMap;
+    @Getter
+    private final Language language;
 
     private Network network;
 
-    private LanguageManager languageManager;
+    private final LocalManager localManager;
 
     private final Path dataPath;
     private final Path pluginDataPath;
@@ -103,7 +102,7 @@ public class Server {
     public volatile boolean shutdown = false;
 
     @SneakyThrows
-    public Server(Logger logger, String dataPath) {
+    public Server(LocalManager localManager, Logger logger, String dataPath) {
         instance = this;
         this.logger = logger;
         this.dataPath = Paths.get(dataPath);
@@ -120,12 +119,13 @@ public class Server {
         if(!resourcePath.toFile().exists()) resourcePath.toFile().mkdirs();
         if(!playerPath.toFile().exists()) playerPath.toFile().mkdirs();
 
-        this.languageManager = new LanguageManager(getLangCode());
+        this.localManager = localManager;
+        this.language = localManager.getLanguage(this.properties.get(ServerPropertiesKeys.LANGUAGE, "eng"));
 
-        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "sculk.yml" + TextFormat.WHITE));
         this.config = new Config(this.dataPath + "/sculk.yml");
 
-        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING, TextFormat.AQUA + "server.properties" + TextFormat.WHITE));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING, List.of(TextFormat.AQUA + "server.properties" + TextFormat.WHITE)));
         this.motd = this.properties.get(ServerPropertiesKeys.MOTD, "A Sculk Server Software");
         this.submotd = this.properties.get(ServerPropertiesKeys.SUB_MOTD, "Powered by Sculk");
 
@@ -134,7 +134,7 @@ public class Server {
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
 
-        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING_COMMANDS));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING_COMMANDS));
         this.simpleCommandMap = new SimpleCommandMap(this);
 
         this.operators = new Config(this.dataPath.resolve("op.txt").toString(), Config.ENUM);
@@ -142,8 +142,8 @@ public class Server {
         this.banByName = new Config(this.dataPath.resolve("banned-players.txt").toString(), Config.ENUM);
         this.banByIp = new Config(this.dataPath.resolve("banned-ip.txt").toString(), Config.ENUM);
 
-        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, Language.fromLang(getLangCode())));
-        logger.info(getLanguage().tr(LanguageKeys.SCULK_SERVER_STARTING_VERSION, TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, List.of(this.language.getName())));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_STARTING_VERSION, List.of(TextFormat.AQUA + Sculk.MINECRAFT_VERSION + TextFormat.WHITE)));
 
         this.console = new TerminalConsole(this);
         this.start();
@@ -152,9 +152,9 @@ public class Server {
     public void start() {
         this.console.getConsoleThread().start();
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_LOADING_PLUGINS));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING_PLUGINS));
         pluginManager.loadAllPlugins();
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_PLUGINS_LOADED));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_PLUGINS_LOADED));
 
         InetSocketAddress bindAddress = new InetSocketAddress(this.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.serverId = UUID.randomUUID();
@@ -162,30 +162,26 @@ public class Server {
         this.network.setName(this.motd);
         try {
             this.network.registerInterface(new BedrockInterface(this));
-            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_NETWORK_INTERFACE_RUNNING, bindAddress));
+            this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_NETWORK_INTERFACE_RUNNING,  List.of(bindAddress)));
         } catch(Exception e) {
-            getLogger().error(getLanguage().tr(LanguageKeys.SCULK_SERVER_FAILED_BIND, bindAddress), e);
-            getLogger().fatal(getLanguage().tr(LanguageKeys.SCULK_SERVER_SERVER_ALREADY_RUNNING));
+            this.logger.error(this.language.translate(LanguageKeys.SCULK_SERVER_FAILED_BIND, List.of(bindAddress)), e);
+            this.logger.fatal(this.language.translate(LanguageKeys.SCULK_SERVER_SERVER_ALREADY_RUNNING));
             shutdown();
         }
 
         this.tickCounter = 0;
-
         if(this.properties.get(ServerPropertiesKeys.XBOX_AUTH, true)) {
-            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ONLINE_MODE_ENABLED));
+            this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_ONLINE_MODE_ENABLED));
         } else {
-            getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ONLINE_MODE_DISABLED, TextFormat.RED));
+            this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_ONLINE_MODE_DISABLED, TextFormat.RED));
         }
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_DISTRIBUTED_UNDER, TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE"));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_DISTRIBUTED_UNDER, TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE"));
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ENABLE_ALL_PLUGINS));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_ENABLE_ALL_PLUGINS));
         pluginManager.enableAllPlugins();
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_ALL_PLUGINS_ENABLED));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_ALL_PLUGINS_ENABLED));
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_DONE, (double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000));
-        this.getScheduler().scheduleDelayedTask(() -> {
-            System.out.println("5ms");
-        }, 5, false);
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_DONE, List.of((double) (System.currentTimeMillis() - Sculk.START_TIME) / 1000)));
 
         this.tickProcessor();
     }
@@ -199,27 +195,27 @@ public class Server {
         if(this.shutdown) {
             return;
         }
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_SERVER_STOPPING));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_STOPPING));
 
         this.shutdown = true;
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_PLUGINS_DISABLING));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_PLUGINS_DISABLING));
         pluginManager.disableAllPlugins();
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_PLUGINS_DISABLED));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_PLUGINS_DISABLED));
 
         Sculk.shutdown();
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_NETWORK_INTERFACES_STOPPING));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_NETWORK_INTERFACES_STOPPING));
         for(SourceInterface sourceInterface : this.network.getInterfaces()) {
             sourceInterface.shutdown();
             this.network.unregisterInterface(sourceInterface);
         }
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_CONSOLE_CLOSING));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_CONSOLE_CLOSING));
         this.console.getConsoleThread().interrupt();
 
 
-        getLogger().info(getLanguage().tr(LanguageKeys.SCULK_THREADS_STOPPING));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_THREADS_STOPPING));
     }
 
     public CompletableFuture<Player> createPlayer(SculkServerSession session, ClientChainData info, boolean authenticated){
@@ -234,7 +230,7 @@ public class Server {
                 player = constructor.newInstance(session, info);
                 this.addPlayer(session.getSocketAddress(), player);
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                this.getLogger().warn("Failed to create player", e);
+                this.logger.warn("Failed to create player", e);
                 throw new RuntimeException(e);  // Propager l'exception dans le futur
             }
 
@@ -336,12 +332,8 @@ public class Server {
         return ProtocolInfo.MINECRAFT_VERSION;
     }
 
-    public LanguageManager getLanguage() {
-        return this.languageManager;
-    }
-
-    public Language getLangCode() {
-        return Language.fromCode(this.properties.get(ServerPropertiesKeys.LANGUAGE, "eng"));
+    public LocalManager getLocalManager() {
+        return this.localManager;
     }
 
     public boolean isXboxAuth() {
