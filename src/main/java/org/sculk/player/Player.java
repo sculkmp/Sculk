@@ -16,21 +16,16 @@ import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
-import org.sculk.event.player.PlayerAsyncPreLoginEvent;
-import org.sculk.event.player.PlayerChangeSkinEvent;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
-import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
-import org.sculk.scheduler.AsyncTask;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 /*
  *   ____             _ _
@@ -306,5 +301,4 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     public void sendMessageTranslation(String translate, List<String> parameters) {
         this.getNetworkSession().onMessageTranslation(translate, parameters);
     }
-
 }
