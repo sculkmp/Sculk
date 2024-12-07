@@ -4,6 +4,7 @@ import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.v712.Bedrock_v712;
 import org.cloudburstmc.protocol.bedrock.codec.v729.Bedrock_v729;
 import org.cloudburstmc.protocol.bedrock.codec.v748.Bedrock_v748;
+import org.cloudburstmc.protocol.bedrock.codec.v766.Bedrock_v766;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,13 +27,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ProtocolInfo {
 
-    public static int CURRENT_PROTOCOL = Integer.parseInt("748");
+    public static int CURRENT_PROTOCOL = Integer.parseInt("766");
 
-    public static BedrockCodec CODEC = Bedrock_v748.CODEC;
+    public static BedrockCodec CODEC = Bedrock_v766.CODEC;
 
     private static final Set<BedrockCodec> CODECS = ConcurrentHashMap.newKeySet();
 
-    public static String MINECRAFT_VERSION_NETWORK = "1.21.44";
+    public static String MINECRAFT_VERSION_NETWORK = "1.21.50";
     public static String MINECRAFT_VERSION = "v" + MINECRAFT_VERSION_NETWORK;
 
     static {
