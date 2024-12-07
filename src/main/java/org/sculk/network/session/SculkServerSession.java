@@ -10,6 +10,7 @@ import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
 import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
+import org.sculk.lang.Translatable;
 import org.sculk.player.Player;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
@@ -143,6 +144,16 @@ public class SculkServerSession extends BedrockServerSession {
         packet.setSourceName("");
         packet.setType(TextPacket.Type.JSON);
         packet.setMessage(new Gson().toJson(textBuilder.build()));
+        this.sendPacket(packet);
+    }
+
+    public void onChatMessage(Translatable<?> translatable) {
+        TextPacket packet = new TextPacket();
+        packet.setXuid("");
+        packet.setSourceName("");
+        packet.setType(TextPacket.Type.RAW);
+        if (this.player != null)
+            packet.setMessage(this.player.getLanguage().translate(translatable));
         this.sendPacket(packet);
     }
 

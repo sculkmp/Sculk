@@ -6,7 +6,11 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.sculk.Server;
 import org.sculk.command.CommandSender;
+import org.sculk.lang.Language;
+import org.sculk.lang.Translatable;
 import org.sculk.player.text.RawTextBuilder;
+
+import java.util.Locale;
 
 /*
  *   ____             _ _
@@ -46,6 +50,16 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     }
 
     @Override
+    public Locale getLocale() {
+        return null;
+    }
+
+    @Override
+    public Language getLanguage() {
+        return null;
+    }
+
+    @Override
     public void sendMessage(String message) {
         this.server.getLogger().info(message);
 
@@ -54,6 +68,11 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     @Override
     public void sendMessage(RawTextBuilder textBuilder) {
         this.server.getLogger().info(textBuilder.toString());
+    }
+
+    @Override
+    public void sendMessage(Translatable<?> translatable) {
+        this.server.getLogger().info(this.getLanguage().translate(translatable));
     }
 
     @Override

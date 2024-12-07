@@ -46,12 +46,12 @@ public class TranslaterBuilder implements IJsonText {
         return this;
     }
 
-    public TranslaterBuilder addWith(ArrayList<String> data) {
+    public TranslaterBuilder addWith(List<String> data) {
         if (this.with == null)
             this.with = data;
         else if (this.with instanceof ArrayList<?>) {
-            ArrayList<String> _with = (ArrayList<String>) this.with;
-            _with.addAll(data);
+            ArrayList<String> _with = new ArrayList();
+            ((ArrayList<String>)this.with).addAll(data);
         }
         return this;
     }
@@ -59,6 +59,12 @@ public class TranslaterBuilder implements IJsonText {
     public TranslaterBuilder setWith(RawTextBuilder text) {
         if (this.with == null)
             this.with = text;
+        return this;
+    }
+
+    public TranslaterBuilder setWith(List<String> data) {
+        if (this.with == null)
+            this.with = new ArrayList<>(data);
         return this;
     }
 

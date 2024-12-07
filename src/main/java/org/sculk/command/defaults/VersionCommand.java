@@ -1,19 +1,17 @@
 package org.sculk.command.defaults;
 
 
-import org.cloudburstmc.protocol.bedrock.data.command.CommandParamType;
 import org.sculk.Sculk;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
-import org.sculk.command.data.CommandParameter;
-import org.sculk.exception.CommandException;
+import org.sculk.player.text.TextBuilder;
 import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.permission.DefaultPermissionNames;
 import org.sculk.player.text.RawTextBuilder;
-import org.sculk.player.text.TextBuilder;
 import org.sculk.player.text.TranslaterBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 /*
  *   ____             _ _
@@ -34,12 +32,14 @@ public class VersionCommand extends Command {
 
     public VersionCommand() {
         super("version", "Gets the version of this server including any plugins in use", "/version [plugin name]", List.of("ver", "about"));
-        this.setPermission(DefaultPermissionNames.COMMAND_VERSION);
-        this.registerParameter(new CommandParameter("player", CommandParamType.TARGET, true));
     }
 
     @Override
-    public void execute(CommandSender sender, String commandLabel, List<String> args) throws CommandException {
+    protected void prepare() {
+        this.setPermission(DefaultPermissionNames.COMMAND_VERSION);
+    }
+
+    public void onRun(CommandSender sender, String commandLabel, Map<String, Object> args) {
         sender.sendMessage(new RawTextBuilder().add(
                 new TranslaterBuilder()
                         .setTranslate("§fThis server is running §a%%s\n§fServer version: §a%%s\n§fCompatible Minecraft version: §a%%s §f(protocol version: §a%%s§f)\nOperating system: §a%%s")

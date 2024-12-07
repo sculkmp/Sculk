@@ -17,7 +17,7 @@ import java.util.HashMap;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class ScoreBuilder implements IJsonText{
+public class ScoreBuilder implements IJsonText {
 
 
     private String name;
@@ -28,16 +28,6 @@ public class ScoreBuilder implements IJsonText{
         return "score";
     }
 
-    public ScoreBuilder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public ScoreBuilder setObjective(String objective) {
-        this.objective = objective;
-        return this;
-    }
-
     @Override
     public Object build() {
         HashMap<String, HashMap<String, String>> score = new HashMap<>();
@@ -46,5 +36,20 @@ public class ScoreBuilder implements IJsonText{
         data.put("objective", this.objective);
         score.put("score", data);
         return score;
+    }
+
+    @Override
+    public String toString() {
+        return "";
+    }
+
+    public ScoreBuilder setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public ScoreBuilder setObjective(String objective) {
+        this.objective = objective;
+        return this;
     }
 }

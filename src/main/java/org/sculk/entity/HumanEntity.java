@@ -4,6 +4,8 @@ package org.sculk.entity;
 import org.sculk.entity.manager.ExperienceManager;
 import org.sculk.entity.manager.HungerManager;
 
+import java.util.UUID;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -23,12 +25,17 @@ public class HumanEntity extends Living {
 
     protected HungerManager hungerManager;
     protected ExperienceManager experienceManager;
+    protected UUID uuid;
 
     @Override
     public void initEntity() {
         super.initEntity();
         this.hungerManager = new HungerManager(this);
         this.experienceManager = new ExperienceManager(this);
+    }
+
+    public UUID getUniqueId() {
+        return this.uuid;
     }
 
     @Override

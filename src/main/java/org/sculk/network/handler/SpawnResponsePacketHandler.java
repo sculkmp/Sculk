@@ -43,7 +43,7 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
     @Override
     public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet) {
         this.responseCallback.accept(null);
-        Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with entity id " + session.getPlayer().getUniqueId());
+        Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with uuid " + session.getPlayer().getUniqueId());
         return PacketSignal.HANDLED;
     }
 }

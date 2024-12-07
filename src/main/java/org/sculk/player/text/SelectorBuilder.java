@@ -15,12 +15,13 @@ package org.sculk.player.text;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class SelectorBuilder implements IJsonText{
+public class SelectorBuilder implements IJsonText {
 
     @Override
     public String getName() {
         return "";
     }
+
 
     @Override
     public Object build() {

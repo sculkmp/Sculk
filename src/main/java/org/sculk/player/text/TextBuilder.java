@@ -19,7 +19,7 @@ import java.util.HashMap;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class TextBuilder implements IJsonText{
+public class TextBuilder implements IJsonText {
 
     private @NonNull String text;
     public TextBuilder() {
@@ -35,9 +35,8 @@ public class TextBuilder implements IJsonText{
     public String getName() {
         return "text";
     }
-
     @Override
-   public Object build() {
+    public Object build() {
         HashMap<String, String> map = new HashMap<>();
         map.put(this.getName(), text);
         return map;

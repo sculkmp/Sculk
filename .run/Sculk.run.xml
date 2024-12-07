@@ -1,12 +1,13 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Sculk" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="Sculk" type="Application" factoryName="Application" activateToolWindowBeforeRun="false" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="org.sculk.Sculk" />
     <module name="Sculk" />
+    <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/.run" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.sculk.player.*" />
-        <option name="ENABLED" value="true" />
+        <option name="ENABLED" value="false" />
       </pattern>
     </extension>
     <method v="2">
