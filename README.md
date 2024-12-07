@@ -3,8 +3,8 @@
 <h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
 [![SculkVersion](https://img.shields.io/badge/version-soon-14191E.svg?cacheSeconds=2592000)]()
-[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.21%20(Bedrock)-17272F)]()
-[![ProtocolVersion](https://img.shields.io/badge/protocol-712-38D3DF)]()
+[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.50%20(Bedrock)-17272F)]()
+[![ProtocolVersion](https://img.shields.io/badge/protocol-766-38D3DF)]()
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
