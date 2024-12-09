@@ -1,6 +1,8 @@
 package org.sculk.entity;
 
 
+import lombok.Getter;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __
@@ -18,8 +20,21 @@ package org.sculk.entity;
  */
 public abstract class Entity {
 
-    public void initEntity() {}
+    private static long nextEntityId = 0;
+    @Getter
+    private long entityId;
+    public Entity() {
+        this.entityId = getNextEntityId();
+    }
+
+    public void initEntity() {
+
+    }
 
     public void onUpdate() {}
 
+
+    public static long getNextEntityId() {
+        return nextEntityId++;
+    }
 }

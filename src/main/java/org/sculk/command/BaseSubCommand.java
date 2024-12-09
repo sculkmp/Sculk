@@ -1,9 +1,9 @@
-package org.sculk.player;
+package org.sculk.command;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import org.sculk.Server;
-
-import java.util.UUID;
+import java.util.List;
 
 /*
  *   ____             _ _
@@ -20,9 +20,12 @@ import java.util.UUID;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public interface PlayerInterface {
+public abstract class BaseSubCommand extends Command {
 
-    String getName();
-    Server getServer();
+    @Getter @Setter
+    private Command parent;
+    public BaseSubCommand(String name, String description, String usageMessage, List<String> aliases) {
+        super(name, description, usageMessage, aliases);
+    }
 
 }

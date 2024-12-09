@@ -1,4 +1,4 @@
-package org.sculk.command.data;
+package org.sculk.command.network;
 
 import lombok.ToString;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandEnumConstraint;
@@ -22,12 +22,12 @@ import java.util.*;
  * @link: http://www.sculkmp.org/
  */
 @ToString
-public class CommandEnum {
+public class CreatorCommandEnum {
 
     private final String name;
     private final List<String> values;
 
-    public CommandEnum(String name, List<String> values) {
+    public CreatorCommandEnum(String name, List<String> values) {
         this.name = name;
         this.values = values;
     }
