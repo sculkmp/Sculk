@@ -1,6 +1,7 @@
 package org.sculk.command.args;
 
 import org.sculk.Server;
+import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
 
 /*
@@ -18,7 +19,8 @@ import org.sculk.command.CommandSender;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class CommandArgument extends RawStringArgument{
+
+public class CommandArgument extends RawStringArgument {
     public CommandArgument(String name) {
         super(name);
     }
@@ -39,6 +41,6 @@ public class CommandArgument extends RawStringArgument{
 
     @Override
     public String getTypeName() {
-        return "commmand";
+        return "command";
     }
 }

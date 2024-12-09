@@ -1,6 +1,5 @@
 package org.sculk.command;
 
-
 import lombok.Getter;
 import org.sculk.command.args.BaseArgument;
 import org.sculk.command.args.TextArgument;
@@ -108,7 +107,7 @@ public abstract class Command {
 
     public boolean setLabel(String name) {
         this.nextLabel = name;
-        if(!isRegistered()) {
+        if (!isRegistered()) {
             this.label = name;
             return true;
         }
@@ -156,7 +155,6 @@ public abstract class Command {
             requiredArgumentCount.put(position, true);
         }
     }
-
     public void registerSubCommand(BaseSubCommand subCommand) {
         List<String> keys = new ArrayList<>(subCommand.getAliases());
         keys.add(subCommand.getName());

@@ -38,7 +38,9 @@ public class SimpleCommandMap implements CommandMap {
         registerAll("sculk", List.of(
             new VersionCommand(),
             new HelpCommand(),
-            new StopCommand()
+            new StopCommand(),
+            new ListCommand(),
+            new SayCommand()
         ));
     }
 
