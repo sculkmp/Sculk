@@ -17,7 +17,7 @@ public class ServerProperties {
 
     private ConfigSection getDefaultValues() {
         ConfigSection defaults = new ConfigSection();
-        defaults.put(ServerPropertiesKeys.LANGUAGE.toString(), "English");
+        defaults.put(ServerPropertiesKeys.LANGUAGE.toString(), "en_GB");
         defaults.put(ServerPropertiesKeys.MOTD.toString(), "A Sculk Server Software");
         defaults.put(ServerPropertiesKeys.SUB_MOTD.toString(), "Powered by Sculk");
         defaults.put(ServerPropertiesKeys.SERVER_IP.toString(), "0.0.0.0");

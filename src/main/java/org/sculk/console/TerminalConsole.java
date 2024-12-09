@@ -23,9 +23,9 @@ import org.sculk.player.text.RawTextBuilder;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
+@Getter
 public class TerminalConsole extends SimpleTerminalConsole implements CommandSender {
 
-    @Getter
     private final Server server;
     private final ConsoleThread consoleThread;
 
@@ -64,10 +64,6 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
     @Override
     protected void shutdown() {
         Server.getInstance().shutdown();
-    }
-
-    public ConsoleThread getConsoleThread() {
-        return this.consoleThread;
     }
 
     @Override

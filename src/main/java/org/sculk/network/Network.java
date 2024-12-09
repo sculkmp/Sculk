@@ -1,5 +1,6 @@
 package org.sculk.network;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.sculk.Server;
 
@@ -24,6 +25,7 @@ import java.util.Set;
 @Log4j2
 public class Network {
 
+    @Getter
     private final Server server;
     private final Set<SourceInterface> interfaces = new HashSet<>();
     private final Set<AdvancedSourceInterface> advancedInterfaces = new HashSet<AdvancedSourceInterface>();
@@ -33,10 +35,6 @@ public class Network {
 
     public Network(Server server) {
         this.server = server;
-    }
-
-    public Server getServer() {
-        return server;
     }
 
     public void setName(String name) {
