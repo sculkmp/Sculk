@@ -1,6 +1,8 @@
 package org.sculk.network.handler;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.cloudburstmc.math.vector.Vector2f;
 import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.math.vector.Vector3i;
@@ -10,6 +12,7 @@ import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.cloudburstmc.protocol.common.util.OptionalBoolean;
+import org.sculk.Sculk;
 import org.sculk.player.Player;
 import org.sculk.Server;
 import org.sculk.network.session.SculkServerSession;
@@ -43,9 +46,9 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
     @Override
     public void setUp() {
         StartGamePacket startGamePacket = new StartGamePacket();
-        startGamePacket.setUniqueEntityId(0);
-        startGamePacket.setRuntimeEntityId(0);
-        startGamePacket.setPlayerGameType(GameType.DEFAULT);
+        startGamePacket.setUniqueEntityId(session.getPlayer().getEntityId());
+        startGamePacket.setRuntimeEntityId(session.getPlayer().getEntityId());
+        startGamePacket.setPlayerGameType(GameType.SURVIVAL);
         startGamePacket.setPlayerPosition(Vector3f.from(0, 69, 0));
         startGamePacket.setRotation(Vector2f.from(1, 1));
 
@@ -124,21 +127,30 @@ public class PreSpawnPacketHandler extends SculkPacketHandler {
         startGamePacket.setServerId("");
         startGamePacket.setWorldId("");
         startGamePacket.setScenarioId("");
+        startGamePacket.setServerEngine(Sculk.CODE_NAME + " " + Sculk.CODE_VERSION);
 
         session.sendPacket(startGamePacket);
-        session.getPlayer().sendAttributes();
+        LevelChunkPacket packet = new LevelChunkPacket();
+        packet.setChunkX(0);
+        packet.setChunkZ(0);
+        packet.setData(Unpooled.EMPTY_BUFFER);
+        packet.setCachingEnabled(false);
+        packet.setRequestSubChunks(false);
+        packet.setDimension(0);
+        packet.setSubChunkLimit(0);
+        packet.setSubChunkLimit(0);
+        session.sendPacket(packet);
         session.sendPacket(new CreativeContentPacket());
         session.sendPacket(new BiomeDefinitionListPacket());
         session.sendPacket(new AvailableEntityIdentifiersPacket());
-        SetEntityDataPacket setEntityDataPacket = new SetEntityDataPacket();
-        setEntityDataPacket.setRuntimeEntityId(0);
-        setEntityDataPacket.getMetadata().put(EntityDataTypes.PLAYER_FLAGS, (byte) 2);
-        session.sendPacket(setEntityDataPacket);
-        session.getPlayer().updateFlags();
+        session.getPlayer().sendAttributes();
+        session.getPlayer().sendCommandsData();
+        session.getPlayer().sendData(List.of(session.getPlayer()));
 
         SetTimePacket setTimePacket = new SetTimePacket();
         setTimePacket.setTime(0);
         session.sendPacket(setTimePacket);
+        session.syncPlayerList(session.getServer().getOnlinePlayers());
     }
 
     @Override

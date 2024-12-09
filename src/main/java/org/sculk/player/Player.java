@@ -7,9 +7,12 @@ import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
 import org.cloudburstmc.protocol.bedrock.data.command.*;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
@@ -18,18 +21,23 @@ import org.sculk.entity.Attribute;
 import org.sculk.entity.AttributeFactory;
 import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
+import org.sculk.event.player.PlayerChangeSkinEvent;
 import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.lang.Language;
 import org.sculk.lang.Translatable;
+import org.sculk.network.handler.PlayerSkinHandler;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
+import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
+import org.sculk.utils.SkinUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -49,21 +57,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Player extends HumanEntity implements PlayerInterface, CommandSender {
 
+    public static final Player[] EMPTY_ARRAY = new Player[0];
     @Getter
     private final SculkServerSession networkSession;
     private final SyncedEntityData data = new SyncedEntityData(this);
-    private LoginChainData loginChainData;
+    private final LoginChainData loginChainData;
 
     private final AtomicInteger formId;
     private final Int2ObjectOpenHashMap<Form> forms;
     private List<AttributeData> attributeMap;
 
+    @Getter @Setter
     private String displayName;
-    private String username;
+    private final String username;
     @Getter
     private String xuid;
-    @Getter
-    private SerializedSkin skin;
+    protected AtomicBoolean connected = new AtomicBoolean(true);
 
     protected int messageCounter = 2;
     protected int MAX_CHAT_CHAR_LENGTH = 512;
@@ -71,6 +80,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     public Player(SculkServerSession networkSession, ClientChainData data) {
         this.networkSession = networkSession;
+        this.server = networkSession.getServer();
         this.loginChainData = data;
 
         this.formId = new AtomicInteger(0);
@@ -78,8 +88,11 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
         this.displayName = data.getUsername();
         this.username = data.getUsername();
-        this.skin = data.getSerializedSkin();
         this.xuid = data.getXUID();
+        this.setSkin(data.getSkin());
+        this.uuid = data.getClientUUID();
+        this.getServer().addOnlinePlayer(this);
+        this.spawn(this);
 
         this.initEntity();
     }
@@ -87,16 +100,31 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public void initEntity() {
         super.initEntity();
-        this.uuid = this.loginChainData.getClientUUID();
-        sendCommandsData();
-        this.getServer().addOnlinePlayer(this);
-        this.getServer().sendFullPlayerList(this);
     }
+
+    /**
+     * Called when a player changes their skin.
+     * Plugin developers should not use this, use setSkin() and sendSkin() instead.
+     */
+    public boolean changeSkin(Skin skin, String newSkinName, String oldSkinName){
+        PlayerChangeSkinEvent ev = new PlayerChangeSkinEvent(this, this.getSkin(), skin);
+        ev.call();
+
+        if(ev.isCancelled()){
+            this.sendSkin(List.of(this));
+            return true;
+        }
+
+        this.setSkin(ev.getNewSkin());
+        this.sendSkin(List.copyOf(this.server.getOnlinePlayers().values()));
+        return true;
+    }
+
 
     public void sendCommandsData() {
         AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
         List<CommandData> commandData = availableCommandsPacket.getCommands();
-        for(Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
+        for (Map.Entry<String, Command> command : this.getServer().getCommandMap().getCommands().entrySet()) {
             if (!Objects.equals(command.getValue().getName(), command.getKey()))
                 continue;
             commandData.add(new CreatorCommandData(this, command.getValue()).toNetwork());
@@ -144,6 +172,31 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         return Server.getInstance();
     }
 
+    @Override
+    public boolean isOnline() {
+        return this.connected.get();
+    }
+
+    @Override
+    public boolean isBanned() {
+        return false;
+    }
+
+    @Override
+    public void setBanned(boolean value) {
+        return;
+    }
+
+    @Override
+    public boolean isWhitelisted() {
+        return false;
+    }
+
+    @Override
+    public void setWhitelisted(boolean value) {
+        return;
+    }
+
     public void sendDataPacket(BedrockPacket packet) {
         sendPacketInternal(packet);
     }
@@ -154,6 +207,10 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     public SerializedSkin getSerializedSkin() {
         return ((ClientChainData) this.loginChainData).getSerializedSkin();
+    }
+
+    public ClientChainData getClientData() {
+        return (ClientChainData) this.loginChainData;
     }
 
     public void sendAttributes() {
@@ -176,12 +233,17 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         //System.out.println(updateAttributesPacket);
     }
 
+    @Override
+    protected void syncNetworkData(EntityDataMap properties) {
+        super.syncNetworkData(properties);
+        properties.put(EntityDataTypes.PLAYER_FLAGS, (byte) 2);
+    }
+
     public long getPing() {
         return -1;
     }
 
     /**
-     *
      * Used to send forms to the player
      *
      * @param form The form sent to the player
@@ -199,7 +261,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     /**
-     *
      * Retrieve an already opened form from the map.
      * The form will be deleted from the map upon retrieval.
      *
@@ -217,10 +278,10 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     public void onChat(String message) {
-        if(message.startsWith("./")) {
+        if (message.startsWith("./")) {
             message = message.substring(1);
         }
-        if(message.startsWith("/")) {
+        if (message.startsWith("/")) {
             String command = message.substring(1);
             Timings.playerCommandTimer.startTiming();
             this.getServer().dispatchCommand(this, command, false);
@@ -228,7 +289,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         } else {
             PlayerChatEvent playerChatEvent = new PlayerChatEvent(this, message, new StandardChatFormatter());
             playerChatEvent.call();
-            if(!playerChatEvent.isCancelled()) {
+            if (!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
                 String messageFormat = playerChatEvent.getChatFormatter().format(this.getName(), message);
                 this.getNetworkSession().onChatMessage(messageFormat);

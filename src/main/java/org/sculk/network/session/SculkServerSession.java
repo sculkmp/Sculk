@@ -7,20 +7,23 @@ import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.cloudburstmc.protocol.bedrock.BedrockPeer;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
-import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketHandler;
-import org.cloudburstmc.protocol.bedrock.packet.PlayStatusPacket;
-import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
+import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.sculk.lang.Translatable;
+import org.sculk.network.broadcaster.EntityEventBroadcaster;
+import org.sculk.network.broadcaster.PacketBroadcaster;
 import org.sculk.player.Player;
 import org.sculk.Server;
 import org.sculk.network.BedrockInterface;
 import org.sculk.network.handler.*;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.text.RawTextBuilder;
+import org.sculk.utils.SkinUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /*
  *   ____             _ _
@@ -37,22 +40,22 @@ import java.util.Objects;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
+@Getter
 public class SculkServerSession extends BedrockServerSession {
 
-    @Getter
-    private @Nullable Player player;
-    @Getter
-    @Setter
-    private @Nullable ClientChainData playerInfo;
-
-    @Getter
     private final Server server;
-    @Getter
     private final BedrockInterface bedrockInterface;
 
-    public SculkServerSession(BedrockInterface bedrockInterface, Server server, BedrockPeer peer, int subClientId) {
+    private final PacketBroadcaster broadcaster;
+    private final EntityEventBroadcaster entityEventBroadcaster;
+    private @Nullable Player player;
+    @Setter
+    private @Nullable ClientChainData playerInfo;
+    public SculkServerSession(BedrockInterface bedrockInterface, PacketBroadcaster broadcaster, EntityEventBroadcaster entityEventBroadcaster, Server server, SculkPeer peer, int subClientId) {
         super(peer, subClientId);
         this.server = server;
+        this.broadcaster = broadcaster;
+        this.entityEventBroadcaster = entityEventBroadcaster;
         this.bedrockInterface = bedrockInterface;
 
         this.setPacketHandler(new SessionStartPacketHandler(this, this::onSessionStartSuccess));
@@ -61,11 +64,21 @@ public class SculkServerSession extends BedrockServerSession {
     private void onSessionStartSuccess(Object e) {
         this.setPacketHandler(new LoginPacketHandler(
                 this,
-                _playerInfo -> {
-                    this.playerInfo = _playerInfo;
-                },
+                _playerInfo -> this.playerInfo = _playerInfo,
                 this::setAuthenticationStatus
         ));
+    }
+
+
+    public void sendPacket(@NonNull List<BedrockPacket> packet) {
+        ((SculkPeer)this.peer).sendPacket(this.subClientId, 0, packet);
+        this.logOutbound(packet);
+    }
+
+
+
+    protected void logOutbound(List<BedrockPacket> packets) {
+        packets.forEach(this::logOutbound);
     }
 
     private void setAuthenticationStatus(boolean authenticated, boolean authRequired, Exception error, String clientPubKey) {
@@ -121,6 +134,56 @@ public class SculkServerSession extends BedrockServerSession {
 
     private void onClientSpawnResponse(Object e) {
         this.setPacketHandler(new InGamePacketHandler(this.getPlayer(),this));
+    }
+
+
+
+    public void syncPlayerList(Map<UUID, Player> players) {
+        PlayerListPacket packet = new PlayerListPacket();
+        packet.setAction(PlayerListPacket.Action.ADD);
+        packet.getEntries().addAll(players.values().stream().map(p -> {
+            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getUniqueId());
+            String xuid = p.getXuid();
+            entry.setEntityId(p.getEntityId());
+            entry.setName(p.getName());
+            entry.setXuid(xuid != null ? xuid : "");
+            entry.setSkin(SkinUtils.toSerialized(p.getSkin()));
+            entry.setPlatformChatId("");
+            entry.setTrustedSkin(true);
+            entry.setBuildPlatform(-1);
+            entry.setHost(false);
+            entry.setSubClient(false);
+            return entry;
+        }).toList());
+        System.out.println(packet);
+        this.sendPacket(packet);
+    }
+
+
+    public void onPlayerAdded(Player p){
+        PlayerListPacket packet = new PlayerListPacket();
+        packet.setAction(PlayerListPacket.Action.ADD);
+        PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getUniqueId());
+        String xuid = p.getXuid();
+        entry.setEntityId(p.getEntityId());
+        entry.setName(p.getName());
+        entry.setXuid(xuid != null ? xuid : "");
+        entry.setSkin(SkinUtils.toSerialized(p.getSkin()));
+        entry.setPlatformChatId("");
+        entry.setTrustedSkin(true);
+        entry.setBuildPlatform(-1);
+        entry.setHost(false);
+        entry.setSubClient(false);
+        packet.getEntries().add(entry);
+    }
+
+    public void onPlayerRemoved(Player p) {
+        if(!p.equals(this.player)){
+            PlayerListPacket packet = new PlayerListPacket();
+            packet.setAction(PlayerListPacket.Action.REMOVE);
+            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getUniqueId());
+            packet.getEntries().add(entry);
+        }
     }
 
     @Override

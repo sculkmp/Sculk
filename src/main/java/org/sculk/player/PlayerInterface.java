@@ -24,5 +24,10 @@ public interface PlayerInterface {
 
     String getName();
     Server getServer();
-
+    boolean isOnline();
+    UUID getUniqueId();
+    boolean isBanned();
+    void setBanned(boolean value);
+    boolean isWhitelisted();
+    void setWhitelisted(boolean value);
 }

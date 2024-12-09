@@ -3,6 +3,10 @@ package org.sculk.player.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Preconditions;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
@@ -11,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.LoginPacket;
 import org.sculk.Sculk;
+import org.sculk.Server;
 import org.sculk.player.skin.Skin;
 import org.sculk.utils.SkinUtils;
 
@@ -43,13 +48,15 @@ import java.util.*;
  */
 public class ClientChainData implements LoginChainData {
 
-    private static final String MOJANG_PUBLIC_KEY_BASE64 = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
+    private static final String MOJANG_PUBLIC_KEY_BASE64 = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAECRXueJeTDqNRRgJi/vlRufByu/2G0i2Ebt6YMar5QX/R0DIIyrJMcUpruK4QveTfJSTp3Shlq4Gk34cD/4GUWwkv0DVuzeuB+tXija7HBxii03NHDbPAD0AKnLr2wdAp";
     private static final ECPublicKey MOJANG_PUBLIC_KEY;
+    private static final ECPublicKey MOJANG_PUBLIC_KEY_OLD;
 
     private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE = new TypeReference<Map<String, List<String>>>() {};
 
     static {
         try {
+            MOJANG_PUBLIC_KEY_OLD = generateKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V");
             MOJANG_PUBLIC_KEY = generateKey(MOJANG_PUBLIC_KEY_BASE64);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new AssertionError(e);
@@ -208,8 +215,8 @@ public class ClientChainData implements LoginChainData {
         return xboxAuthed;
     }
 
-    private boolean verify(ECPublicKey key, JWSObject object) throws JOSEException {
-        return object.verify(new ECDSAVerifier(key));
+    private boolean verify(ECPublicKey key, JWSObject jws) throws JOSEException {
+        return jws.verify(new ECDSAVerifier(key));
     }
 
     private JsonNode decodeToken(SignedJWT token) {
@@ -239,10 +246,12 @@ public class ClientChainData implements LoginChainData {
             if (chainMap.has("identityPublicKey"))
                 this.identityPublicKey = chainMap.get("identityPublicKey").textValue();
         }
-
+        System.out.println(xboxAuthed);
+        System.out.println(xuid);
         if (!xboxAuthed) {
             xuid = null;
         }
+
     }
 
     private boolean verifyChain(List<SignedJWT> chains) throws Exception {
@@ -268,20 +277,17 @@ public class ClientChainData implements LoginChainData {
                 return false;
             }
 
-            if (mojangKeyVerified) {
+            if (MOJANG_PUBLIC_KEY.equals(lastKey) || MOJANG_PUBLIC_KEY_OLD.equals(lastKey)) {
+                mojangKeyVerified = true;
+            } else if (mojangKeyVerified) {
                 return !iterator.hasNext();
             }
 
-            if (lastKey.equals(MOJANG_PUBLIC_KEY)) {
-                mojangKeyVerified = true;
-            }
 
-            Map<String, Object> payload = jwt.getPayload().toJSONObject();
-            Object base64key = payload.get("identityPublicKey");
-            if (!(base64key instanceof String)) {
-                throw new RuntimeException("No key found");
-            }
-            lastKey = generateKey((String) base64key);
+            JsonObject payload = (JsonObject) JsonParser.parseString(jwt.getPayload().toString());
+            JsonElement base64key = payload.get("identityPublicKey");
+            Preconditions.checkArgument(payload.has("identityPublicKey"), "IdentityPublicKey node is missing in chain!");
+            lastKey = generateKey(base64key.getAsString());
         }
         return mojangKeyVerified;
     }

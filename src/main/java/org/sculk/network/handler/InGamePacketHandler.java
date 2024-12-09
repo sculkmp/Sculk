@@ -4,10 +4,14 @@ package org.sculk.network.handler;
 import lombok.NonNull;
 import org.cloudburstmc.protocol.bedrock.packet.CommandRequestPacket;
 import org.cloudburstmc.protocol.bedrock.packet.EmotePacket;
+import org.cloudburstmc.protocol.bedrock.packet.PlayerSkinPacket;
 import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.player.Player;
 import org.sculk.network.session.SculkServerSession;
+import org.sculk.utils.SkinUtils;
+
+import java.util.Objects;
 
 /*
  *   ____             _ _
@@ -35,15 +39,13 @@ public class InGamePacketHandler extends SculkPacketHandler {
 
     @Override
     public PacketSignal handle(TextPacket packet) {
-        switch(packet.getType()) {
-            case TextPacket.Type.CHAT -> {
-                String chatMessage = packet.getMessage();
-                int breakLine = chatMessage.indexOf("\n");
-                if(breakLine != -1) {
-                    chatMessage = chatMessage.substring(0, breakLine);
-                }
-                this.player.onChat(chatMessage);
+        if (Objects.requireNonNull(packet.getType()) == TextPacket.Type.CHAT) {
+            String chatMessage = packet.getMessage();
+            int breakLine = chatMessage.indexOf("\n");
+            if (breakLine != -1) {
+                chatMessage = chatMessage.substring(0, breakLine);
             }
+            this.player.onChat(chatMessage);
         }
         return PacketSignal.HANDLED;
     }
@@ -53,6 +55,13 @@ public class InGamePacketHandler extends SculkPacketHandler {
         if(packet.getCommand().startsWith("/")) {
             this.player.onChat(packet.getCommand());
         }
+        return PacketSignal.HANDLED;
+    }
+
+
+    @Override
+    public PacketSignal handle(PlayerSkinPacket packet) {
+        this.player.changeSkin(SkinUtils.fromSerialized(packet.getSkin()), "", "");
         return PacketSignal.HANDLED;
     }
 }

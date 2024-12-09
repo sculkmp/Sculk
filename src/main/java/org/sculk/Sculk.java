@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 /*
@@ -42,6 +41,9 @@ public class Sculk {
     public static final String CODE_VERSION = "1.0.0";
     public static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     public static final String DATA_PATH = System.getProperty("user.dir") + "/";
+    private static final String LANGUAGE_DEFAULT = "en_GB";
+    private static final String LOG_UNSUPPORTED_JAVA = "{}Using unsupported Java version! Minimum supported version is Java 21, found java {}";
+    private static final String LOG_LANGUAGE_NOT_FOUND = "Language code {} not found, defaulting to en_GB";
 
     public static void main(String[] args) {
         Thread.currentThread().setName("sculkmp-main");
@@ -51,9 +53,13 @@ public class Sculk {
         LocalManager localManager = new LocalManager(Sculk.class.getClassLoader(), "language");
         try {
             Properties properties = loadServerProperties();
-            String langCode = properties.getProperty("language", "en_GB");
+            String langCode = properties.getProperty("language", LANGUAGE_DEFAULT);
 
-            log.info(localManager.getLanguage(langCode).translate(LanguageKeys.SCULK_SERVER_STARTING, List.of(TextFormat.DARK_AQUA + CODE_NAME + TextFormat.WHITE, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE)));
+            var language = localManager.getLanguage(langCode);
+            if (language == null) {
+                log.warn(LOG_LANGUAGE_NOT_FOUND, langCode);
+                language = localManager.getLanguage(LANGUAGE_DEFAULT);
+            }
 
             new Server(localManager, log, DATA_PATH);
         } catch (Exception e) {
@@ -63,7 +69,7 @@ public class Sculk {
 
         int javaVersion = getJavaVersion();
         if (javaVersion < 21) {
-            log.error("{}Using unsupported Java version! Minimum supported version is Java 21, found java {}", TextFormat.RED, javaVersion);
+            log.error(LOG_UNSUPPORTED_JAVA, TextFormat.RED, javaVersion);
             LogManager.shutdown();
             return;
         }
@@ -80,7 +86,7 @@ public class Sculk {
         File file = new File(DATA_PATH + "server.properties");
         Properties properties = new Properties();
         if (!file.exists()) {
-            properties.setProperty("language", "fr");
+            properties.setProperty("language", LANGUAGE_DEFAULT);
             return properties;
         }
         try (FileInputStream input = new FileInputStream(file)) {
