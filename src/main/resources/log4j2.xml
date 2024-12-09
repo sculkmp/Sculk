@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" packages="net.minecrell.terminalconsole">
+<Configuration status="WARN">
     <Appenders>
         <TerminalConsole name="Console">
-            <PatternLayout noConsoleNoAnsi="true"
+            <PatternLayout noConsoleNoAnsi="false"
                            pattern="%cyan{%d{HH:mm:ss}} [%style{%highlight{%-5level}{STYLE=Logback}}] %minecraftFormatting{%msg}%n"/>
         </TerminalConsole>
         <TerminalConsole name="Console-Plugin">
-            <PatternLayout noConsoleNoAnsi="true"
+            <PatternLayout noConsoleNoAnsi="false"
                            pattern="%cyan{%d{HH:mm:ss}} [%style{%highlight{%-5level}{STYLE=Logback}}] [%c{1}] %minecraftFormatting{%msg}%n"/>
         </TerminalConsole>
         <RollingRandomAccessFile name="File" fileName="logs/server.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
@@ -37,4 +37,8 @@
             <AppenderRef ref="File"/>
         </Root>
     </Loggers>
+    <Plugins>
+        <!-- Define your plugins here -->
+        <Plugin name="TerminalConsole" class="net.minecrell.terminalconsole.TerminalConsolePlugin"/>
+    </Plugins>
 </Configuration>
