@@ -1,6 +1,5 @@
 package org.sculk.entity;
 
-
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import org.checkerframework.checker.units.qual.t;
@@ -216,6 +215,4 @@ public abstract class Entity {
         //TODO: add system viewer
         NetworkBroadcastUtils.broadcastEntityEvent(List.of(), (EntityEventBroadcaster broadcaster, List<SculkServerSession> recipients) -> broadcaster.syncActorData(recipients, this, data));
     }
-
-
 }

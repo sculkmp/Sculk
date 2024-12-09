@@ -1,5 +1,7 @@
 package org.sculk.player.text;
 
+import java.util.function.Function;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __

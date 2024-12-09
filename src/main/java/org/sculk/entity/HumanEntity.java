@@ -18,6 +18,8 @@ import org.sculk.utils.SkinUtils;
 import java.util.List;
 import java.util.UUID;
 
+import java.util.UUID;
+
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __

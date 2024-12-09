@@ -23,7 +23,6 @@ import java.util.UUID;
 public interface PlayerInterface {
 
     String getName();
-    UUID getServerId();
     Server getServer();
     boolean isOnline();
     UUID getUniqueId();

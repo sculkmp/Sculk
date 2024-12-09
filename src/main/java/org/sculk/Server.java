@@ -133,7 +133,7 @@ public class Server {
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
         this.simpleCommandMap = new SimpleCommandMap(this);
-
+      
         this.console = new TerminalConsole(this);
         this.start();
     }
@@ -328,7 +328,7 @@ public class Server {
         this.playerList.put(player.getUniqueId(), player);
     }
 
-    public void addToTabList(Player player) {
+    public void sendFullPlayerList(Player player) {
         PlayerListPacket packet = new PlayerListPacket();
         packet.setAction(PlayerListPacket.Action.ADD);
         packet.getEntries().addAll(this.playerList.values().stream().map(p -> {

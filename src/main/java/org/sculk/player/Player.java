@@ -35,6 +35,7 @@ import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
 import org.sculk.utils.SkinUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -99,7 +100,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public void initEntity() {
         super.initEntity();
-        System.out.println(this.skin);
     }
 
     /**

@@ -1,4 +1,9 @@
-package org.sculk.player.text;
+package org.sculk.command;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 /*
  *   ____             _ _
@@ -15,16 +20,12 @@ package org.sculk.player.text;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class SelectorBuilder implements IJsonText {
+public abstract class BaseSubCommand extends Command {
 
-    @Override
-    public String getName() {
-        return "";
+    @Getter @Setter
+    private Command parent;
+    public BaseSubCommand(String name, String description, String usageMessage, List<String> aliases) {
+        super(name, description, usageMessage, aliases);
     }
 
-
-    @Override
-    public Object build() {
-        return null;
-    }
 }

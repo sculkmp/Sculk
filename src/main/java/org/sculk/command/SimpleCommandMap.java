@@ -3,6 +3,7 @@ package org.sculk.command;
 
 import org.sculk.Server;
 import org.sculk.command.defaults.HelpCommand;
+import org.sculk.command.defaults.StopCommand;
 import org.sculk.command.defaults.VersionCommand;
 import org.sculk.command.utils.CommandStringHelper;
 
@@ -35,19 +36,23 @@ public class SimpleCommandMap implements CommandMap {
 
     private void setDefaultCommands() {
         registerAll("sculk", List.of(
-            new VersionCommand(), new HelpCommand()
+            new VersionCommand(),
+            new HelpCommand(),
+            new StopCommand(),
+            new ListCommand(),
+            new SayCommand()
         ));
     }
 
     public void registerAll(String fallbackPrefix, List<Command> commands) {
         for(Command command : commands) {
-            command.buildCommand();
             register(fallbackPrefix, command);
         }
     }
 
     public void register(String fallbackPrefix, Command command) {
-        command.buildCommand();
+        if (!command.isRegistered())
+            command.prepare();
         register(fallbackPrefix, command, null);
     }
 
@@ -108,7 +113,7 @@ public class SimpleCommandMap implements CommandMap {
         
         Command target = this.getCommand(sendCommandLabel);
         if(target != null) {
-            target.execute(sender, sendCommandLabel, List.of(args));
+            target.execute(sender, sendCommandLabel, new ArrayList<>(List.of(args)));
             return true;
         }
         sender.sendMessage("§cUnknown command: §4" + commandLine + "§c. Use /help for a list available commands.");
