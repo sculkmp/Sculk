@@ -1,10 +1,10 @@
 package org.sculk.command;
 
-
 import lombok.Getter;
 import org.sculk.command.args.BaseArgument;
 import org.sculk.command.args.TextArgument;
 import org.sculk.command.error.ErrorParsingArgument;
+import org.sculk.exception.InvalidArgumentException;
 
 import java.util.*;
 
@@ -59,14 +59,13 @@ public abstract class Command {
 
     abstract protected void prepare();
 
-    public void execute(CommandSender sender, String commandLabel, List<String> args){
-
+    public void execute(CommandSender sender, String commandLabel, List<String> args) {
         Command cmd = this;
         Map<String, Object> passArgs = null;
         if (!args.isEmpty()) {
-            String label = args.getFirst();
+            String label = args.get(0);
             if (subCommands.containsKey(label)) {
-                args.removeFirst();
+                args.remove(0);
                 subCommands.get(label).execute(sender, label, args);
                 return;
             }
@@ -80,6 +79,7 @@ public abstract class Command {
         if (passArgs != null)
             cmd.onRun(sender, commandLabel, passArgs);
     }
+
     abstract public void onRun(CommandSender sender, String commandLabel, Map<String, Object> args);
 
     public void setPermissions(List<String> permissions) {
@@ -108,7 +108,7 @@ public abstract class Command {
 
     public boolean setLabel(String name) {
         this.nextLabel = name;
-        if(!isRegistered()) {
+        if (!isRegistered()) {
             this.label = name;
             return true;
         }
@@ -134,19 +134,19 @@ public abstract class Command {
     }
 
     public void registerArgument(int position, BaseArgument argument) {
-        if (position < 0){
-            throw new RuntimeException("You cannot register arguments at negative positions");
+        if (position < 0) {
+            throw new InvalidArgumentException("You cannot register arguments at negative positions");
         }
-        if(position > 0 && this.argumentList.get(position - 1) == null) {
-            throw new RuntimeException("There were no arguments before $position");
+        if (position > 0 && this.argumentList.get(position - 1) == null) {
+            throw new InvalidArgumentException("There were no arguments before " + position);
         }
         if (position > 0) {
             for (BaseArgument arg : this.argumentList.get(position - 1)) {
                 if (arg instanceof TextArgument) {
-                    throw new RuntimeException("No other arguments can be registered after a TextArgument");
+                    throw new InvalidArgumentException("No other arguments can be registered after a TextArgument");
                 }
                 if (arg.isOptional() && !argument.isOptional()) {
-                    throw new RuntimeException("You cannot register a required argument after an optional argument");
+                    throw new InvalidArgumentException("You cannot register a required argument after an optional argument");
                 }
             }
         }
@@ -174,69 +174,88 @@ public abstract class Command {
         }
     }
 
-    public Map<String, Object> parseArguments(String[] rawArgs, CommandSender sender) {
+    private Map<String, Object> parseArguments(String[] rawArgs, CommandSender sender) {
         HashMap<String, Object> arguments = new HashMap<>();
         List<ErrorParsingArgument> errors = new ArrayList<>();
         int required = this.requiredArgumentCount.size();
+
         if (!this.hasArguments() && rawArgs.length > 0) {
             errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_NO_ARGUMENTS));
         }
+
         int offset = 0;
-        String arg = "";
         if (rawArgs.length > 0) {
             for (int pos : argumentList.keySet()) {
-                List<BaseArgument> possibleArguments = new ArrayList<>(argumentList.get(pos));
-                possibleArguments.sort((BaseArgument a, BaseArgument b) -> a.getSpanLength() == Integer.MAX_VALUE ? 1 : -1);
-                boolean parsed = false;
-                boolean optional = true;
-
-                for (BaseArgument argument : possibleArguments) {
-                    int len = argument.getSpanLength();
-                    String[] slice = Arrays.copyOfRange(rawArgs, offset, Math.min(len, rawArgs.length));
-                    arg = String.join(" ", slice).trim();
-                    if (!argument.isOptional())
-                        optional = false;
-                    if (!arg.isEmpty() && argument.canParse(arg, sender)) {
-                        String nameArg = argument.getName();
-                        Object parsedArg = argument.parse(arg, sender);
-                        if (arguments.containsKey(nameArg) && arguments.get(nameArg).getClass().isArray()) {
-                            arguments.computeIfPresent(nameArg, (k, old) -> List.of(old, parsedArg));
-                        } else {
-                            arguments.put(nameArg, parsedArg);
-                        }
-                        if (!optional)
-                            --required;
-                        offset += slice.length;
-                        parsed = true;
-                        break;
-                    }
-                    if (offset > rawArgs.length)
-                        break;
-                }
-                if (!parsed &&! (optional && arg.isEmpty())) {
-                    StringBuilder builder = new StringBuilder();
-                    argumentList.get(offset).forEach(argument -> {
-                        builder.append(argument.getTypeName()).append("|");
-                    });
-                    String expected = builder.toString();
-                    ErrorParsingArgument error = new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INVALID_ARG_VALUE);
-                    error.setValue(rawArgs[offset]);
-                    error.setPosition(pos + 1);
-                    error.setExpected(expected.substring(0, expected.length() - 1));
-                    errors.add(error);
-                }
+                offset = parseArgumentAtPosition(rawArgs, sender, arguments, errors, required, offset, pos);
             }
-            if(offset < rawArgs.length)
-                errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_TOO_MANY_ARGUMENTS));
-            if(required > 0)
-                errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INSUFFICIENT_ARGUMENTS));
-            if(errors.size() == 2 && errors.get(0).getType() == ErrorParsingArgument.Type.ERR_NO_ARGUMENTS &&
-                    errors.get(1).getType()== ErrorParsingArgument.Type.ERR_TOO_MANY_ARGUMENTS){
-                errors.clear();
-                errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INVALID_ARGUMENTS));
-            }
-
+            checkRemainingArguments(rawArgs, errors, required, offset);
         }
+
+        return buildResult(arguments, errors);
+    }
+
+    private int parseArgumentAtPosition(String[] rawArgs, CommandSender sender, HashMap<String, Object> arguments, List<ErrorParsingArgument> errors, int required, int offset, int pos) {
+        List<BaseArgument> possibleArguments = new ArrayList<>(argumentList.get(pos));
+        possibleArguments.sort((BaseArgument a, BaseArgument b) -> a.getSpanLength() == Integer.MAX_VALUE ? 1 : -1);
+        boolean parsed = false;
+        boolean optional = true;
+
+        String arg = null;
+        for (BaseArgument argument : possibleArguments) {
+            int len = argument.getSpanLength();
+            String[] slice = Arrays.copyOfRange(rawArgs, offset, Math.min(offset + len, rawArgs.length));
+            arg = String.join(" ", slice).trim();
+            if (!argument.isOptional())
+                optional = false;
+            if (!arg.isEmpty() && argument.canParse(arg, sender)) {
+                String nameArg = argument.getName();
+                Object parsedArg = argument.parse(arg, sender);
+                if (arguments.containsKey(nameArg) && arguments.get(nameArg).getClass().isArray()) {
+                    arguments.computeIfPresent(nameArg, (k, old) -> List.of(old, parsedArg));
+                } else {
+                    arguments.put(nameArg, parsedArg);
+                }
+                if (!optional)
+                    --required;
+                offset += slice.length;
+                parsed = true;
+                break;
+            }
+            if (offset >= rawArgs.length)
+                break;
+        }
+        if (!parsed && !(optional && Objects.requireNonNull(arg).isEmpty())) {
+            addErrorParsingArgument(errors, rawArgs, offset, pos);
+        }
+        return offset;
+    }
+
+    private void addErrorParsingArgument(List<ErrorParsingArgument> errors, String[] rawArgs, int offset, int pos) {
+        StringBuilder builder = new StringBuilder();
+        argumentList.get(pos).forEach(argument -> {
+            builder.append(argument.getTypeName()).append("|");
+        });
+        String expected = builder.toString();
+        ErrorParsingArgument error = new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INVALID_ARG_VALUE);
+        error.setValue(rawArgs[offset]);
+        error.setPosition(pos + 1);
+        error.setExpected(expected.substring(0, expected.length() - 1));
+        errors.add(error);
+    }
+
+    private void checkRemainingArguments(String[] rawArgs, List<ErrorParsingArgument> errors, int required, int offset) {
+        if (offset < rawArgs.length)
+            errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_TOO_MANY_ARGUMENTS));
+        if (required > 0)
+            errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INSUFFICIENT_ARGUMENTS));
+        if (errors.size() == 2 && errors.get(0).getType() == ErrorParsingArgument.Type.ERR_NO_ARGUMENTS &&
+                errors.get(1).getType() == ErrorParsingArgument.Type.ERR_TOO_MANY_ARGUMENTS) {
+            errors.clear();
+            errors.add(new ErrorParsingArgument(ErrorParsingArgument.Type.ERR_INVALID_ARGUMENTS));
+        }
+    }
+
+    private Map<String, Object> buildResult(HashMap<String, Object> arguments, List<ErrorParsingArgument> errors) {
         HashMap<String, Object> result = new HashMap<>();
         result.put("errors", errors);
         result.put("arguments", arguments);
@@ -271,12 +290,12 @@ public abstract class Command {
         sender.sendMessage(str);
         sender.sendMessage(this.generateUsageMessage());
     }
+
     private void sendError(CommandSender sender, ErrorParsingArgument.Type type) {
         String str = ErrorParsingArgument.getErrorMessages().get(type);
         sender.sendMessage(str);
         sender.sendMessage(this.generateUsageMessage());
     }
-
 
     public String generateUsageMessage() {
         StringBuilder msg = new StringBuilder(this.getName() + " ");
@@ -301,11 +320,11 @@ public abstract class Command {
         return msg.toString();
     }
 
-    public boolean hasArguments()  {
+    public boolean hasArguments() {
         return !this.argumentList.isEmpty();
     }
-    public boolean hasRequiredArguments()  {
+
+    public boolean hasRequiredArguments() {
         return !this.requiredArgumentCount.isEmpty();
     }
-
 }
