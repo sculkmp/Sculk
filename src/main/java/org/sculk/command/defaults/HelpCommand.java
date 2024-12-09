@@ -88,13 +88,59 @@ public class HelpCommand extends Command {
             }
         }
 
+        int totalCommands = commandSending.size();
+        int commandsPerPage = 5;
+        int actualPage = 1;
+        int totalPage = (int) Math.ceil((double) totalCommands / commandsPerPage);
+
+        int startIndex = 0;
+        int endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
+
+        if (args.containsKey("page")) {
+            actualPage = Integer.parseInt(args.get("page").toString());
+            if (actualPage < 1 || actualPage > totalPage) {
+                actualPage = 1;
+            }
+        } else if (args.containsKey("command")) {
+            Command command = (Command) args.get("command");
+            try {
+                sender.sendMessage(command.getLabel());
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder()
+                        .setTranslate("§6/%%s: §f%%s\nUsage: §e%%s")
+                        .setWith(new RawTextBuilder()
+                                .add(new TextBuilder().setText(command.getLabel()))
+                                .add(new TextBuilder().setText(command.getDescription()))
+                                .add(new TextBuilder().setText(command.getUsageMessage()))
+                        )
+                ));
+            } catch(RuntimeException exception) {
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder().setTranslate("§4/%%s§c does not seem to exist, checked the list of commands with §4/help§c.").setWith(new RawTextBuilder()
+                        .add(new TextBuilder().setText(command.getName()))
+                )));
+            }
+        }
+        startIndex = (actualPage - 1) * commandsPerPage;
+        endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
+
+        for (int i = startIndex; i < endIndex; i++) {
+            String commandName = commandSending.get(i);
+            Command command = Server.getInstance().getCommandMap().getCommand(commandName);
+            if (command != null) {
+                builder.append("§6/").append(commandName).append(":§f ").append(command.getDescription()).append("\n");
+            }
+        }
+
         TranslaterBuilder translaterBuilder = new TranslaterBuilder();
         translaterBuilder.setTranslate("§6-------------- §fHelp - %%s command(s) §7[%%s/%%s] §6--------------\n%%s");
         translaterBuilder.setWith(new RawTextBuilder()
-                .add(new TextBuilder().setText(Integer.toString(totalCommands)))
-                .add(new TextBuilder().setText(Integer.toString(actualPage)))
-                .add(new TextBuilder().setText(Integer.toString(totalPage)))
-                .add(new TextBuilder().setText(builder.substring(0, builder.length() - 1)))
+                .add(new TextBuilder()
+                        .setText(Integer.toString(totalCommands)))
+                .add(new TextBuilder()
+                        .setText(Integer.toString(actualPage)))
+                .add(new TextBuilder()
+                        .setText(Integer.toString(totalPage)))
+                .add(new TextBuilder()
+                        .setText(builder.substring(0, builder.length() - 1)))
         );
         sender.sendMessage(new RawTextBuilder().add(translaterBuilder));
     }
