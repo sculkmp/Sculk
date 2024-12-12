@@ -49,7 +49,14 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
 
         PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(session.getPlayer(), session.getPlayer().getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(session.getPlayer().getName())));
         playerJoinEvent.call();
-        Server.getInstance().broadcastMessage(TextFormat.YELLOW + playerJoinEvent.getJoinMessage() + TextFormat.RESET);
+        String joinMessage = playerJoinEvent.getJoinMessage();
+        if (joinMessage.isEmpty()) {
+            Server.getInstance().broadcastMessage(joinMessage);
+        } else {
+            String defaultJoinMessage = session.getPlayer().getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(session.getPlayer().getName()));
+            System.out.println(defaultJoinMessage);
+            Server.getInstance().broadcastMessage(TextFormat.YELLOW + defaultJoinMessage + TextFormat.RESET);
+        }
         return PacketSignal.HANDLED;
     }
 }
