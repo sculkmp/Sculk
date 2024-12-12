@@ -65,7 +65,6 @@ public class HumanEntity extends Living {
     protected EntitySizeInfo getInitialSizeInfo(){ return new EntitySizeInfo(1.8F, 0.6F, 1.62F); }
 
     public void spawn(Player player) {
-        System.out.println("Spawn");
         if (this != player){
             if (!this.skin.isValid()) {
                 throw new IllegalStateException(this.getClass().getSimpleName() + " must have a valid skin set");
