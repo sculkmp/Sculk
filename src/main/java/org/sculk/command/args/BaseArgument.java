@@ -44,22 +44,55 @@ public abstract class BaseArgument {
        this.commandParam.setOptional(optional);
    }
 
+   /**
+    * Retrieves the type parameter associated with the argument.
+    *
+    * @return the {@link CommandParam} type that represents the argument.
+    */
    abstract public CommandParam getTypeParam();
 
-
     /**
-     * @return boolean
+     * Determines if the given input string can be parsed based on the specific argument type.
+     *
+     * @param testString the string to test for parsing compatibility
+     * @param sender the CommandSender attempting to parse the string
+     * @return true if the string can be parsed, false otherwise
      */
     abstract public boolean canParse(String testString, CommandSender sender);
 
+    /**
+     * Parses a given argument string and returns the corresponding Object based on the implementation.
+     *
+     * @param argument the argument to parse as a string
+     * @param sender the sender executing the command
+     * @return the parsed Object corresponding to the argument
+     */
     abstract public Object parse(String argument, CommandSender sender);
 
+    /**
+     * Returns the type name of the argument.
+     *
+     * @return the type name of the argument as a string
+     */
     abstract public String getTypeName();
 
+    /**
+     * Returns the length of the span associated with the argument.
+     * The default implementation in the base class returns a fixed span length of 1.
+     * Subclasses may override this method to provide their specific span length.
+     *
+     * @return the span length as an integer
+     */
     public int getSpanLength() {
         return 1;
     }
 
+    /**
+     * Retrieves the {@link CommandParamData} associated with this argument.
+     *
+     * @return the {@link CommandParamData} object that contains metadata about the argument,
+     *         such as its name, type, and whether it is optional.
+     */
     public CommandParamData getNetworkParameterData() {
         return this.commandParam;
     }
