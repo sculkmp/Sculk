@@ -246,8 +246,6 @@ public class ClientChainData implements LoginChainData {
             if (chainMap.has("identityPublicKey"))
                 this.identityPublicKey = chainMap.get("identityPublicKey").textValue();
         }
-        System.out.println(xboxAuthed);
-        System.out.println(xuid);
         if (!xboxAuthed) {
             xuid = null;
         }

@@ -155,7 +155,6 @@ public class SculkServerSession extends BedrockServerSession {
             entry.setSubClient(false);
             return entry;
         }).toList());
-        System.out.println(packet);
         this.sendPacket(packet);
     }
 
