@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
-import org.cloudburstmc.protocol.bedrock.data.command.*;
+import org.cloudburstmc.protocol.bedrock.data.command.CommandData;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
-import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
@@ -26,17 +25,17 @@ import org.sculk.event.player.PlayerChatEvent;
 import org.sculk.form.Form;
 import org.sculk.lang.Language;
 import org.sculk.lang.Translatable;
-import org.sculk.network.handler.PlayerSkinHandler;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
-import org.sculk.utils.SkinUtils;
 
-import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -71,7 +70,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     private String displayName;
     private final String username;
     @Getter
-    private String xuid;
+    private final String xuid;
     protected AtomicBoolean connected = new AtomicBoolean(true);
 
     protected int messageCounter = 2;
@@ -120,7 +119,15 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         return true;
     }
 
-
+    /**
+     * Sends the available commands data to the player.
+     * <p>
+     * This method collects all available commands from the server's command map and converts them
+     * into a format suitable for network transmission. Each command entry is checked to ensure
+     * the command's value name matches its key before it is processed. The processed commands
+     * are then stored in a list within an AvailableCommandsPacket, which is subsequently sent
+     * to the player using the sendDataPacket method.
+     */
     public void sendCommandsData() {
         AvailableCommandsPacket availableCommandsPacket = new AvailableCommandsPacket();
         List<CommandData> commandData = availableCommandsPacket.getCommands();
@@ -132,11 +139,22 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(availableCommandsPacket);
     }
 
+    /**
+     * Updates the player's entity flags to indicate they are currently breathing.
+     * This method sets the BREATHE flag to true in the player's data, ensuring the
+     * state is reflected on the server. It then triggers an update to communicate these
+     * flag changes to the client.
+     */
     public void updateFlags() {
         this.data.setFlags(EntityFlag.BREATHING, true);
         this.data.updateFlag();
     }
 
+    /**
+     * Disconnects the player from the server with the specified kick message.
+     *
+     * @param message the reason or explanation to be sent to the player upon disconnection
+     */
     public void kick(String message) {
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
@@ -144,6 +162,12 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(packet);
     }
 
+    /**
+     * Disconnects the player from the server with a specified reason and message.
+     *
+     * @param message the message explaining the reason for the disconnection to the player
+     * @param disconnectFailReason the reason for disconnection that categorizes the failure
+     */
     public void kick(String message, DisconnectFailReason disconnectFailReason) {
         DisconnectPacket packet = new DisconnectPacket();
         packet.setKickMessage(message);
@@ -151,27 +175,55 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         sendDataPacket(packet);
     }
 
+    /**
+     * Retrieves the username of the player.
+     *
+     * @return the player's username as a String.
+     */
     @Override
     public String getName() {
         return this.username;
     }
 
+    /**
+     * Retrieves the current locale of the player based on their login chain data.
+     * The locale is determined by splitting the language code string, which is expected
+     * to be in the format of "language_country". If the country part is not specified,
+     * an empty string is used.
+     *
+     * @return a Locale object representing the player's locale derived from the language code.
+     */
     @Override
     public Locale getLocale() {
         String[] languagePart = this.loginChainData.getLanguageCode().split("_");
         return Locale.of(languagePart[0], languagePart.length > 1 ? languagePart[1] : "");
     }
 
+    /**
+     * Retrieves the language setting for the player based on their current locale.
+     *
+     * @return a Language object representing the player's language as determined by their locale.
+     */
     @Override
     public Language getLanguage() {
         return Server.getInstance().getLocalManager().getLanguage(this.getLocale());
     }
 
+    /**
+     * Retrieves the server instance associated with this player.
+     *
+     * @return the current Server instance.
+     */
     @Override
     public Server getServer() {
         return Server.getInstance();
     }
 
+    /**
+     * Checks if the player is currently online.
+     *
+     * @return true if the player is connected; false otherwise.
+     */
     @Override
     public boolean isOnline() {
         return this.connected.get();
@@ -184,7 +236,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     @Override
     public void setBanned(boolean value) {
-        return;
     }
 
     @Override
@@ -194,13 +245,21 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
 
     @Override
     public void setWhitelisted(boolean value) {
-        return;
     }
 
     public void sendDataPacket(BedrockPacket packet) {
         sendPacketInternal(packet);
     }
 
+    /**
+     * Sends a packet to the player's network session using the internal transmission mechanism.
+     *
+     * This method directly delegates the packet transmission to the player's
+     * associated network session, ensuring that the provided packet is sent through
+     * the established network connection.
+     *
+     * @param packet the BedrockPacket object to be sent to the player's network session
+     */
     public void sendPacketInternal(BedrockPacket packet) {
         this.networkSession.sendPacket(packet);
     }
@@ -213,6 +272,19 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         return (ClientChainData) this.loginChainData;
     }
 
+    /**
+     * Sends updated attribute data for the player to the client.
+     *
+     * This method constructs an UpdateAttributesPacket containing the player's current
+     * attributes, such as hunger, experience level, and experience. It retrieves these
+     * attributes from the AttributeFactory and populates them into the packet as AttributeData
+     * objects, capturing their respective IDs, minimum values, maximum values, current values,
+     * and default values. Once all relevant attributes have been gathered and added to the packet,
+     * the packet is sent to the player's client using the sendDataPacket method.
+     *
+     * This is typically used to synchronize attribute data between the server and
+     * the client whenever there are updates on the player’s attributes.
+     */
     public void sendAttributes() {
         UpdateAttributesPacket updateAttributesPacket = new UpdateAttributesPacket();
         updateAttributesPacket.setRuntimeEntityId(this.getEntityId());
@@ -233,6 +305,13 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         //System.out.println(updateAttributesPacket);
     }
 
+    /**
+     * Synchronizes the network data by updating the player's data properties.
+     * This method overrides the parent's syncNetworkData method and adds
+     * additional synchronization for player-specific data.
+     *
+     * @param properties The EntityDataMap containing the data properties for the player.
+     */
     @Override
     protected void syncNetworkData(EntityDataMap properties) {
         super.syncNetworkData(properties);
@@ -244,9 +323,11 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     /**
-     * Used to send forms to the player
+     * Opens a form for the player by sending a modal form request packet.
+     * Assigns a unique identifier to the form and stores it in the player's forms map.
      *
-     * @param form The form sent to the player
+     * @param form The form to be opened and sent to the player.
+     * @return The unique identifier assigned to the opened form.
      */
     public int openForm(Form form) {
         int id = this.formId.getAndIncrement();
@@ -261,11 +342,10 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     /**
-     * Retrieve an already opened form from the map.
-     * The form will be deleted from the map upon retrieval.
+     * Retrieves and removes a form from the player's collection of forms using the specified form ID.
      *
-     * @param id The id given when opening the form
-     * @return {@link Form}
+     * @param id The unique identifier of the form to be retrieved.
+     * @return The form associated with the specified ID, or null if no form with that ID exists.
      */
     public Form getForm(int id) {
         return this.forms.remove(id);
@@ -277,6 +357,14 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         super.onUpdate();
     }
 
+    /**
+     * Handles a chat message or command input from a player.
+     *
+     * @param message the message or command input from the player. If the message starts with "./",
+     *                it is interpreted as a command and the initial "." is removed before processing.
+     *                If it starts with "/", it is directly processed as a command. Otherwise, it is
+     *                handled as a regular chat message.
+     */
     public void onChat(String message) {
         if (message.startsWith("./")) {
             message = message.substring(1);
@@ -298,6 +386,11 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         }
     }
 
+    /**
+     * Sends a chat message through the player's network session.
+     *
+     * @param message The message to be sent to the network session.
+     */
     public void sendMessage(String message) {
         this.getNetworkSession().onChatMessage(message);
     }
