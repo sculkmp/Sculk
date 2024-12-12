@@ -3,12 +3,14 @@ package org.sculk.network.handler;
 
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket;
-import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
+import org.sculk.event.player.PlayerJoinEvent;
+import org.sculk.lang.LanguageKeys;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.utils.TextFormat;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /*
@@ -44,6 +46,10 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
     public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet) {
         this.responseCallback.accept(null);
         Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with uuid " + session.getPlayer().getUniqueId());
+
+        PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(session.getPlayer(), session.getPlayer().getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(session.getPlayer().getName())));
+        playerJoinEvent.call();
+        Server.getInstance().broadcastMessage(TextFormat.YELLOW + playerJoinEvent.getJoinMessage() + TextFormat.RESET);
         return PacketSignal.HANDLED;
     }
 }
