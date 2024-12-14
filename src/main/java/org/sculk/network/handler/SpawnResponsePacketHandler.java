@@ -5,12 +5,8 @@ import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
-import org.sculk.event.player.PlayerJoinEvent;
-import org.sculk.lang.LanguageKeys;
 import org.sculk.network.session.SculkServerSession;
-import org.sculk.utils.TextFormat;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 /*
@@ -46,17 +42,6 @@ public class SpawnResponsePacketHandler extends SculkPacketHandler {
     public PacketSignal handle(SetLocalPlayerAsInitializedPacket packet) {
         this.responseCallback.accept(null);
         Server.getInstance().getLogger().info("§b" + session.getPlayer().getName() + "[/" + session.getPlayerInfo().getServerAddress() + "] logged in with uuid " + session.getPlayer().getUniqueId());
-
-        PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(session.getPlayer(), session.getPlayer().getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(session.getPlayer().getName())));
-        playerJoinEvent.call();
-        String joinMessage = playerJoinEvent.getJoinMessage();
-        if (joinMessage.isEmpty()) {
-            Server.getInstance().broadcastMessage(joinMessage);
-        } else {
-            String defaultJoinMessage = session.getPlayer().getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(session.getPlayer().getName()));
-            System.out.println(defaultJoinMessage);
-            Server.getInstance().broadcastMessage(TextFormat.YELLOW + defaultJoinMessage + TextFormat.RESET);
-        }
         return PacketSignal.HANDLED;
     }
 }

@@ -1,6 +1,7 @@
 package org.sculk.event.player;
 
 
+import lombok.NonNull;
 import org.sculk.player.Player;
 
 /*
@@ -20,18 +21,19 @@ import org.sculk.player.Player;
  */
 public class PlayerJoinEvent extends PlayerEvent {
 
+    @NonNull
     protected String joinMessage;
 
-    public PlayerJoinEvent(Player player, String joinMessage) {
+    public PlayerJoinEvent(Player player, @NonNull String joinMessage) {
         super(player);
         this.joinMessage = joinMessage;
     }
 
-    public String getJoinMessage() {
+    public @NonNull String getJoinMessage() {
         return joinMessage;
     }
 
-    public void setJoinMessage(String joinMessage) {
+    public void setJoinMessage(@NonNull String joinMessage) {
         this.joinMessage = joinMessage;
     }
 }

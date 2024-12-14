@@ -5,16 +5,15 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.cloudburstmc.protocol.bedrock.BedrockPeer;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.packet.*;
+import org.sculk.Server;
 import org.sculk.lang.Translatable;
+import org.sculk.network.BedrockInterface;
 import org.sculk.network.broadcaster.EntityEventBroadcaster;
 import org.sculk.network.broadcaster.PacketBroadcaster;
-import org.sculk.player.Player;
-import org.sculk.Server;
-import org.sculk.network.BedrockInterface;
 import org.sculk.network.handler.*;
+import org.sculk.player.Player;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.text.RawTextBuilder;
 import org.sculk.utils.SkinUtils;
@@ -134,6 +133,8 @@ public class SculkServerSession extends BedrockServerSession {
 
     private void onClientSpawnResponse(Object e) {
         this.setPacketHandler(new InGamePacketHandler(this.getPlayer(),this));
+        assert this.player != null;
+        this.player.doFirstSpawn();
     }
 
 
