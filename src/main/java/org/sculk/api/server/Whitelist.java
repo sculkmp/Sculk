@@ -1,4 +1,4 @@
-package org.sculk.server;
+package org.sculk.api.server;
 
 public interface Whitelist {
 

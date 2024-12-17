@@ -10,7 +10,8 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Logger;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
-import org.cloudburstmc.protocol.bedrock.packet.PlayerListPacket;
+import org.sculk.api.player.GameMode;
+import org.sculk.api.server.Operators;
 import org.sculk.command.CommandSender;
 import org.sculk.command.SimpleCommandMap;
 import org.sculk.config.Config;
@@ -30,12 +31,11 @@ import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.Player;
 import org.sculk.player.client.ClientChainData;
-import org.sculk.player.skin.Skin;
 import org.sculk.plugin.PluginManager;
+import org.sculk.resourcepack.ResourcePackManager;
 import org.sculk.scheduler.Scheduler;
 import org.sculk.server.SculkOperators;
 import org.sculk.server.SculkWhitelist;
-import org.sculk.utils.SkinUtils;
 import org.sculk.utils.TextFormat;
 
 import java.lang.reflect.Constructor;
@@ -67,6 +67,8 @@ public class Server {
     private final TerminalConsole console;
     private final EventManager eventManager;
     private final PluginManager pluginManager;
+    @Getter
+    private final ResourcePackManager resourcePackManager;
     private final Injector injector;
 
     private final Scheduler scheduler;
@@ -91,10 +93,12 @@ public class Server {
     private final Map<UUID, Player> playerList = new HashMap<>();
     private final Map<SocketAddress, Player> players = new HashMap<>();
 
+    @Getter
     private String motd;
     private String submotd;
+    @Getter
     private int maxPlayers;
-    private String defaultGamemode;
+    @Getter
     private UUID serverId;
     private long nextTick;
     private int tickCounter;
@@ -114,7 +118,7 @@ public class Server {
         //Language manager
         this.localManager = localManager;
         this.language = localManager.getLanguage(this.properties.get(ServerPropertiesKeys.LANGUAGE, DEFAULT_LANGUAGE));
-        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, List.of(this.language.getName())));
+        this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, List.of(TextFormat.DARK_AQUA + this.language.getName() + TextFormat.RESET)));
 
         //Load server properties
         this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING));
@@ -132,6 +136,7 @@ public class Server {
         this.eventManager = injector.getInstance(EventManager.class);
         this.scheduler = injector.getInstance(Scheduler.class);
         this.pluginManager = new PluginManager(this);
+        this.resourcePackManager = new ResourcePackManager();
         this.simpleCommandMap = new SimpleCommandMap(this);
       
         this.console = new TerminalConsole(this);
@@ -149,7 +154,7 @@ public class Server {
             this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_ONLINE_MODE_DISABLED, TextFormat.RED));
         }
 
-        log.info(language.translate(LanguageKeys.SCULK_SERVER_STARTING, List.of(TextFormat.DARK_AQUA + CODE_NAME + TextFormat.WHITE, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE)));
+        log.info(language.translate(LanguageKeys.SCULK_SERVER_STARTING, List.of(TextFormat.DARK_AQUA + CODE_NAME + TextFormat.RESET, TextFormat.AQUA + CODE_VERSION + TextFormat.WHITE)));
 
         InetSocketAddress bindAddress = new InetSocketAddress(this.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0"), this.getProperties().get(ServerPropertiesKeys.SERVER_PORT, 19132));
         this.serverId = UUID.randomUUID();
@@ -165,6 +170,8 @@ public class Server {
         }
 
         this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_DISTRIBUTED_UNDER, List.of(TextFormat.AQUA + "GNU GENERAL PUBLIC LICENSE")));
+
+        this.resourcePackManager.loadResourcePacks();
 
         this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_LOADING_COMMANDS));
 
@@ -199,8 +206,6 @@ public class Server {
         this.logger.info(this.language.translate(LanguageKeys.SCULK_PLUGINS_DISABLING));
         pluginManager.disableAllPlugins();
         this.logger.info(this.language.translate(LanguageKeys.SCULK_PLUGINS_DISABLED));
-
-        Sculk.shutdown();
 
         this.logger.info(this.language.translate(LanguageKeys.SCULK_NETWORK_INTERFACES_STOPPING));
         for (SourceInterface sourceInterface : this.network.getInterfaces()) {
@@ -262,14 +267,29 @@ public class Server {
         return injector;
     }
 
+    /**
+     * Checks whether the server is currently running.
+     *
+     * @return {@code true} if the server is running, {@code false} if it has been shut down.
+     */
     public boolean isRunning() {
         return !this.shutdown;
     }
 
+    /**
+     * Returns the singleton instance of the Server.
+     *
+     * @return the single instance of the Server.
+     */
     public static Server getInstance() {
         return instance;
     }
 
+    /**
+     * Retrieves the logger instance associated with this class.
+     *
+     * @return the logger instance
+     */
     public Logger getLogger() {
         return logger;
     }
@@ -282,6 +302,12 @@ public class Server {
         return pluginDataPath;
     }
 
+    /**
+     * Retrieves a map of online players currently active in the system.
+     *
+     * @return An unmodifiable map containing the online players, where the keys are their UUIDs
+     *         and the values are the corresponding Player objects.
+     */
     public Map<UUID, Player> getOnlinePlayers() {
         return Collections.unmodifiableMap(playerList);
     }
@@ -300,24 +326,16 @@ public class Server {
         }
     }
 
-    public int getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    public String getDefaultGamemode() {
-        return defaultGamemode;
-    }
-
-    public String getMotd() {
-        return motd;
+    public Integer getDefaultGamemode() {
+        return this.getProperties().get(ServerPropertiesKeys.GAMEMODE, GameMode.SURVIVAL.getId());
     }
 
     public String getSubMotd() {
         return submotd;
     }
 
-    public UUID getServerId() {
-        return serverId;
+    public Operators getOperators() {
+        return this.operators;
     }
 
     public void addPlayer(SocketAddress socketAddress, Player player) {
@@ -326,44 +344,6 @@ public class Server {
 
     public void addOnlinePlayer(Player player) {
         this.playerList.put(player.getUniqueId(), player);
-    }
-
-    public void sendFullPlayerList(Player player) {
-        PlayerListPacket packet = new PlayerListPacket();
-        packet.setAction(PlayerListPacket.Action.ADD);
-        packet.getEntries().addAll(this.playerList.values().stream().map(p -> {
-            PlayerListPacket.Entry entry = new PlayerListPacket.Entry(p.getUniqueId());
-            entry.setEntityId(p.getEntityId());
-            entry.setName(p.getName());
-            entry.setSkin(SkinUtils.toSerialized(p.getSkin()));
-            entry.setPlatformChatId("");
-            return entry;
-        }).toList());
-        player.sendDataPacket(packet);
-    }
-
-    public void removeFromTabList(Player player) {
-        PlayerListPacket packet = new PlayerListPacket();
-        packet.setAction(PlayerListPacket.Action.REMOVE);
-        packet.getEntries().add(new PlayerListPacket.Entry(player.getUniqueId()));
-        broadcastPacket(packet);
-    }
-
-    public void addToTabList(UUID uuid, long entityId, String name, ClientChainData chainData, String xuid, Skin skin) {
-        PlayerListPacket playerListPacket = new PlayerListPacket();
-        playerListPacket.setAction(PlayerListPacket.Action.ADD);
-
-        PlayerListPacket.Entry entry = new PlayerListPacket.Entry(uuid);
-        entry.setEntityId(entityId);
-        entry.setName(name);
-        entry.setXuid(xuid);
-        entry.setPlatformChatId(chainData.getDeviceId());
-        entry.setBuildPlatform(chainData.getDeviceOS());
-        entry.setSkin(SkinUtils.toSerialized(skin));
-        entry.setTrustedSkin(skin.isTrusted());
-
-        playerListPacket.getEntries().add(entry);
-        this.broadcastPacket(playerListPacket);
     }
 
     public Scheduler getScheduler() {

@@ -72,7 +72,7 @@ public class LoginPacketHandler extends SculkPacketHandler {
             return PacketSignal.HANDLED;
         }
 
-        //session.setPacketHandler(new ResourcePackHandler(session, server, loginData));
+        //session.setPacketHandler(new ResourcePackHandler(session, loginData));
 
         this.playerInfo.accept(clientChainData);
         loginData.setPreLoginEventTask(new AsyncTask() {

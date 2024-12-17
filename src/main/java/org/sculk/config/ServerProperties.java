@@ -1,5 +1,7 @@
 package org.sculk.config;
 
+import org.sculk.api.player.GameMode;
+
 import java.io.File;
 import java.nio.file.Path;
 
@@ -24,7 +26,7 @@ public class ServerProperties {
         defaults.put(ServerPropertiesKeys.SERVER_PORT.toString(), 19132);
         defaults.put(ServerPropertiesKeys.WHITELIST.toString(), "off");
         defaults.put(ServerPropertiesKeys.MAX_PLAYERS.toString(), 20);
-        defaults.put(ServerPropertiesKeys.GAMEMODE.toString(), 0);
+        defaults.put(ServerPropertiesKeys.GAMEMODE.toString(), GameMode.SURVIVAL.getId());
         defaults.put(ServerPropertiesKeys.PVP.toString(), "on");
         defaults.put(ServerPropertiesKeys.DIFFICULTY.toString(), 1);
         defaults.put(ServerPropertiesKeys.LEVEL_NAME.toString(), "world");
@@ -34,6 +36,7 @@ public class ServerProperties {
         defaults.put(ServerPropertiesKeys.SPAWN_MONSTERS.toString(), "on");
         defaults.put(ServerPropertiesKeys.AUTO_SAVE.toString(), "on");
         defaults.put(ServerPropertiesKeys.XBOX_AUTH.toString(), "on");
+        defaults.put(ServerPropertiesKeys.FORCE_RESOURCE_PACKS.toString(), "off");
         return defaults;
     }
 

@@ -60,9 +60,10 @@ public class HelpCommand extends Command {
                 actualPage = 1;
             }
         } else if (args.containsKey("command")) {
-            Command command = (Command) args.get("command");
+            String commandName = args.get("command").toString();
+            Command command = Server.getInstance().getCommandMap().getCommand(commandName);
             if (command != null) {
-                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder()
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder<RawTextBuilder>()
                         .setTranslate("§6/%%s: §f%%s\nUsage: §e%%s")
                         .setWith(new RawTextBuilder()
                                 .add(new TextBuilder().setText(command.getLabel()))
@@ -71,8 +72,8 @@ public class HelpCommand extends Command {
                         )
                 ));
             } else {
-                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder().setTranslate("§4/%%s§c does not seem to exist, check the list of commands with §4/help§c.")
-                        .setWith(new RawTextBuilder().add(new TextBuilder().setText(args.get("command").toString())))));
+                sender.sendMessage(new RawTextBuilder().add(new TranslaterBuilder<RawTextBuilder>().setTranslate("§4/%%s§c does not seem to exist, check the list of commands with §4/help§c.")
+                        .setWith(new RawTextBuilder().add(new TextBuilder().setText(commandName)))));
             }
             return;
         }
@@ -88,7 +89,7 @@ public class HelpCommand extends Command {
             }
         }
 
-        TranslaterBuilder translaterBuilder = new TranslaterBuilder();
+        TranslaterBuilder<RawTextBuilder> translaterBuilder = new TranslaterBuilder<>();
         translaterBuilder.setTranslate("§6-------------- §fHelp - %%s command(s) §7[%%s/%%s] §6--------------\n%%s");
         translaterBuilder.setWith(new RawTextBuilder()
                 .add(new TextBuilder()

@@ -1,6 +1,7 @@
 package org.sculk.server;
 
 import org.sculk.Server;
+import org.sculk.api.server.Whitelist;
 import org.sculk.config.Config;
 
 import java.util.ArrayList;

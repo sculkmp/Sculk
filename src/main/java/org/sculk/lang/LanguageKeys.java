@@ -3,6 +3,8 @@ package org.sculk.lang;
 public enum LanguageKeys {
     SCULK_SERVER_STARTING("sculk.server.starting"),
     SCULK_SERVER_LOADING("sculk.server.loading"),
+    SCULK_SERVER_RESOURCE_PACK_LOADING("sculk.server.resources.pack.loading"),
+    SCULK_SERVER_RESOURCE_PACK_LOADED("sculk.server.resources.pack.loaded"),
     SCULK_SERVER_LOADING_COMMANDS("sculk.server.loading.commands"),
     SCULK_SERVER_SELECTED_LANGUAGE("sculk.server.selected.language"),
     SCULK_SERVER_STARTING_VERSION("sculk.server.starting.version"),

@@ -1,6 +1,8 @@
 package org.sculk.player.text;
 
+import lombok.Getter;
 import lombok.NonNull;
+import org.sculk.lang.Language;
 
 import java.util.HashMap;
 
@@ -19,6 +21,7 @@ import java.util.HashMap;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
+@Getter
 public class TextBuilder implements IJsonText {
 
     private @NonNull String text;
@@ -39,6 +42,17 @@ public class TextBuilder implements IJsonText {
     public Object build() {
         HashMap<String, String> map = new HashMap<>();
         map.put(this.getName(), text);
+        return map;
+    }
+
+    @Override
+    public Object build(Language lang) {
+        String baseText;
+        HashMap<String, String> map = new HashMap<>();
+        baseText = lang.internalGet(text);
+        if (baseText == null)
+            baseText = text;
+        map.put(this.getName(), baseText);
         return map;
     }
 

@@ -1,7 +1,5 @@
 package org.sculk.console;
 
-import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
-
 /*
  *   ____             _ _
  *  / ___|  ___ _   _| | | __

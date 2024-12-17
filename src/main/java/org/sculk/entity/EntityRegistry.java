@@ -1,4 +1,5 @@
-package org.sculk.player.text;
+package org.sculk.entity;
+
 
 /*
  *   ____             _ _
@@ -15,16 +16,8 @@ package org.sculk.player.text;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class SelectorBuilder implements IJsonText {
 
-    @Override
-    public String getName() {
-        return "";
-    }
+//TODO: Implement Entity Registry for entities to be registered
 
-
-    @Override
-    public Object build() {
-        return null;
-    }
+public class EntityRegistry {
 }

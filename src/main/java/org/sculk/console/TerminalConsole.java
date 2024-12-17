@@ -56,18 +56,17 @@ public class TerminalConsole extends SimpleTerminalConsole implements CommandSen
 
     @Override
     public Language getLanguage() {
-        return null;
+        return this.server.getLanguage();
     }
 
     @Override
     public void sendMessage(String message) {
         this.server.getLogger().info(message);
-
     }
 
     @Override
     public void sendMessage(RawTextBuilder textBuilder) {
-        this.server.getLogger().info(textBuilder.toString());
+        this.server.getLogger().info(this.getLanguage().translate(textBuilder));
     }
 
     @Override

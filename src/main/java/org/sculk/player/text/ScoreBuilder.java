@@ -1,5 +1,8 @@
 package org.sculk.player.text;
 
+import lombok.Builder;
+import org.sculk.lang.Language;
+
 import java.util.HashMap;
 
 /*
@@ -30,6 +33,15 @@ public class ScoreBuilder implements IJsonText {
 
     @Override
     public Object build() {
+        HashMap<String, HashMap<String, String>> score = new HashMap<>();
+        HashMap<String, String> data = new HashMap<>();
+        data.put("name", this.name);
+        data.put("objective", this.objective);
+        score.put("score", data);
+        return score;
+    }
+    @Override
+    public Object build(Language lang) {
         HashMap<String, HashMap<String, String>> score = new HashMap<>();
         HashMap<String, String> data = new HashMap<>();
         data.put("name", this.name);

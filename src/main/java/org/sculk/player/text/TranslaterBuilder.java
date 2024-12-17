@@ -1,5 +1,9 @@
 package org.sculk.player.text;
 
+import lombok.Getter;
+import org.sculk.lang.Language;
+
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,52 +23,26 @@ import java.util.regex.Pattern;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class TranslaterBuilder implements IJsonText {
+public class TranslaterBuilder<V> implements IJsonText {
 
-    public String translate;
-    private Object with;
+    @Getter
+    private String translate;
+    @Getter
+    private V with;
     private static final Pattern PATTERN_STRING = Pattern.compile("%%(s)");
     private static final Pattern PATTERN_INDEX = Pattern.compile("%%(\\d+)");
 
     public TranslaterBuilder() {
-        with = null;
-
+        this.translate = null;
     }
 
-    public TranslaterBuilder setTranslate(String translate) {
+    public TranslaterBuilder<V> setTranslate(String translate) {
         this.translate = translate;
         return this;
     }
 
-    public TranslaterBuilder addWith(String data) {
-        if (this.with == null)
-            this.with = Arrays.asList(data);
-        else if (this.with instanceof ArrayList<?>) {
-            ArrayList<String> _with = (ArrayList<String>) this.with;
-            _with.add(data);
-        }
-        return this;
-    }
-
-    public TranslaterBuilder addWith(List<String> data) {
-        if (this.with == null)
-            this.with = data;
-        else if (this.with instanceof ArrayList<?>) {
-            ArrayList<String> _with = new ArrayList();
-            ((ArrayList<String>)this.with).addAll(data);
-        }
-        return this;
-    }
-
-    public TranslaterBuilder setWith(RawTextBuilder text) {
-        if (this.with == null)
-            this.with = text;
-        return this;
-    }
-
-    public TranslaterBuilder setWith(List<String> data) {
-        if (this.with == null)
-            this.with = new ArrayList<>(data);
+    public TranslaterBuilder<V> setWith(V data) {
+        this.with = data;
         return this;
     }
 
@@ -89,6 +67,27 @@ public class TranslaterBuilder implements IJsonText {
         return map;
     }
 
+
+    @Override
+    public Object build(Language language) {
+        String baseText;
+        HashMap<String, Object> map = new HashMap<>();
+
+        baseText = language.internalGet(this.translate);
+        if (baseText == null)
+            baseText = this.translate;
+        map.put(this.getName(), baseText);
+        if (this.with != null) {
+            Object with = this.with;
+
+            if (with instanceof RawTextBuilder rawTextBuilder) {
+                with = rawTextBuilder.build(language);
+            }
+            map.put("with", with);
+        }
+        return map;
+    }
+
     @Override
     public String toString() {
         String data = translate;
@@ -107,7 +106,7 @@ public class TranslaterBuilder implements IJsonText {
         if (this.with instanceof ArrayList<?>) {
             return new ArrayList<>((ArrayList<?>) this.with);
         } else if (this.with instanceof RawTextBuilder) {
-            return new ArrayList<>(((RawTextBuilder) this.with).build);
+            return new ArrayList<>(((RawTextBuilder) this.with).getBuild());
         }
         return null;
     }

@@ -3,11 +3,17 @@ package org.sculk.lang;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.sculk.player.text.IJsonText;
+import org.sculk.player.text.RawTextBuilder;
+import org.sculk.player.text.TextBuilder;
+import org.sculk.player.text.TranslaterBuilder;
 
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  *   ____             _ _
@@ -32,6 +38,8 @@ public class Language {
 
     @Getter
     private @NonNull Map<String, String> translate;
+    private static final Pattern PATTERN_STRING = Pattern.compile("%%(s)");
+    private static final Pattern PATTERN_INDEX = Pattern.compile("%%(\\d+)");
 
     public Language(String name, Locale locale, Map<String, String> translate) {
         this.name = name;
@@ -124,6 +132,98 @@ public class Language {
             baseText = baseText.replace("{" + "%" + key + "}", replacement);
         }
         return baseText;
+    }
+
+    public final String translate(TranslaterBuilder<?> c){
+        Object with;
+        Pattern pattern = Pattern.compile("%%|%((\\d+)\\$)?s");
+        List<String> data = new ArrayList<>();
+        String baseText;
+        String text;
+        int     i;
+        int     index;
+
+        baseText = this.internalGet(c.getTranslate());
+        if (baseText == null)
+            baseText = c.getTranslate();
+        Matcher matcher = pattern.matcher(baseText);
+        with = c.getWith();
+        if (with instanceof RawTextBuilder _withRaw){
+            for (IJsonText raw: _withRaw.getBuild())
+            {
+                if (data instanceof TranslaterBuilder<?> _data)
+                    data.add(translate(_data));
+                else if(data instanceof RawTextBuilder _data)
+                    data.add(translate(_data));
+                else if(data instanceof TextBuilder _data)
+                {
+                    text = this.internalGet(_data.getText());
+                    if (text == null)
+                        text = _data.getText();
+                    data.add(text);
+                }
+            }
+        } else if (with instanceof List<?> _withList) {
+            for (Object item : _withList) {
+                if (item instanceof String str) {
+                    data.add(str);
+                }
+            }
+        }
+
+        StringBuffer result = new StringBuffer();
+        i = 0;
+        while (matcher.find()) {
+            if ("%%".equals(matcher.group())) {
+                // Remplacer "%%" par "%"
+                matcher.appendReplacement(result, "%");
+            } else {
+                // Gérer "%s" ou "%n$s"
+                String indexGroup = matcher.group(2); // Capture du numéro dans "%n$s"
+                if(indexGroup != null)
+                {
+                    index = Integer.parseInt(indexGroup) - 1;
+                }else {
+                    index = i;
+                    ++i;
+                }
+
+                // Vérification des limites
+                if (index < 0 || index >= data.size()) {
+                    throw new IllegalArgumentException("Argument manquant pour le translater : " + matcher.group());
+                }
+
+                // Remplacer par l'argument correspondant
+                matcher.appendReplacement(result, Matcher.quoteReplacement(data.get(index)));
+            }
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    public final String translate(RawTextBuilder c){
+        StringBuilder stringBuilder;
+        String          text;
+        List<IJsonText> list;
+
+        list = c.getBuild();
+        stringBuilder = new StringBuilder();
+        for (IJsonText data: list)
+        {
+            if (data instanceof TranslaterBuilder<?> _data)
+                stringBuilder.append(translate(_data));
+            else if(data instanceof RawTextBuilder _data)
+                stringBuilder.append(translate(_data));
+            else if(data instanceof TextBuilder _data)
+            {
+                text = this.internalGet(_data.getText());
+                if (text == null)
+                    text = _data.getText();
+                stringBuilder.append(text);
+            }
+        }
+        return stringBuilder.toString();
     }
 
 

@@ -1,13 +1,14 @@
 package org.sculk.server;
 
 import org.sculk.Server;
+import org.sculk.api.server.Operators;
 import org.sculk.config.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SculkOperators implements Operators{
+public class SculkOperators implements Operators {
 
     private Config config = new Config(Server.getInstance().getDataPath().resolve("op.txt").toString(), Config.ENUM);
 

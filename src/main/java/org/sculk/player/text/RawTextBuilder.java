@@ -1,5 +1,8 @@
 package org.sculk.player.text;
 
+import lombok.Getter;
+import org.sculk.lang.Language;
+
 import java.util.*;
 
 /*
@@ -19,7 +22,8 @@ import java.util.*;
  */
 public class RawTextBuilder implements IJsonText{
 
-    public List<IJsonText> build;
+    @Getter
+    private final List<IJsonText> build;
 
     public RawTextBuilder() {
         build = new ArrayList<>();
@@ -43,11 +47,9 @@ public class RawTextBuilder implements IJsonText{
     }
 
     @Override
-    public String toString() {
-        StringBuilder text = new StringBuilder();
-        for (IJsonText jsonText: build){
-            text.append(jsonText.toString());
-        }
-        return text.toString();
+    public Object build(Language lang) {
+        HashMap<String, List<Object>> map = new HashMap<>();
+        map.put(this.getName(), this.build.stream().map(iJsonText -> iJsonText.build(lang)).toList());
+        return map;
     }
 }

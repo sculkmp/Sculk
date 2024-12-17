@@ -1,5 +1,7 @@
 package org.sculk.player.text;
 
+import org.sculk.lang.Language;
+
 import java.util.function.Function;
 
 /*
@@ -22,4 +24,6 @@ public interface IJsonText extends Cloneable{
     String getName();
 
     Object build();
+
+    Object build(Language lang);
 }

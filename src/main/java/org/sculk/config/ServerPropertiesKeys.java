@@ -17,7 +17,8 @@ public enum ServerPropertiesKeys {
     SPAWN_ANIMALS("spawn-animals"),
     SPAWN_MONSTERS("spawn-monsters"),
     AUTO_SAVE("auto-save"),
-    XBOX_AUTH("xbox-auth");
+    XBOX_AUTH("xbox-auth"),
+    FORCE_RESOURCE_PACKS("force-resource-packs");
 
     private final String key;
 

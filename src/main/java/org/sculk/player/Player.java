@@ -105,6 +105,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     }
 
     public void doFirstSpawn() {
+
         PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(this, this.getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(this.getName())));
         playerJoinEvent.call();
         String joinMessage = playerJoinEvent.getJoinMessage();
@@ -208,6 +209,10 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public void setWhitelisted(boolean value) {
         return;
+    }
+
+    public boolean isOp() {
+        return this.getServer().getOperators().isOperator(this.getName());
     }
 
     public void sendDataPacket(BedrockPacket packet) {
