@@ -42,7 +42,7 @@ public class VersionCommand extends Command {
     public void onRun(CommandSender sender, String commandLabel, Map<String, Object> args) {
         sender.sendMessage(new RawTextBuilder().add(
                 new TranslaterBuilder()
-                        .setTranslate("§fThis server is running §a%%s\n§fServer version: §a%%s\n§fCompatible Minecraft version: §a%%s §f(protocol version: §a%%s§f)\nOperating system: §a%%s")
+                        .setTranslate("§fThis server is running §a%s\n§fServer version: §a%s\n§fCompatible Minecraft version: §a%s §f(protocol version: §a%s§f)\nOperating system: §a%s")
                         .setWith(new RawTextBuilder()
                                 .add(new TextBuilder().setText(Sculk.CODE_NAME)) // software name
                                 .add(new TextBuilder().setText(Sculk.CODE_VERSION)) // software version

@@ -32,15 +32,10 @@ public class ServerDatagramHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        /*
         if (msg instanceof DatagramPacket packet && this.manager.isAddressBlocked(packet.sender().getAddress())) {
-            NetworkMetrics metrics = Server.getInstance().getNetworkMetrics();
-            if (metrics != null) {
-                metrics.droppedBytes(packet.content().readableBytes());
-            }
             packet.release();
-            return; // drop any incoming messages
+            return;
         }
-        ctx.fireChannelRead(msg);*/
+        ctx.fireChannelRead(msg);
     }
 }

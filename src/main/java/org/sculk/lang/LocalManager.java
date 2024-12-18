@@ -7,6 +7,7 @@ import org.sculk.config.Config;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  *   ____             _ _
@@ -46,7 +47,11 @@ public class LocalManager {
             }
             config.load(data);
             String[] languagePart = key.split("_");
-            languageMap.put(key, new Language(value, Locale.of(languagePart[0],  languagePart.length > 1 ? languagePart[1] : ""), (Map)config.getAll()));
+            languageMap.put(key, new Language(value, Locale.of(languagePart[0],  languagePart.length > 1 ? languagePart[1] : ""), config.getAll()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> (e.getValue() instanceof String))
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()))));
         }
     }
 

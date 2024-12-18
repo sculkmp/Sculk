@@ -2,14 +2,12 @@ package org.sculk.lang;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import org.sculk.player.text.IJsonText;
 import org.sculk.player.text.RawTextBuilder;
 import org.sculk.player.text.TextBuilder;
 import org.sculk.player.text.TranslaterBuilder;
 
 import javax.annotation.Nullable;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -38,25 +36,38 @@ public class Language {
 
     @Getter
     private @NonNull Map<String, String> translate;
-    private static final Pattern PATTERN_STRING = Pattern.compile("%%(s)");
-    private static final Pattern PATTERN_INDEX = Pattern.compile("%%(\\d+)");
+    private static final Pattern PATTERN_STRING_EXTERNAL = Pattern.compile("%%[sd]");
+    private static final Pattern PATTERN_INDEX_EXTERNAL = Pattern.compile("%%(\\d+)(\\$[sd])|%%");
+    private static final Pattern PATTERN_INTERNAL = Pattern.compile("(?<!%)%[sd]|(?<!%)%(\\d+)(\\$[sd])");
 
     public Language(String name, Locale locale, Map<String, String> translate) {
         this.name = name;
         this.locale = locale;
-        this.translate = translate;
+        this.translate = new HashMap<>();
+        translate.forEach((key, value) -> {
+            this.translate.put(key, reformatConfigToMinecraft(value));
+        });
+        translate.clear();
+    }
+
+    public static String reformatConfigToMinecraft(String value){
+        StringBuilder result = new StringBuilder();
+        Matcher matcher = PATTERN_INTERNAL.matcher(value);
+        while (matcher.find()) {
+            matcher.appendReplacement(result, "%" + Matcher.quoteReplacement(matcher.group()));
+        }
+        matcher.appendTail(result);
+        return result.toString().replace("\\n" , "\n");
     }
 
     public final @Nullable String internalGet(String key){
-        String value = translate.getOrDefault(key, null);
-        if (value != null)
-            return value.replace("\\n", "\n");
-        return null;
+        return translate.getOrDefault(key, null);
     }
 
     public String translate(String str, @Nullable List<Object> params, String onlyPrefix) {
         String replacement;
         String baseText;
+        char format;
         int size;
 
         baseText = (onlyPrefix == null || str.startsWith(onlyPrefix)) ? internalGet(str) : null;
@@ -78,10 +89,23 @@ public class Language {
                     case InetSocketAddress value -> value.toString();
                     case null, default -> throw new IllegalArgumentException("Illegal parameter: " + param);
                 };
-                baseText = baseText.replace("{" + "%" + i + "}", replacement);
+                format = switch (param)
+                {
+                    case Translatable value -> 's';
+                    case String value -> 's';
+                    case Double value -> 'd';
+                    case Float value -> 'd';
+                    case Integer value -> 'd';
+                    case Long value -> 'd';
+                    case Boolean value -> 's';
+                    case Date value -> 's';
+                    case InetSocketAddress value -> 's';
+                    case null, default -> throw new IllegalArgumentException("Illegal parameter: " + param);
+                };
+                baseText = baseText.replace("%%" + format, replacement);
             }
         }
-        return baseText;
+        return baseText.replace("%%", "%");
     }
 
     public String translate(LanguageKeys str, @Nullable List<Object> params, String onlyPrefix) {
@@ -129,39 +153,51 @@ public class Language {
             }else {
                 throw new IllegalArgumentException("Illegal parameter: " + entry.getValue());
             }
-            baseText = baseText.replace("{" + "%" + key + "}", replacement);
+            if (isNumber(key))
+                baseText = baseText.replace("%%" + key + "$s", replacement);
+            else
+                baseText = baseText.replace("%%" + key, replacement);
         }
         return baseText;
     }
 
+    public static boolean isNumber(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public final String translate(TranslaterBuilder<?> c){
         Object with;
-        Pattern pattern = Pattern.compile("%%|%((\\d+)\\$)?s");
+
         List<String> data = new ArrayList<>();
         String baseText;
         String text;
+        Matcher matcher;
         int     i;
         int     index;
+        String group;
+        char format;
 
         baseText = this.internalGet(c.getTranslate());
         if (baseText == null)
-            baseText = c.getTranslate();
-        Matcher matcher = pattern.matcher(baseText);
+            baseText = Language.reformatConfigToMinecraft(c.getTranslate());
         with = c.getWith();
         if (with instanceof RawTextBuilder _withRaw){
             for (IJsonText raw: _withRaw.getBuild())
             {
-                if (data instanceof TranslaterBuilder<?> _data)
-                    data.add(translate(_data));
-                else if(data instanceof RawTextBuilder _data)
-                    data.add(translate(_data));
-                else if(data instanceof TextBuilder _data)
-                {
-                    text = this.internalGet(_data.getText());
-                    if (text == null)
-                        text = _data.getText();
-                    data.add(text);
-                }
+                if (raw instanceof TranslaterBuilder<?> _raw)
+                    data.add(translate(_raw));
+                else if(raw instanceof RawTextBuilder _raw)
+                    data.add(translate(_raw));
+                else if(raw instanceof TextBuilder _raw)
+                    data.add(_raw.getText());
             }
         } else if (with instanceof List<?> _withList) {
             for (Object item : _withList) {
@@ -171,34 +207,61 @@ public class Language {
             }
         }
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         i = 0;
+        matcher = PATTERN_STRING_EXTERNAL.matcher(baseText);
+        int lastEnd = 0;
         while (matcher.find()) {
-            if ("%%".equals(matcher.group())) {
-                // Remplacer "%%" par "%"
+            group = matcher.group();
+            if (i >= data.size()) {
+                matcher.appendReplacement(result, "");
+                continue;
+            }
+            format = group.charAt(group.lastIndexOf("%") + 1);
+            Object value = data.get(i);
+            if (format == 's' && value instanceof String && !isNumber((String) value)) {
+                matcher.appendReplacement(result, value.toString());
+            } else if (format == 'd'  && (value instanceof Number || (value instanceof String && isNumber((String) value)))) {
+                matcher.appendReplacement(result, value.toString());
+            }else {
+                matcher.appendReplacement(result, Integer.toString(i + 1));
+            }
+            ++i;
+        }
+        matcher.appendTail(result);
+        baseText = result.toString();
+        result.setLength(0);
+        matcher = PATTERN_INDEX_EXTERNAL.matcher(baseText);
+        while (matcher.find()) {
+            group = matcher.group();
+            if (group.equals("%%")) {
                 matcher.appendReplacement(result, "%");
-            } else {
-                // Gérer "%s" ou "%n$s"
-                String indexGroup = matcher.group(2); // Capture du numéro dans "%n$s"
-                if(indexGroup != null)
-                {
-                    index = Integer.parseInt(indexGroup) - 1;
-                }else {
-                    index = i;
-                    ++i;
-                }
-
-                // Vérification des limites
-                if (index < 0 || index >= data.size()) {
-                    throw new IllegalArgumentException("Argument manquant pour le translater : " + matcher.group());
-                }
-
-                // Remplacer par l'argument correspondant
-                matcher.appendReplacement(result, Matcher.quoteReplacement(data.get(index)));
+                continue;
+            }
+            try {
+                index = Integer.parseInt(group.substring(group.lastIndexOf("%") + 1, group.indexOf("$"))) + i - 1;
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (index < 0 || index >= data.size()) {
+                matcher.appendReplacement(result, "");
+                continue;
+            }
+            format = group.charAt(group.lastIndexOf("$") + 1);
+            if (format == '\0') {
+                matcher.appendReplacement(result, Integer.toString(index - i + 1));
+                continue;
+            }
+            Object value = data.get(index);
+            if (format == 's' && value instanceof String && !isNumber((String) value)) {
+                matcher.appendReplacement(result, value.toString());
+            } else if (format == 'd' && (value instanceof Number || (value instanceof String && isNumber((String) value)))) {
+                matcher.appendReplacement(result, value.toString());
+            }else {
+                matcher.appendReplacement(result, Integer.toString(index - i + 1));
             }
         }
         matcher.appendTail(result);
-
         return result.toString();
     }
 
@@ -211,16 +274,13 @@ public class Language {
         stringBuilder = new StringBuilder();
         for (IJsonText data: list)
         {
-            if (data instanceof TranslaterBuilder<?> _data)
+            if (data instanceof TranslaterBuilder _data)
                 stringBuilder.append(translate(_data));
             else if(data instanceof RawTextBuilder _data)
                 stringBuilder.append(translate(_data));
             else if(data instanceof TextBuilder _data)
             {
-                text = this.internalGet(_data.getText());
-                if (text == null)
-                    text = _data.getText();
-                stringBuilder.append(text);
+                stringBuilder.append(_data.getText());
             }
         }
         return stringBuilder.toString();

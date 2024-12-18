@@ -31,6 +31,8 @@ import org.sculk.network.protocol.ProtocolInfo;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.Player;
 import org.sculk.player.client.ClientChainData;
+import org.sculk.player.text.RawTextBuilder;
+import org.sculk.player.text.TranslaterBuilder;
 import org.sculk.plugin.PluginManager;
 import org.sculk.resourcepack.ResourcePackManager;
 import org.sculk.scheduler.Scheduler;
@@ -100,6 +102,8 @@ public class Server {
     private int maxPlayers;
     @Getter
     private UUID serverId;
+    @Getter
+    private final boolean query;
     private long nextTick;
     private int tickCounter;
 
@@ -126,6 +130,8 @@ public class Server {
         this.motd = this.properties.get(ServerPropertiesKeys.MOTD, "A Sculk Server Software");
         this.submotd = this.properties.get(ServerPropertiesKeys.SUB_MOTD, "Powered by Sculk");
         this.maxPlayers = this.properties.get(ServerPropertiesKeys.MAX_PLAYERS, 20);
+        System.out.println(this.properties.getProperties());
+        this.query = this.properties.get(ServerPropertiesKeys.QUERY, false);
 
         this.operators = new SculkOperators();
         this.whitelist = new SculkWhitelist();

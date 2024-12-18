@@ -67,7 +67,7 @@ public class HelpCommand extends Command {
                         .setTranslate("§6/%%s: §f%%s\nUsage: §e%%s")
                         .setWith(new RawTextBuilder()
                                 .add(new TextBuilder().setText(command.getLabel()))
-                                .add(new TextBuilder().setText(command.getDescription()))
+                                .add(new TranslaterBuilder<Void>().setTranslate(command.getDescription()))
                                 .add(new TextBuilder().setText(command.getUsageMessage()))
                         )
                 ));
@@ -77,29 +77,29 @@ public class HelpCommand extends Command {
             }
             return;
         }
-
+        RawTextBuilder commands = RawTextBuilder.create();
         int startIndex = (actualPage - 1) * commandsPerPage;
         int endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
-
+        TranslaterBuilder<RawTextBuilder> commandSentence = new TranslaterBuilder<>();
+        commandSentence.setTranslate("§6/%%s:§f %%s\n");
         for (int i = startIndex; i < endIndex; i++) {
             String commandName = commandSending.toArray(new String[0])[i];
             Command command = Server.getInstance().getCommandMap().getCommand(commandName);
+            if (i == endIndex - 1)
+                commandSentence.setTranslate("§6/%%s:§f %%s");
             if (command != null) {
-                builder.append("§6/").append(commandName).append(":§f ").append(command.getDescription()).append("\n");
+                TranslaterBuilder<RawTextBuilder> clone = commandSentence.clone();
+                commands.add(clone.setWith(RawTextBuilder.create(new TextBuilder().setText(commandName), new TranslaterBuilder<>().setTranslate(command.getDescription()))));
             }
         }
-
         TranslaterBuilder<RawTextBuilder> translaterBuilder = new TranslaterBuilder<>();
-        translaterBuilder.setTranslate("§6-------------- §fHelp - %%s command(s) §7[%%s/%%s] §6--------------\n%%s");
-        translaterBuilder.setWith(new RawTextBuilder()
-                .add(new TextBuilder()
-                        .setText(Integer.toString(totalCommands)))
-                .add(new TextBuilder()
-                        .setText(Integer.toString(actualPage)))
-                .add(new TextBuilder()
-                        .setText(Integer.toString(totalPage)))
-                .add(new TextBuilder()
-                        .setText(builder.substring(0, builder.length() - 1)))
+        translaterBuilder.setTranslate("commands.help.header");
+        translaterBuilder.setWith(
+                RawTextBuilder.create(
+                new TextBuilder().setText(Integer.toString(totalCommands)),
+                new TextBuilder().setText(Integer.toString(actualPage)),
+                new TextBuilder().setText(Integer.toString(totalPage)),
+                commands)
         );
         sender.sendMessage(new RawTextBuilder().add(translaterBuilder));
     }

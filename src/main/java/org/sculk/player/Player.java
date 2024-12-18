@@ -111,7 +111,6 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
         String joinMessage = playerJoinEvent.getJoinMessage();
         if (!joinMessage.isEmpty()) {
             String defaultJoinMessage = this.getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(this.getName()));
-            System.out.println(defaultJoinMessage);
             Server.getInstance().broadcastMessage(TextFormat.YELLOW + defaultJoinMessage + TextFormat.RESET);
         }
     }

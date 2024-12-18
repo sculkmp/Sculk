@@ -49,15 +49,7 @@ public class TextBuilder implements IJsonText {
     public Object build(Language lang) {
         String baseText;
         HashMap<String, String> map = new HashMap<>();
-        baseText = lang.internalGet(text);
-        if (baseText == null)
-            baseText = text;
-        map.put(this.getName(), baseText);
+        map.put(this.getName(), text);
         return map;
-    }
-
-    @Override
-    public String toString() {
-        return this.text;
     }
 }

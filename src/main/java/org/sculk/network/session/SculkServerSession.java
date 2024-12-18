@@ -202,11 +202,12 @@ public class SculkServerSession extends BedrockServerSession {
     }
 
     public void onChatMessage(RawTextBuilder textBuilder) {
+        assert this.player != null;
         TextPacket packet = new TextPacket();
         packet.setXuid("");
         packet.setSourceName("");
         packet.setType(TextPacket.Type.JSON);
-        packet.setMessage(new Gson().toJson(textBuilder.build()));
+        packet.setMessage(new Gson().toJson(textBuilder.build(this.player.getLanguage())));
         this.sendPacket(packet);
     }
 

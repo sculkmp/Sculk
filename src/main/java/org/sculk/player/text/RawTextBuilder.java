@@ -29,6 +29,26 @@ public class RawTextBuilder implements IJsonText{
         build = new ArrayList<>();
     }
 
+    public static RawTextBuilder create() {
+        return new RawTextBuilder();
+    }
+
+    public static RawTextBuilder create(List<IJsonText> text) {
+        RawTextBuilder builder = new RawTextBuilder();
+        for (IJsonText iJsonText : text) {
+            builder.add(iJsonText);
+        }
+        return builder;
+    }
+
+    public static RawTextBuilder create(IJsonText... text) {
+        RawTextBuilder builder = new RawTextBuilder();
+        for (IJsonText iJsonText : text) {
+            builder.add(iJsonText);
+        }
+        return builder;
+    }
+
     @Override
     public String getName() {
         return "rawtext";

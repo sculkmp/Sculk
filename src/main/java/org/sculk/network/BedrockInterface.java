@@ -14,7 +14,9 @@ import io.netty.channel.unix.UnixChannelOption;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import org.cloudburstmc.netty.channel.raknet.RakChannelFactory;
+import org.cloudburstmc.netty.channel.raknet.RakServerChannel;
 import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption;
+import org.cloudburstmc.netty.handler.codec.raknet.server.RakServerRateLimiter;
 import org.cloudburstmc.protocol.bedrock.BedrockPeer;
 import org.cloudburstmc.protocol.bedrock.BedrockPong;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
@@ -23,8 +25,10 @@ import org.sculk.Server;
 import org.sculk.config.ServerPropertiesKeys;
 import org.sculk.network.broadcaster.StandardEntityEventBroadcaster;
 import org.sculk.network.broadcaster.StandardPacketBroadcaster;
+import org.sculk.network.channel.OfflineServerChannelInitializer;
 import org.sculk.network.handler.SessionStartPacketHandler;
 import org.sculk.network.protocol.ProtocolInfo;
+import org.sculk.network.query.QueryHandler;
 import org.sculk.network.server.SculkBedrockServerInitializer;
 import org.sculk.network.session.SculkServerSession;
 
@@ -33,6 +37,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -54,13 +59,15 @@ import java.util.concurrent.TimeUnit;
 public class BedrockInterface implements AdvancedSourceInterface {
 
     private final Server server;
-    private final List<Channel> serverChannels = new ObjectArrayList<>();
+    private final List<RakServerChannel> serverChannels = new ObjectArrayList<>();
     @Getter
     private final BedrockPong bedrockPong = new BedrockPong();
-    @Getter
     private final EventLoopGroup bossEventLoopGroup;
     @Getter
     private final EventLoopGroup workerEventLoopGroup;
+
+    @Getter
+    private final QueryHandler queryHandler;
 
     public BedrockInterface(Server server) throws Exception {
         String address = server.getProperties().get(ServerPropertiesKeys.SERVER_IP, "0.0.0.0");
@@ -69,12 +76,13 @@ public class BedrockInterface implements AdvancedSourceInterface {
         ThreadFactory workerFactory;
         ThreadFactory bossFactory;
         this.server = server;
+        this.queryHandler = new QueryHandler(server);
         EventLoops.ChannelType channelType = EventLoops.getChannelType();
         server.getLogger().info("Using {} channel implementation as default!", channelType.name());
         for (EventLoops.ChannelType type : EventLoops.ChannelType.values()) {
             server.getLogger().debug("Supported {} channels: {}", type.name(), type.isAvailable());
         }
-
+/*
         workerFactory = new ThreadFactoryBuilder()
                 .setNameFormat("Bedrock Listener - #%d")
                 .setPriority(5)
@@ -85,8 +93,9 @@ public class BedrockInterface implements AdvancedSourceInterface {
                 .setPriority(8)
                 .setDaemon(true)
                 .build();
-        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, workerFactory);
-        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, bossFactory);
+ */
+        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, Thread.ofVirtual().name("Bedrock Listner - #%d").factory());
+        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, Thread.ofVirtual().name("RakNet Listener - #%d").factory());
         boolean allowEpoll = Epoll.isAvailable();
         int bindCount = allowEpoll && EventLoops.getChannelType() != EventLoops.ChannelType.NIO
                 ? Runtime.getRuntime().availableProcessors() : 1;
@@ -94,11 +103,11 @@ public class BedrockInterface implements AdvancedSourceInterface {
             bootstrap = new ServerBootstrap()
                     .channelFactory(RakChannelFactory.server(EventLoops.getChannelType().getDatagramChannel()))
                     .group(this.bossEventLoopGroup, this.workerEventLoopGroup)
-                    // .option(CustomChannelOption.IP_DONT_FRAG, 2 /* IP_PMTUDISC_DO */)
-                    /*.option(RakChannelOption.RAK_GUID, server.getServerId().getMostSignificantBits())
+                    .option(RakChannelOption.RAK_GUID, server.getServerId().getMostSignificantBits())
                     .option(RakChannelOption.RAK_HANDLE_PING, true)
                     .childOption(RakChannelOption.RAK_SESSION_TIMEOUT, 10000L)
-                    .childOption(RakChannelOption.RAK_ORDERING_CHANNELS, 1)*/
+                    .childOption(RakChannelOption.RAK_ORDERING_CHANNELS, 1)
+                    .handler(new OfflineServerChannelInitializer(this, server))
                     .childHandler(new SculkBedrockServerInitializer(this, this.server));
             if (allowEpoll) {
                 bootstrap.option(UnixChannelOption.SO_REUSEPORT, true);
@@ -107,7 +116,7 @@ public class BedrockInterface implements AdvancedSourceInterface {
                     .bind(address, port)
                     .syncUninterruptibly();
             if (future.isSuccess()) {
-                this.serverChannels.add(future.awaitUninterruptibly().channel());
+                this.serverChannels.add((RakServerChannel) future.awaitUninterruptibly().channel());
             } else {
                 throw new IllegalStateException("Can not start server on " + address, future.cause());
             }
@@ -116,16 +125,32 @@ public class BedrockInterface implements AdvancedSourceInterface {
 
     @Override
     public void blockAddress(InetAddress address) {
-
+        for (RakServerChannel channel : this.serverChannels) {
+            channel.pipeline().get(RakServerRateLimiter.class).blockAddress(address, 3, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
     public void blockAddress(InetAddress address, long timeout, TimeUnit unit) {
+        for(RakServerChannel channel : this.serverChannels) {
+            channel.pipeline().get(RakServerRateLimiter.class).blockAddress(address, timeout, unit);
+        }
+    }
 
+    public boolean isAddressBlocked(InetAddress address) {
+        for(RakServerChannel channel : this.serverChannels) {
+            if(channel.pipeline().get(RakServerRateLimiter.class).isAddressBlocked(address)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void unblockAddress(InetAddress address) {
+        for(RakServerChannel channel : this.serverChannels) {
+            channel.pipeline().get(RakServerRateLimiter.class).unblockAddress(address);
+        }
 
     }
 

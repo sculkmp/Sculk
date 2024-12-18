@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * @author: SculkTeams
  * @link: http://www.sculkmp.org/
  */
-public class TranslaterBuilder<V> implements IJsonText {
+public class TranslaterBuilder<V> implements IJsonText, Cloneable {
 
     @Getter
     private String translate;
@@ -55,7 +55,7 @@ public class TranslaterBuilder<V> implements IJsonText {
     @Override
     public Object build() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put(this.getName(), this.translate);
+        map.put(this.getName(), Language.reformatConfigToMinecraft(this.translate));
         if (this.with != null) {
             Object with = this.with;
 
@@ -75,11 +75,10 @@ public class TranslaterBuilder<V> implements IJsonText {
 
         baseText = language.internalGet(this.translate);
         if (baseText == null)
-            baseText = this.translate;
+            baseText = Language.reformatConfigToMinecraft(this.translate);
         map.put(this.getName(), baseText);
         if (this.with != null) {
             Object with = this.with;
-
             if (with instanceof RawTextBuilder rawTextBuilder) {
                 with = rawTextBuilder.build(language);
             }
@@ -89,70 +88,12 @@ public class TranslaterBuilder<V> implements IJsonText {
     }
 
     @Override
-    public String toString() {
-        String data = translate;
-        if (this.with != null) {
-            List<Object> clone = getCloneOfWith();
-
-            if (clone != null) {
-                data = replaceStringPatterns(data, clone.iterator());
-                data = replaceIndexedPatterns(data, clone);
-            }
+    public TranslaterBuilder<V> clone() {
+        try {
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return (TranslaterBuilder) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
         }
-        return data;
-    }
-
-    private List<Object> getCloneOfWith() {
-        if (this.with instanceof ArrayList<?>) {
-            return new ArrayList<>((ArrayList<?>) this.with);
-        } else if (this.with instanceof RawTextBuilder) {
-            return new ArrayList<>(((RawTextBuilder) this.with).getBuild());
-        }
-        return null;
-    }
-
-    private String replaceIndexedPatterns(String data, List<Object> clone) {
-        Matcher matcher = PATTERN_INDEX.matcher(data);
-        StringBuilder result = new StringBuilder();
-        int lastEnd = 0;
-
-        while (matcher.find()) {
-            result.append(data, lastEnd, matcher.start());
-            String group = matcher.group();
-            int index;
-            try {
-                index = Integer.parseInt(group.substring(2, 3));
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            String replacer = safeGetAtIndex(clone, index - 1);
-            result.append(replacer);
-            lastEnd = matcher.end();
-        }
-        result.append(data.substring(lastEnd));
-        return result.toString();
-    }
-
-    private String replaceStringPatterns(String data, Iterator<Object> clone) {
-        Matcher matcher = PATTERN_STRING.matcher(data);
-        StringBuilder result = new StringBuilder();
-        int lastEnd = 0;
-
-        while (matcher.find()) {
-            result.append(data, lastEnd, matcher.start());
-            String replacer = clone.hasNext() ? clone.next().toString() : "";
-            result.append(replacer);
-            lastEnd = matcher.end();
-        }
-        result.append(data.substring(lastEnd));
-        return result.toString();
-    }
-
-    private String safeGetAtIndex(List<Object> list, int index) {
-        if (!list.isEmpty()) {
-            Object removed = list.get(index);
-            return removed != null ? removed.toString() : "";
-        }
-        return "";
     }
 }

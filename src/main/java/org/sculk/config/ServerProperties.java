@@ -36,6 +36,7 @@ public class ServerProperties {
         defaults.put(ServerPropertiesKeys.SPAWN_MONSTERS.toString(), "on");
         defaults.put(ServerPropertiesKeys.AUTO_SAVE.toString(), "on");
         defaults.put(ServerPropertiesKeys.XBOX_AUTH.toString(), "on");
+        defaults.put(ServerPropertiesKeys.QUERY.toString(), "false");
         defaults.put(ServerPropertiesKeys.FORCE_RESOURCE_PACKS.toString(), "off");
         return defaults;
     }
