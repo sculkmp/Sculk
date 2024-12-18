@@ -3,8 +3,8 @@
 <h4>Open source server software for Minecraft: Bedrock Edition written in Java</h4>
 
 [![SculkVersion](https://img.shields.io/badge/version-soon-14191E.svg?cacheSeconds=2592000)]()
-[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.21%20(Bedrock)-17272F)]()
-[![ProtocolVersion](https://img.shields.io/badge/protocol-712-38D3DF)]()
+[![MinecraftVersion](https://img.shields.io/badge/minecraft-v1.21.51%20(Bedrock)-17272F)]()
+[![ProtocolVersion](https://img.shields.io/badge/protocol-766-38D3DF)]()
 [![Github Download](https://img.shields.io/github/downloads/sculkmp/Sculk/total?label=downloads%40total)]()
 [![License](https://img.shields.io/badge/License-LGPL--3-yellow.svg)]()
 [![JitPack](https://jitpack.io/v/sculkmp/Sculk.svg)]()
@@ -12,16 +12,19 @@
 </div>
 
 ## 📖 Introduction
-Sculk is open source server software for Minecraft: Bedrock Edition, It has a few key advantages over other server software:
 
-## 🎯 Features
-* Written in Java, Sculk is faster and more stable.
-* We provided a high-level friendly API akin PocketMine plugin developers. Save yourself the hassle of dealing with the dot-and-cross of the low-level system API and hooks, we've done the difficult part for you!
+Sculk is a high-performance server software for Minecraft: Bedrock Edition, written entirely in Java. It aims to provide a robust and feature-rich alternative to existing server implementations, with a focus on scalability and ease of use.
 
-## ✨ Creating plugins
-Add Sculk to your dependencies *(it is hosted by JitPack, so you need to specify a custom repository)*.
+> [!WARNING]
+> Sculk is currently under development and is not yet ready for production use. We are actively working on implementing core features and improving stability. If you would like to contribute to the project, please see the [Contributing](#-contributing) section below.
 
-For maven:
+## ✏️ Getting Started
+
+To start using **Sculk**, add it to your project dependencies. Since **Sculk** is hosted on JitPack, you need to add the JitPack repository to your build configuration.
+
+### Maven
+Add the following to your `pom.xml` file:
+
 ```xml
 <repositories>
     <repository>
@@ -37,7 +40,10 @@ For maven:
     </dependency>
 </dependencies>
 ```
-For gradle:
+
+### Gradle
+Add the following to your `build.gradle` file:
+
 ```groovy
 repositories {
     mavenCentral()
@@ -48,55 +54,56 @@ dependencies {
 }
 ```
 
-| Milestone                                | Status |
-|------------------------------------------|--------|
-| **⚒️ Construction of the server tree**   | ✅      |
-| **👓 Visible server**                    | ✅      |
-| **🛜 Join server**                       | ✅      |
-| **🎍 World loader**                      | 🚧     |
-| **🔌Plugin loader**                      | ✅      |
-| **⌨️ Command System**                    | ⏳     |
-| **🔐 Permission System**                 | ⏳     |
-| **🎈 Event System**                      | ⏳      |
-| **🖼 Scoreboard API**                    | 🚧     |
-| **🖼 Form API**                          | ✅      |
-| **👤 Player & Actor API**                | ⏳      |
-| **🔩 Item API**                          | 🚧     |
-| **🧱 Block API**                         | 🚧     |
-| **📦 Inventory API**                     | 🚧     |
-| **🔬 Beta Testing & Community Feedback** | 🚧     |
-| **🚀 Official Release & Support**        | 🚧     |
+## 🚀 Project Milestones
 
-Here's a legend to guide you:
-- ✅: Task is completed. Woohoo! 🎉
-- 🚧: Task is under way. We're on it! 💪
-- ⏳: Task is up next. Exciting things are coming! 🌠
+| Milestone                                | Status  |
+|------------------------------------------|---------|
+| **⚒️ Server Tree Construction**          | ✅ Completed |
+| **👓 Visible Server**                    | ✅ Completed |
+| **🛜 Server Joining**                    | ✅ Completed |
+| **🎍 World Loader**                      | 🚧 In Progress |
+| **🔌 Plugin Loader**                     | ✅ Completed |
+| **⌨️ Command System**                    | ⏳ Up Next |
+| **🔐 Permission System**                 | ⏳ Up Next |
+| **🎈 Event System**                      | ⏳ Up Next |
+| **🖼 Scoreboard API**                    | 🚧 In Progress |
+| **🖼 Form API**                          | ✅ Completed |
+| **👤 Player & Actor API**                | ⏳ Up Next |
+| **🔩 Item API**                          | 🚧 In Progress |
+| **🧱 Block API**                         | 🚧 In Progress |
+| **📦 Inventory API**                     | 🚧 In Progress |
+| **🔬 Beta Testing & Community Feedback** | 🚧 In Progress |
+| **🚀 Official Release & Support**        | 🚧 In Progress |
 
-## ⚒️ Build JAR file
-- `git clone https://github.com/sculkmp/Sculk`
-- `cd Sculk`
-- `git submodule update --init`
-- `mvn clean package`
-The compiled JAR can be found in the `target/` directory.
+
+## ⚒️ Build JAR file from source
+1. `git clone https://github.com/sculkmp/Sculk`
+2. `cd Sculk`
+3. `git submodule update --init`
+4. `mvn clean package`
+
+- ✅ The compiled JAR can be found in the `target/` directory.
 
 ## 🚀 Running
-Simply run `java -jar Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar`
+To run the compiled JAR file, use the following command:
+```bash
+java -jar Sculk-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
 
 ## 🙌 Contributing
 We warmly welcome contributions to the Sculk project! If you are excited about improving Minecraft 
 Bedrock server software with Java, here are some ways you can contribute:
 
-### Reporting bugs
-If you encounter any bugs while using Sculk, please open an [issue](https://github.com/sculkmp/Sculk/issues) in
-our GitHub repository. Ensure to include a detailed description of the bug and steps to reproduce it.
-
-### Submitting a Pull Request
-We appreciate code contributions. If you've fixed a bug or implemented a new feature, please submit a pull request!
-Please ensure your code follows our coding standards and include tests where possible.
+![contributors](https://contrib.rocks/image?repo=sculkmp/Sculk)
 
 ## 📌 Licensing information
 This project is licensed under LGPL-3.0. Please see the [LICENSE](/LICENSE) file for details.
 
-`sculkmp/Sculk` are not affiliated with Mojang. 
-All brands and trademarks belong to their respective owners. Sculk is not a Mojang-approved software, 
-nor is it associated with Mojang.
+---
+
+> [!CAUTION]
+> `sculkmp/Sculk` are not affiliated with Mojang.
+> All brands and trademarks belong to their respective owners. Sculk is not a Mojang-approved software,  
+> nor is it associated with Mojang.  
+> It is always possible to use the Bedrock Dedicated Server with this link:
+> [Bedrock Server](https://www.minecraft.net/en-us/download/server/bedrock)
