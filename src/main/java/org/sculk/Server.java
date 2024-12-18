@@ -122,6 +122,7 @@ public class Server {
         //Language manager
         this.localManager = localManager;
         this.language = localManager.getLanguage(this.properties.get(ServerPropertiesKeys.LANGUAGE, DEFAULT_LANGUAGE));
+        System.out.println(this.properties.get(ServerPropertiesKeys.LANGUAGE, DEFAULT_LANGUAGE));
         this.logger.info(this.language.translate(LanguageKeys.SCULK_SERVER_SELECTED_LANGUAGE, List.of(TextFormat.DARK_AQUA + this.language.getName() + TextFormat.RESET)));
 
         //Load server properties
@@ -130,7 +131,6 @@ public class Server {
         this.motd = this.properties.get(ServerPropertiesKeys.MOTD, "A Sculk Server Software");
         this.submotd = this.properties.get(ServerPropertiesKeys.SUB_MOTD, "Powered by Sculk");
         this.maxPlayers = this.properties.get(ServerPropertiesKeys.MAX_PLAYERS, 20);
-        System.out.println(this.properties.getProperties());
         this.query = this.properties.get(ServerPropertiesKeys.QUERY, false);
 
         this.operators = new SculkOperators();

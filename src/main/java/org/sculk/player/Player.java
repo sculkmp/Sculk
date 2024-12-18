@@ -309,7 +309,7 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
             if (!playerChatEvent.isCancelled()) {
                 // TODO please change for use this.messageCount
                 String messageFormat = playerChatEvent.getChatFormatter().format(this.getName(), message);
-                this.getNetworkSession().onChatMessage(messageFormat);
+                Server.getInstance().broadcastMessage(messageFormat);
                 this.getServer().getLogger().info(messageFormat);
             }
         }

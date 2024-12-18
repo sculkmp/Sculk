@@ -56,7 +56,6 @@ public class SculkServerSession extends BedrockServerSession {
         this.broadcaster = broadcaster;
         this.entityEventBroadcaster = entityEventBroadcaster;
         this.bedrockInterface = bedrockInterface;
-
         this.setPacketHandler(new SessionStartPacketHandler(this, this::onSessionStartSuccess));
     }
 

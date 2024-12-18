@@ -31,6 +31,7 @@ public class SculkBedrockServerInitializer extends BedrockServerInitializer {
     protected void initSession(BedrockServerSession bedrockServerSession) {
         bedrockServerSession.setCodec(ProtocolInfo.CODEC);
         bedrockServerSession.setLogging(false);
+        System.out.println("Session Connected!");
     }
 
     @Override

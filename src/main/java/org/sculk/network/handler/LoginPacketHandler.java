@@ -48,7 +48,7 @@ public class LoginPacketHandler extends SculkPacketHandler {
     @Override
     public PacketSignal handle(LoginPacket packet) {
         ClientChainData clientChainData = ClientChainData.read(packet);
-        if(!clientChainData.isXboxAuthed()) {
+        if(this.session.getServer().isXboxAuth() && !clientChainData.isXboxAuthed()) {
             session.disconnect("disconnectionScreen.notAuthenticated");
             return PacketSignal.HANDLED;
         }

@@ -82,7 +82,7 @@ public class BedrockInterface implements AdvancedSourceInterface {
         for (EventLoops.ChannelType type : EventLoops.ChannelType.values()) {
             server.getLogger().debug("Supported {} channels: {}", type.name(), type.isAvailable());
         }
-/*
+
         workerFactory = new ThreadFactoryBuilder()
                 .setNameFormat("Bedrock Listener - #%d")
                 .setPriority(5)
@@ -93,9 +93,9 @@ public class BedrockInterface implements AdvancedSourceInterface {
                 .setPriority(8)
                 .setDaemon(true)
                 .build();
- */
-        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, Thread.ofVirtual().name("Bedrock Listner - #%d").factory());
-        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, Thread.ofVirtual().name("RakNet Listener - #%d").factory());
+
+        this.workerEventLoopGroup = channelType.newEventLoopGroup(0, workerFactory);
+        this.bossEventLoopGroup = channelType.newEventLoopGroup(0, bossFactory);
         boolean allowEpoll = Epoll.isAvailable();
         int bindCount = allowEpoll && EventLoops.getChannelType() != EventLoops.ChannelType.NIO
                 ? Runtime.getRuntime().availableProcessors() : 1;
