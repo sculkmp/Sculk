@@ -3,11 +3,9 @@ package org.sculk.network.handler;
 
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket;
-import org.cloudburstmc.protocol.bedrock.packet.TextPacket;
 import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
 import org.sculk.network.session.SculkServerSession;
-import org.sculk.utils.TextFormat;
 
 import java.util.function.Consumer;
 

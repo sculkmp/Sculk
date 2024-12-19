@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.DisconnectFailReason;
-import org.cloudburstmc.protocol.bedrock.data.command.*;
+import org.cloudburstmc.protocol.bedrock.data.command.CommandData;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.data.skin.SerializedSkin;
 import org.cloudburstmc.protocol.bedrock.packet.*;
-import org.cloudburstmc.protocol.common.PacketSignal;
 import org.sculk.Server;
 import org.sculk.command.Command;
 import org.sculk.command.CommandSender;
@@ -23,20 +22,23 @@ import org.sculk.entity.HumanEntity;
 import org.sculk.entity.data.SyncedEntityData;
 import org.sculk.event.player.PlayerChangeSkinEvent;
 import org.sculk.event.player.PlayerChatEvent;
+import org.sculk.event.player.PlayerJoinEvent;
 import org.sculk.form.Form;
 import org.sculk.lang.Language;
+import org.sculk.lang.LanguageKeys;
 import org.sculk.lang.Translatable;
-import org.sculk.network.handler.PlayerSkinHandler;
 import org.sculk.network.session.SculkServerSession;
 import org.sculk.player.chat.StandardChatFormatter;
 import org.sculk.player.client.ClientChainData;
 import org.sculk.player.client.LoginChainData;
 import org.sculk.player.skin.Skin;
 import org.sculk.player.text.RawTextBuilder;
-import org.sculk.utils.SkinUtils;
+import org.sculk.utils.TextFormat;
 
-import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -100,6 +102,17 @@ public class Player extends HumanEntity implements PlayerInterface, CommandSende
     @Override
     public void initEntity() {
         super.initEntity();
+    }
+
+    public void doFirstSpawn() {
+        PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(this, this.getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(this.getName())));
+        playerJoinEvent.call();
+        String joinMessage = playerJoinEvent.getJoinMessage();
+        if (!joinMessage.isEmpty()) {
+            String defaultJoinMessage = this.getLanguage().translate(LanguageKeys.MINECRAFT_PLAYER_JOIN, List.of(this.getName()));
+            System.out.println(defaultJoinMessage);
+            Server.getInstance().broadcastMessage(TextFormat.YELLOW + defaultJoinMessage + TextFormat.RESET);
+        }
     }
 
     /**

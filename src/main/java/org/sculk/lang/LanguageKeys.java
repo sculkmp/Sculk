@@ -23,7 +23,9 @@ public enum LanguageKeys {
     SCULK_PLUGINS_DISABLED("sculk.plugins.disabled"),
     SCULK_NETWORK_INTERFACES_STOPPING("sculk.network.interfaces.stopping"),
     SCULK_CONSOLE_CLOSING("sculk.console.closing"),
-    SCULK_THREADS_STOPPING("sculk.threads.stopping");
+    SCULK_THREADS_STOPPING("sculk.threads.stopping"),
+
+    MINECRAFT_PLAYER_JOIN("multiplayer.player.joined");
 
     private final String key;
 
